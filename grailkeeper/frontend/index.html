@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grailkeeper</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#07070D;--s1:#0F0F1A;--s2:#14141F;--bd:#1e1e2e;--ac:#00D4FF;--ac2:#7C3AED;--ac3:#10B981;--warn:#F59E0B;--err:#EF4444;--tx:#E2E8F0;--td:#64748B;--tm:#334155;--fn:'JetBrains Mono',monospace;--fd:'Syne',sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--tx);font-family:var(--fn);font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden;}
+header{display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:50px;background:var(--s1);border-bottom:1px solid var(--bd);flex-shrink:0;}
+.logo{font-family:var(--fd);font-size:18px;font-weight:800;display:flex;align-items:center;gap:10px;}
+.logo-g{color:var(--ac);}.logo-k{color:var(--td);}
+.badge{font-size:9px;background:var(--ac2);color:#fff;padding:2px 7px;border-radius:3px;letter-spacing:1px;font-family:var(--fn);}
+.hs{display:flex;align-items:center;gap:14px;font-size:11px;color:var(--td);}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--tm);display:inline-block;margin-right:5px;}
+.dot.ok{background:var(--ac3);box-shadow:0 0 6px var(--ac3);}.dot.er{background:var(--err);}
+.layout{display:grid;grid-template-columns:210px 1fr;flex:1;min-height:0;}
+.sidebar{background:var(--s1);border-right:1px solid var(--bd);display:flex;flex-direction:column;overflow-y:auto;}
+.sg{padding:12px 10px 6px;}
+.sl{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);font-weight:600;padding:0 4px;margin-bottom:6px;}
+button.sb{display:flex;align-items:center;gap:9px;width:100%;padding:8px 8px;border:none;background:transparent;color:var(--td);font-family:var(--fn);font-size:11px;cursor:pointer;border-radius:4px;text-align:left;transition:all .15s;margin-bottom:2px;}
+button.sb:hover{background:var(--s2);color:var(--tx);}
+button.sb.on{background:rgba(0,212,255,.08);color:var(--ac);border-left:2px solid var(--ac);padding-left:6px;}
+button.sb .sbi{font-size:14px;width:18px;text-align:center;}
+hr.sd{border:none;border-top:1px solid var(--bd);margin:6px 10px;}
+.qq{font-size:10px;padding:5px 8px;color:var(--tm);cursor:pointer;border-radius:3px;margin-bottom:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.qq:hover{background:var(--s2);color:var(--ac);}
+.main{display:flex;flex-direction:column;overflow:hidden;height:100%;}
+.panel{display:none;flex:1;flex-direction:column;overflow:hidden;height:100%;}
+.panel.on{display:flex;}
+input,select,textarea{background:var(--bg);border:1px solid var(--bd);color:var(--tx);font-family:var(--fn);font-size:11px;padding:5px 8px;border-radius:4px;outline:none;width:100%;}
+input:focus,select:focus,textarea:focus{border-color:var(--ac);}
+select option{background:var(--s1);}
+input[type=checkbox]{width:auto;accent-color:var(--ac);cursor:pointer;}
+input[type=file]{padding:4px 6px;color:var(--td);}
+input[type=range]{padding:0;accent-color:var(--ac);}
+.btn{padding:6px 14px;border:none;border-radius:4px;font-family:var(--fn);font-size:11px;font-weight:500;cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;gap:5px;white-space:nowrap;}
+.bp{background:var(--ac);color:#000;}.bp:hover{background:#00b8d9;}
+.bp2{background:var(--ac3);color:#000;}.bp2:hover{background:#0ea572;}
+.bs{background:var(--s2);color:var(--tx);border:1px solid var(--bd);}.bs:hover{border-color:var(--ac);color:var(--ac);}
+.bst{background:var(--err);color:#fff;}.bw{background:var(--warn);color:#000;}
+.sm{padding:4px 9px;font-size:10px;}
+.ptb{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--bd);background:var(--s1);flex-shrink:0;}
+.ptt{font-family:var(--fd);font-size:15px;font-weight:700;}
+.ptd{font-size:10px;color:var(--td);margin-top:2px;}
+.scrl{flex:1;overflow-y:auto;padding:16px;}
+.fg{display:flex;flex-direction:column;gap:4px;}
+.fl{font-size:9px;letter-spacing:1px;text-transform:uppercase;color:var(--tm);font-weight:600;}
+.flg{color:var(--tm);font-weight:400;font-size:8px;margin-left:3px;}
+.ck{display:flex;align-items:center;font-size:10px;color:var(--td);cursor:pointer;gap:5px;padding:3px 0;}
+.ck:hover{color:var(--tx);}
+.card{background:var(--s2);border:1px solid var(--bd);border-radius:6px;padding:14px;margin-bottom:12px;}
+.card-title{font-size:11px;font-weight:600;color:var(--tx);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.card-title span{color:var(--ac);}
+.infobox{padding:10px 14px;background:rgba(0,212,255,.06);border:1px solid rgba(0,212,255,.2);border-radius:5px;font-size:11px;color:#7dd3fc;line-height:1.6;margin-bottom:12px;}
+.warnbox{padding:10px 14px;background:rgba(245,158,11,.06);border:1px solid rgba(245,158,11,.2);border-radius:5px;font-size:11px;color:var(--warn);line-height:1.6;margin-bottom:12px;}
+.ebox{padding:10px 14px;background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.3);border-radius:5px;color:var(--err);font-size:11px;white-space:pre-wrap;margin-bottom:12px;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;}
+.sp{width:14px;height:14px;border:2px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.ldr{display:flex;align-items:center;justify-content:center;height:100px;gap:10px;color:var(--td);}
+.es{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100px;color:var(--tm);gap:6px;font-size:12px;}
+/* Query panel */
+.qtop{background:var(--s1);border-bottom:1px solid var(--bd);overflow-y:auto;max-height:420px;flex-shrink:0;}
+.qe{padding:10px 14px 0;}
+.dql{width:100%;height:64px;resize:vertical;font-size:12px;line-height:1.5;color:var(--ac);}
+.ps{padding:8px 14px 10px;}
+.ph{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.pt{font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);font-weight:600;}
+.pg{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.adv{display:none;border-top:1px solid var(--bd);padding:8px 14px 10px;background:rgba(0,0,0,.2);}
+.adv.on{display:block;}
+.ag{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;}
+.asl{grid-column:1/-1;font-size:8px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);font-weight:600;margin-top:6px;padding-bottom:3px;border-bottom:1px solid var(--bd);}
+.arow{display:flex;align-items:center;gap:8px;padding:7px 14px;border-bottom:1px solid var(--bd);background:rgba(0,0,0,.25);flex-shrink:0;flex-wrap:wrap;}
+.cprev{flex:1;font-size:10px;color:var(--tm);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0;}
+.cprev span{color:var(--ac3);}
+.ra{flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+.rtb{display:flex;align-items:center;justify-content:space-between;padding:6px 14px;background:var(--s2);border-bottom:1px solid var(--bd);flex-shrink:0;}
+.rm{font-size:10px;color:var(--td);display:flex;gap:12px;}
+.mv{color:var(--ac);font-weight:600;}
+.ract{display:flex;gap:6px;align-items:center;}
+.rcont{flex:1;overflow:auto;}
+.emenu{position:relative;}
+.edrop{display:none;position:absolute;right:0;top:100%;margin-top:3px;background:var(--s2);border:1px solid var(--bd);border-radius:5px;min-width:190px;z-index:200;overflow:hidden;}
+.edrop.on{display:block;}
+.ei{padding:9px 12px;font-size:11px;cursor:pointer;color:var(--td);border-bottom:1px solid var(--bd);}
+.ei:last-child{border-bottom:none;}.ei:hover{background:var(--bg);color:var(--ac);}
+.eid{font-size:9px;color:var(--tm);margin-top:1px;}
+.dbanner{display:none;margin:6px 14px 0;padding:9px 12px;background:rgba(16,185,129,.08);border:1px solid rgba(16,185,129,.3);border-radius:5px;font-size:11px;color:var(--ac3);align-items:center;justify-content:space-between;gap:10px;}
+.dbanner.on{display:flex;}
+.wbox{margin:6px 14px 0;padding:7px 10px;background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.3);border-radius:4px;color:var(--warn);font-size:10px;}
+.cons{flex-shrink:0;border-top:1px solid var(--bd);background:#050508;display:flex;flex-direction:column;transition:height .15s;}
+.cons.cl{height:30px;overflow:hidden;}.cons.ex{height:180px;}
+.ch{display:flex;align-items:center;justify-content:space-between;padding:0 10px;height:30px;cursor:pointer;user-select:none;flex-shrink:0;}
+.ct{font-size:9px;letter-spacing:1.5px;text-transform:uppercase;color:var(--tm);font-weight:600;display:flex;align-items:center;gap:6px;}
+.cdot{width:5px;height:5px;border-radius:50%;background:var(--tm);}
+.cdot.run{background:var(--ac3);animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+.cb{flex:1;overflow-y:auto;padding:6px 10px;font-size:10px;line-height:1.6;}
+.cln{margin-bottom:1px;white-space:pre-wrap;word-break:break-all;}
+.cln.so{color:#94a3b8;}.cln.se{color:var(--warn);}.cln.inf{color:var(--ac);font-style:italic;}.cln.ok{color:var(--ac3);}.cln.er2{color:var(--err);}
+.rt{width:100%;border-collapse:collapse;font-size:11px;}
+.rt th{background:var(--s2);color:var(--td);font-size:9px;letter-spacing:1px;text-transform:uppercase;padding:6px 10px;text-align:left;position:sticky;top:0;border-bottom:1px solid var(--bd);white-space:nowrap;}
+.rt td{padding:6px 10px;border-bottom:1px solid var(--bd);max-width:350px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.rt tr:hover td{background:rgba(255,255,255,.02);}
+pre.raw{padding:12px;font-size:11px;line-height:1.6;color:var(--td);white-space:pre-wrap;word-break:break-all;}
+/* Extract */
+.pgbar-wrap{background:var(--bd);border-radius:3px;height:6px;overflow:hidden;}
+.pgbar{height:100%;background:var(--ac);border-radius:3px;width:0%;transition:width .3s;}
+.statbox{background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:8px 10px;}
+.statbox .slbl{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;}
+.statbox .sval{font-size:16px;font-weight:600;margin-top:2px;}
+.exlog{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:10px;font-size:10px;line-height:1.7;color:var(--td);max-height:260px;overflow-y:auto;font-family:var(--fn);}
+/* Files */
+.frow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bd);gap:10px;}
+.frow:hover{background:var(--s2);}
+.fn2{font-size:12px;color:var(--tx);font-weight:500;}
+.fm{font-size:9px;color:var(--tm);margin-top:2px;}
+.fpanel{border-top:1px solid var(--bd);flex-shrink:0;display:none;flex-direction:column;}
+.fpanel.on{display:flex;height:240px;}
+.fph{display:flex;align-items:center;justify-content:space-between;padding:6px 12px;background:var(--s2);border-bottom:1px solid var(--bd);flex-shrink:0;}
+pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:var(--td);white-space:pre-wrap;word-break:break-all;margin:0;}
+/* Ingest */
+.istat{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.ilog{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:8px 10px;font-size:10px;line-height:1.7;color:var(--td);height:200px;overflow-y:auto;font-family:var(--fn);}
+.modebtn{padding:6px 12px;border:1px solid var(--bd);border-radius:4px;background:var(--bg);color:var(--td);font-family:var(--fn);font-size:10px;cursor:pointer;transition:all .15s;}
+.modebtn.on{background:rgba(0,212,255,.1);border-color:var(--ac);color:var(--ac);}
+.modebtn:hover{border-color:var(--ac);color:var(--ac);}
+.attr-row{display:flex;gap:6px;align-items:center;margin-bottom:5px;}
+.attr-row input{font-size:10px;padding:4px 7px;}
+.tc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:6px;z-index:9999;}
+.ts{padding:9px 14px;border-radius:5px;font-size:11px;background:var(--s2);border:1px solid var(--bd);color:var(--tx);animation:si .2s ease;max-width:300px;}
+.ts.ok{border-color:var(--ac3);color:var(--ac3);}.ts.er{border-color:var(--err);color:var(--err);}
+@keyframes si{from{transform:translateX(16px);opacity:0;}to{transform:translateX(0);opacity:1;}}
+::-webkit-scrollbar{width:5px;height:5px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--bd);border-radius:3px;}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">
+    <span><span class="logo-g">Grail</span><span class="logo-k">keeper</span></span>
+    <span class="badge">DYNATRACE</span>
+  </div>
+  <div class="hs">
+    <span><span class="dot" id="sdot"></span><span id="stxt">checking...</span></span>
+    <span id="senv" style="color:var(--tm);font-size:10px"></span>
+  </div>
+</header>
+<div class="layout">
+<aside class="sidebar">
+  <div class="sg">
+    <div class="sl">Navigation</div>
+    <button class="sb on" onclick="showTab('query')" id="nb-query"><span class="sbi">⚡</span> Query</button>
+    <button class="sb" onclick="showTab('extract')" id="nb-extract"><span class="sbi">⛏</span> Extract</button>
+    <button class="sb" onclick="showTab('ingest')" id="nb-ingest"><span class="sbi">📥</span> Ingest</button>
+    <button class="sb" onclick="showTab('files')" id="nb-files"><span class="sbi">📁</span> Files</button>
+  </div>
+  <hr class="sd">
+  <div class="sg">
+    <div class="sl">History</div>
+    <button class="sb" onclick="showTab('history')" id="nb-history"><span class="sbi">📜</span> Query History</button>
+  </div>
+  <hr class="sd">
+  <div class="sg">
+    <div class="sl">Settings</div>
+    <button class="sb" onclick="showTab('config')" id="nb-config"><span class="sbi">🔑</span> Configure</button>
+  </div>
+</aside>
+<main class="main">
+
+<!-- QUERY -->
+<div class="panel on" id="p-query">
+  <div style="display:flex;flex-direction:column;height:100%;overflow:hidden;">
+    <div class="qtop">
+      <div class="qe">
+        <div class="fl">DQL Query <span style="color:var(--tm);font-size:8px">Ctrl+Enter to run</span></div>
+        <textarea class="dql" id="dql" spellcheck="false" placeholder="fetch logs, scanLimitGBytes:-1 | limit 50000000" oninput="updCmd()"></textarea>
+      </div>
+      <div class="ps">
+        <div class="ph"><span class="pt">Parameters</span><button class="bs sm btn" onclick="toggleAdv()" id="advbtn">Advanced</button></div>
+        <div class="pg">
+          <div class="fg"><div class="fl">From</div><input type="text" id="qfrom" value="-2h" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">To</div><input type="text" id="qto" value="now()" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">Max Records</div><input type="number" id="qmax" value="1000" min="1" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">Output</div>
+            <select id="qfmt" onchange="updCmd()">
+              <option value="json">json</option><option value="csv">csv</option>
+              <option value="yaml">yaml</option><option value="table">table</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="adv" id="adv">
+        <div class="ag">
+          <div class="asl">Data Volume</div>
+          <div class="fg"><div class="fl">Scan Limit GB</div><input type="number" id="qsl" value="-1" step="0.5" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">Max Bytes</div><input type="number" id="qmb" placeholder="e.g. 104857600" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">Sampling</div><input type="number" id="qsr" placeholder="e.g. 10" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">Fetch Timeout sec</div><input type="number" id="qft" value="600" oninput="updCmd()"></div>
+          <div class="asl">Locale</div>
+          <div class="fg"><div class="fl">Timezone</div><input type="text" id="qtz" placeholder="e.g. Europe/Rome" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">Locale</div><input type="text" id="qlc" placeholder="e.g. it_IT" oninput="updCmd()"></div>
+          <div class="fg"><div class="fl">Max Field Len</div><input type="number" id="qmfl" placeholder="e.g. 500" oninput="updCmd()"></div>
+          <div class="fg" style="padding-top:16px;"><label class="ck"><input type="checkbox" id="qit" onchange="updCmd()"> --include-types</label></div>
+          <div class="asl">Execution</div>
+          <div class="fg"><label class="ck"><input type="checkbox" id="qep" onchange="updCmd()"> --enable-preview</label></div>
+          <div class="fg"><label class="ck"><input type="checkbox" id="qfw" onchange="updCmd()"> --fail-on-warn</label></div>
+          <div class="fg"><label class="ck"><input type="checkbox" id="qnw" onchange="updCmd()"> --no-warnings</label></div>
+          <div class="fg"><label class="ck"><input type="checkbox" id="qpl" onchange="updCmd()"> --plain</label></div>
+          <div class="asl">Debug</div>
+          <div class="fg"><label class="ck"><input type="checkbox" id="qv" onchange="updCmd()"> -v HTTP info</label></div>
+          <div class="fg"><label class="ck"><input type="checkbox" id="qvv" onchange="updCmd()"> -vv full debug</label></div>
+        </div>
+      </div>
+    </div>
+    <div class="arow">
+      <div class="cprev" id="cprev">$ <span>dtctl query ...</span></div>
+      <button class="bs sm btn" onclick="copyCmd()">Copy</button>
+      <button class="bs sm btn" id="consbtn" onclick="toggleCons()">Logs</button>
+      <label class="ck" style="white-space:nowrap;font-size:10px;margin:0;"><input type="checkbox" id="wtd" onchange="updDisk()"> Disk</label>
+      <input type="text" id="dfn" placeholder="output.json" style="display:none;width:130px;font-size:10px;padding:4px 7px;">
+      <button class="bs sm btn" onclick="clearAll()">Clear</button>
+      <button class="bst sm btn" id="stopbtn" style="display:none" onclick="stopQ()">Stop</button>
+      <button class="bp btn" id="runbtn" onclick="runQ()">Run</button>
+    </div>
+    <div class="ra">
+      <div class="rtb">
+        <div class="rm">
+          <span>Records: <span class="mv" id="rcnt">-</span></span>
+          <span>Time: <span class="mv" id="rtm">-</span></span>
+          <span id="wlbl" style="color:var(--warn);display:none">warnings</span>
+        </div>
+        <div class="ract">
+          <button class="bs sm btn" onclick="toggleView()" id="vtgl">Table</button>
+          <div class="emenu">
+            <button class="bs sm btn" onclick="toggleExp()">Export</button>
+            <div class="edrop" id="edrop">
+              <div class="ei" onclick="doExp('full')">Full CSV<div class="eid">All fields + content</div></div>
+              <div class="ei" onclick="doExp('content')">Content only<div class="eid">Raw log lines .log</div></div>
+              <div class="ei" onclick="doExp('raw')">Raw output<div class="eid">Original dtctl format</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div id="wbc"></div>
+      <div class="dbanner" id="dbanner"></div>
+      <div class="rcont" id="rcont"><div class="es"><span>Run a DQL query to see results</span></div></div>
+    </div>
+    <div class="cons cl" id="cons">
+      <div class="ch" onclick="toggleCons()">
+        <div class="ct"><span class="cdot" id="cdot"></span>dtctl console<span id="ccnt" style="color:var(--tm);font-size:8px;margin-left:4px;"></span></div>
+        <div style="display:flex;gap:6px;">
+          <button style="font-size:9px;color:var(--tm);cursor:pointer;background:none;border:none;font-family:var(--fn);" onclick="event.stopPropagation();clearCons()">clear</button>
+          <span id="carr" style="font-size:10px;color:var(--tm)">^</span>
+        </div>
+      </div>
+      <div class="cb" id="cbody"></div>
+    </div>
+  </div>
+</div>
+
+<!-- EXTRACT -->
+<div class="panel" id="p-extract">
+  <div class="ptb"><span class="ptt">⛏ Chunked Extraction</span></div>
+  <div class="scrl">
+    <div class="infobox">Splits a date range into hourly chunks. Each chunk runs one dtctl query and appends to a single JSONL file. Safe for tenants with millions of records. Resume supported — stops and restarts with the same filename continue from the last record.</div>
+    <div class="card">
+      <div class="card-title"><span>◆</span> Query</div>
+      <div class="fg"><div class="fl">DQL <span class="flg">(timeframe injected automatically per chunk)</span></div>
+        <textarea id="ex-dql" style="height:52px;font-size:12px;color:var(--ac);resize:vertical;" spellcheck="false">fetch logs, scanLimitGBytes:-1 | limit 50000000</textarea>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>◆</span> Date Range</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
+        <span style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;">Quick:</span>
+        <button class="bs sm btn" onclick="setRange(7)">7d</button>
+        <button class="bs sm btn" onclick="setRange(30)">30d</button>
+        <button class="bs sm btn" onclick="setRange(90)">90d</button>
+        <button class="bs sm btn" onclick="setRange(180)">180d</button>
+        <button class="bs sm btn" onclick="setRange(365)">365d</button>
+        <button class="bs sm btn" onclick="setRange(300)">300d</button>
+      </div>
+      <div class="grid4">
+        <div class="fg"><div class="fl">Start Date</div><input type="date" id="ex-start-date" onchange="syncDates()"><div style="font-size:9px;color:var(--tm);margin-top:2px;" id="ex-start-iso"></div></div>
+        <div class="fg"><div class="fl">End Date</div><input type="date" id="ex-end-date" onchange="syncDates()"><div style="font-size:9px;color:var(--tm);margin-top:2px;" id="ex-end-iso"></div></div>
+        <div class="fg"><div class="fl">Chunk Size (hours)</div><input type="number" id="ex-chunk" value="6" min="1" max="168"></div>
+        <div class="fg"><div class="fl">Max Records / Chunk</div><input type="number" id="ex-maxrec" value="500000" min="1000"></div>
+      </div>
+      <input type="hidden" id="ex-start" value="">
+      <input type="hidden" id="ex-end" value="">
+    </div>
+    <div class="card">
+      <div class="card-title"><span>◆</span> Output</div>
+      <div class="fg"><div class="fl">Filename <span class="flg">saved as JSONL in Files panel</span></div><input type="text" id="ex-fname" placeholder="extraction.jsonl"></div>
+    </div>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+      <button class="bp2 btn" id="ex-runbtn" onclick="startEx()">⛏ Start Extraction</button>
+      <button class="bst btn" id="ex-stopbtn" style="display:none" onclick="stopEx()">■ Stop</button>
+      <span id="ex-status" style="font-size:11px;color:var(--td)"></span>
+    </div>
+    <div id="ex-progress-wrap" style="display:none;">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-bottom:5px;">
+        <span id="ex-plabel">Chunk 0 / 0</span><span id="ex-ppct">0%</span>
+      </div>
+      <div class="pgbar-wrap" style="margin-bottom:10px;"><div class="pgbar" id="ex-pbar"></div></div>
+      <div class="istat">
+        <div class="statbox"><div class="slbl">Records</div><div class="sval" id="ex-srec" style="color:var(--ac)">0</div></div>
+        <div class="statbox"><div class="slbl">Chunks</div><div class="sval" id="ex-schunk" style="color:var(--ac3)">0</div></div>
+        <div class="statbox"><div class="slbl">File Size</div><div class="sval" id="ex-ssize" style="color:var(--warn)">0 MB</div></div>
+        <div class="statbox"><div class="slbl">ETA</div><div class="sval" id="ex-seta" style="color:var(--td)">-</div></div>
+      </div>
+    </div>
+    <div class="exlog" id="ex-log" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- INGEST -->
+<div class="panel" id="p-ingest">
+  <div class="ptb">
+    <div><div class="ptt">📥 Log Ingest</div><div class="ptd">Powered by Dynatrace Logs API v2 — direct from browser</div></div>
+  </div>
+  <div class="scrl">
+    <div class="infobox">Ingest log files directly into Dynatrace using the Logs API v2. Requires a separate <strong>Access Token</strong> with <code style="color:var(--ac)">logs.ingest</code> scope — configure it in the Ingest section of Configure. All processing happens in your browser — logs go directly to Dynatrace.</div>
+
+    <!-- Status bar -->
+    <div class="istat">
+      <div class="statbox"><div class="slbl">Status</div><div class="sval" id="ig-sstatus" style="color:var(--td);font-size:12px">Idle</div></div>
+      <div class="statbox"><div class="slbl">Sent</div><div class="sval" id="ig-ssent" style="color:var(--ac)">0</div></div>
+      <div class="statbox"><div class="slbl">Errors</div><div class="sval" id="ig-serr" style="color:var(--err)">0</div></div>
+      <div class="statbox"><div class="slbl">Rate</div><div class="sval" id="ig-srate" style="color:var(--ac3)">-</div></div>
+    </div>
+
+    <!-- File input -->
+    <div class="card">
+      <div class="card-title"><span>◆</span> Log File</div>
+      <div class="grid2" style="margin-bottom:10px;">
+        <div class="fg"><div class="fl">Upload File <span class="flg">txt, log, json lines</span></div><input type="file" id="ig-file" accept=".txt,.log,.json,.xml,.csv" onchange="igFileLoad()"></div>
+        <div class="fg"><div class="fl">Or Demo Library</div>
+          <select id="ig-demo" onchange="igDemoLoad()">
+            <option value="">-- Select demo log --</option>
+            <option value="apache">Apache Access Log</option>
+            <option value="syslog">Linux Syslog</option>
+            <option value="app">Application Log (JSON)</option>
+            <option value="security">Security Events</option>
+            <option value="cdr">CDR Telecom</option>
+          </select>
+        </div>
+      </div>
+      <div id="ig-fileinfo" style="font-size:10px;color:var(--td);padding:6px 8px;background:var(--bg);border:1px solid var(--bd);border-radius:4px;display:none;"></div>
+    </div>
+
+    <!-- Mode -->
+    <div class="card">
+      <div class="card-title"><span>◆</span> Ingest Mode</div>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <button class="modebtn on" id="mode-sequential" onclick="setMode('sequential')">Sequential</button>
+        <button class="modebtn" id="mode-historic" onclick="setMode('historic')">Historic</button>
+        <button class="modebtn" id="mode-scattered" onclick="setMode('scattered')">Scattered</button>
+      </div>
+      <div id="mode-desc" style="font-size:10px;color:var(--td);margin-bottom:10px;">Real-time playback with delay between lines. Great for live troubleshooting demos.</div>
+      <div class="grid3" id="mode-params">
+        <div class="fg" id="mp-delay"><div class="fl">Delay (ms)</div><input type="number" id="ig-delay" value="200" min="0"></div>
+        <div class="fg" id="mp-batch"><div class="fl">Batch Size (lines)</div><input type="number" id="ig-batch" value="10" min="1" max="1000"></div>
+        <div class="fg" id="mp-loop"><div class="fl">Loop</div><label class="ck" style="margin-top:4px;"><input type="checkbox" id="ig-loop"> Loop until stopped</label></div>
+        <div class="fg" id="mp-start" style="display:none;"><div class="fl">Start Time</div><input type="datetime-local" id="ig-hstart"></div>
+        <div class="fg" id="mp-end" style="display:none;"><div class="fl">End Time</div><input type="datetime-local" id="ig-hend"></div>
+        <div class="fg" id="mp-chunks" style="display:none;"><div class="fl">Chunks</div><input type="number" id="ig-chunks" value="10" min="1"></div>
+      </div>
+    </div>
+
+    <!-- Attributes -->
+    <div class="card">
+      <div class="card-title"><span>◆</span> Inject Attributes <span style="font-size:9px;color:var(--tm);font-weight:400">(merged into every log event)</span></div>
+      <div id="ig-attrs"></div>
+      <button class="bs sm btn" onclick="igAddAttr()" style="margin-top:6px;">+ Add Attribute</button>
+    </div>
+
+    <!-- Actions -->
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
+      <button class="bp btn" id="ig-startbtn" onclick="igStart()">▶ Start Ingest</button>
+      <button class="bst btn" id="ig-stopbtn" style="display:none" onclick="igStop()">■ Stop</button>
+      <button class="bs sm btn" onclick="igClearLog()">Clear log</button>
+    </div>
+
+    <!-- Log -->
+    <div class="ilog" id="ig-log"><div style="color:var(--tm)">Ready. Configure token in Configure panel → Ingest tab.</div></div>
+  </div>
+</div>
+
+<!-- FILES -->
+<div class="panel" id="p-files">
+  <div class="ptb"><span class="ptt">📁 Exported Files</span><button class="bs sm btn" onclick="loadFiles()">Refresh</button></div>
+  <div style="flex:1;overflow-y:auto;" id="flist"><div class="es"><span>Click Refresh</span></div></div>
+  <div class="fpanel" id="fpanel">
+    <div class="fph">
+      <span id="fpname" style="font-size:11px;color:var(--ac)"></span>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:9px;color:var(--tm)">last <input type="number" id="fpln" value="50" min="10" max="1000" style="width:55px;padding:3px 5px;font-size:10px;" onchange="refreshPrev()"> lines</span>
+        <button class="bs sm btn" onclick="refreshPrev()">Refresh</button>
+        <button class="bs sm btn" onclick="closePrev()">Close</button>
+      </div>
+    </div>
+    <pre class="fpc" id="fpc"></pre>
+  </div>
+</div>
+
+<!-- HISTORY -->
+<div class="panel" id="p-history">
+  <div class="ptb">
+    <div><div class="ptt">📜 Query History</div><div class="ptd">All queries you have run — click to reuse</div></div>
+    <button class="bst sm btn" onclick="clearHistory()">Reset All</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;" id="hlist">
+    <div class="es"><span>No queries yet — run a DQL query to start recording history</span></div>
+  </div>
+</div>
+
+<!-- CONFIG -->
+<div class="panel" id="p-config">
+  <div class="ptb"><span class="ptt">🔑 Configure</span></div>
+  <div class="scrl">
+    <div class="card">
+      <div class="card-title"><span>◆</span> Query & Extract — dtctl (Platform Token)</div>
+      <p style="font-size:10px;color:var(--td);margin-bottom:12px;line-height:1.6;">Used by the Query and Extract panels via dtctl CLI. Requires a Platform Token (<code style="color:var(--ac)">dt0s16.xxx</code>) with storage read scopes.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:520px;">
+        <div class="fg"><div class="fl">Environment URL</div><input type="text" id="cenv" placeholder="https://xxxxxxxx.apps.dynatrace.com"></div>
+        <div class="fg"><div class="fl">Platform Token</div><input type="password" id="ctok" placeholder="dt0s16.xxx"></div>
+        <div class="fg"><div class="fl">Context Name</div><input type="text" id="cctx" value="default"></div>
+        <button class="bp btn" style="width:fit-content" onclick="saveConf()">✓ Save & Connect</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span>◆</span> Ingest — Logs API (Access Token)</div>
+      <p style="font-size:10px;color:var(--td);margin-bottom:12px;line-height:1.6;">Used by the Ingest panel. Requires an Access Token with <code style="color:var(--ac)">logs.ingest</code> scope. This is stored in the Docker volume and used by the browser to call the Logs API directly.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:520px;">
+        <div class="fg"><div class="fl">Dynatrace Environment URL</div><input type="text" id="ienv" placeholder="https://xxxxxxxx.apps.dynatrace.com" oninput="updateIngestUrl()"></div>
+        <div class="fg"><div class="fl">Computed Ingest Endpoint <span class="flg">(read-only)</span></div><input type="text" id="iendpoint" readonly style="color:var(--ac3);font-size:10px;"></div>
+        <div class="fg"><div class="fl">Access Token <span class="flg">logs.ingest scope</span></div><input type="password" id="itok" placeholder="dt0e.xxx or dt0s01.xxx"></div>
+        <button class="bp2 btn" style="width:fit-content" onclick="saveIngestConf()">✓ Save Ingest Config</button>
+      </div>
+    </div>
+    <div class="card" style="background:rgba(0,0,0,.15);">
+      <div class="card-title"><span>◆</span> Required Token Scopes</div>
+      <div class="grid2">
+        <div>
+          <div style="font-size:10px;color:var(--ac);font-weight:600;margin-bottom:6px;">Platform Token (Query/Extract)</div>
+          <div style="font-size:10px;color:var(--td);line-height:1.8;font-family:var(--fn);">
+            storage:logs:read<br>storage:events:read<br>storage:metrics:read<br>storage:spans:read<br>storage:bizevents:read<br>storage:entities:read<br>storage:buckets:read<br>automation:workflows:read<br>document:documents:read<br>slo:slos:read
+          </div>
+        </div>
+        <div>
+          <div style="font-size:10px;color:var(--ac3);font-weight:600;margin-bottom:6px;">Access Token (Ingest)</div>
+          <div style="font-size:10px;color:var(--td);line-height:1.8;font-family:var(--fn);">
+            logs.ingest
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</main>
+</div>
+<div class="tc" id="tc"></div>
+
+<script>
+'use strict';
+function g(id){return document.getElementById(id);}
+function val(id){var el=g(id);return el?el.value:'';}
+function chk(id){var el=g(id);return el?el.checked:false;}
+function eh(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(msg,tp){var c=g('tc'),el=document.createElement('div');el.className='ts'+(tp==='ok'?' ok':tp==='er'?' er':'');el.textContent=msg;c.appendChild(el);setTimeout(function(){el.remove();},3000);}
+function hl(json){return eh(json).replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g,function(m){if(/^"/.test(m)){if(/:$/.test(m))return'<span style="color:#7dd3fc">'+m+'</span>';return'<span style="color:#86efac">'+m+'</span>';}if(/true|false/.test(m))return'<span style="color:#fbbf24">'+m+'</span>';if(/null/.test(m))return'<span style="color:#f87171">'+m+'</span>';return'<span style="color:#c4b5fd">'+m+'</span>';});}
+
+var curData=null,curFmt='json',viewMode='raw',consOpen=false,consCnt=0,activeCtrl=null,t0=0,curPrevFile=null;
+var exCtrl=null,exStartTime=0,exChunkTimes=[];
+var igLines=[],igRunning=false,igTimer=null,igSent=0,igErr=0,igIdx=0,igMode='sequential',igStartTime=0;
+
+// ── Health ────────────────────────────────────────────────────────────────────
+function health(){
+  fetch('/api/health').then(function(r){return r.json();}).then(function(d){
+    g('sdot').className='dot ok';g('stxt').textContent='connected';g('senv').textContent=d.environment||'';
+  }).catch(function(){g('sdot').className='dot er';g('stxt').textContent='unreachable';});
+}
+
+// ── Nav ───────────────────────────────────────────────────────────────────────
+function showTab(n){
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
+  document.querySelectorAll('button.sb').forEach(function(b){b.classList.remove('on');});
+  g('p-'+n).classList.add('on');g('nb-'+n).classList.add('on');
+  if(n==='files')loadFiles();
+  if(n==='config')loadConf();
+}
+
+// ── Query ─────────────────────────────────────────────────────────────────────
+function setQ(q){g('dql').value=q;showTab('query');updCmd();}
+function buildArgs(){
+  var dql=val('dql').trim(),from=val('qfrom').trim(),to=val('qto').trim();
+  if(from&&dql.indexOf('from:')<0){var srcs=['fetch logs','fetch events','fetch spans','fetch bizevents','fetch metrics'];for(var i=0;i<srcs.length;i++){if(dql.indexOf(srcs[i])>=0){dql=dql.replace(srcs[i],srcs[i]+', from:'+from+', to:'+to);break;}}}
+  var a=['query',dql];
+  var mr=val('qmax');if(mr)a.push('--max-result-records',mr);
+  var fmt=val('qfmt');if(fmt)a.push('-o',fmt);
+  var sl=val('qsl');if(sl!=='')a.push('--default-scan-limit-gbytes',sl);
+  var mb=val('qmb');if(mb)a.push('--max-result-bytes',mb);
+  var sr=val('qsr');if(sr)a.push('--default-sampling-ratio',sr);
+  var ft=val('qft');if(ft)a.push('--fetch-timeout-seconds',ft);
+  var tz=val('qtz').trim();if(tz)a.push('--timezone',tz);
+  var lc=val('qlc').trim();if(lc)a.push('--locale',lc);
+  var mfl=val('qmfl');if(mfl)a.push('--max-field-length',mfl);
+  if(chk('qit'))a.push('--include-types');if(chk('qep'))a.push('--enable-preview');
+  if(chk('qfw'))a.push('--fail-on-warn');if(chk('qnw'))a.push('--no-warnings');
+  if(chk('qpl'))a.push('--plain');
+  if(chk('qvv'))a.push('-vv');else if(chk('qv'))a.push('-v');
+  return a;
+}
+function updCmd(){try{var a=buildArgs(),cmd='dtctl '+a.map(function(x){return x.indexOf(' ')>=0?'"'+x+'"':x;}).join(' ');g('cprev').innerHTML='$ <span>'+eh(cmd)+'</span>';}catch(e){}}
+function copyCmd(){try{var cmd='dtctl '+buildArgs().map(function(x){return x.indexOf(' ')>=0?'"'+x+'"':x;}).join(' ');navigator.clipboard.writeText(cmd);toast('Copied!','ok');}catch(e){toast('Copy failed','er');}}
+function toggleAdv(){var el=g('adv'),btn=g('advbtn'),on=el.classList.toggle('on');btn.textContent=on?'Advanced -':'Advanced +';}
+function updDisk(){var on=chk('wtd'),fn=g('dfn');fn.style.display=on?'inline-block':'none';if(on&&!fn.value)fn.value='export_'+new Date().toISOString().slice(0,19).replace(/[:.]/g,'-')+'.json';}
+function toggleCons(){consOpen=!consOpen;g('cons').className='cons '+(consOpen?'ex':'cl');g('carr').textContent=consOpen?'v':'^';g('consbtn').textContent=consOpen?'Hide Logs':'Logs';}
+function clearCons(){g('cbody').innerHTML='';consCnt=0;g('ccnt').textContent='';}
+function logC(line,cls){var b=g('cbody'),d=document.createElement('div');d.className='cln '+(cls||'so');d.textContent=line;b.appendChild(d);b.scrollTop=b.scrollHeight;consCnt++;g('ccnt').textContent='('+consCnt+')';}
+function consRun(r){g('cdot').className='cdot'+(r?' run':'');}
+
+function runQ(){
+  var dql=val('dql').trim();if(!dql){toast('Enter a DQL query','er');return;}
+  var diskOn=chk('wtd'),fname=val('dfn').trim();if(diskOn&&!fname){toast('Enter a filename','er');return;}
+  curFmt=val('qfmt');var args=buildArgs();saveToHistory(val('dql').trim());
+  g('rcont').innerHTML='<div class="ldr"><div class="sp"></div> '+(diskOn?'Writing to disk...':'Running...')+'</div>';
+  g('rcnt').textContent='-';g('rtm').textContent='-';g('wbc').innerHTML='';g('wlbl').style.display='none';g('dbanner').classList.remove('on');
+  g('runbtn').style.display='none';g('stopbtn').style.display='inline-flex';
+  clearCons();consRun(true);if(!consOpen)toggleCons();
+  logC('$ dtctl '+args.map(function(x){return x.indexOf(' ')>=0?'"'+x+'"':x;}).join(' '),'inf');
+  if(diskOn)logC('Output: '+fname,'inf');
+  t0=Date.now();var ctrl=new AbortController();activeCtrl=ctrl;
+  fetch('/api/command/stream',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({args:args,write_to_disk:diskOn,output_filename:diskOn?fname:''}),signal:ctrl.signal})
+  .then(function(resp){var reader=resp.body.getReader(),dec=new TextDecoder(),buf='';
+    function read(){reader.read().then(function(chunk){if(chunk.done){finish();return;}buf+=dec.decode(chunk.value,{stream:true});var parts=buf.split('\n\n');buf=parts.pop();parts.forEach(function(p){if(!p.startsWith('data:'))return;try{onSSE(JSON.parse(p.slice(5).trim()));}catch(e){}});read();}).catch(function(e){if(e.name!=='AbortError')logC('Error: '+e.message,'er2');finish();});}read();})
+  .catch(function(e){if(e.name==='AbortError')logC('Stopped.','er2');else{logC('Error: '+e.message,'er2');g('rcont').innerHTML='<div class="ebox">'+eh(e.message)+'</div>';}finish();});
+}
+function finish(){g('runbtn').style.display='inline-flex';g('stopbtn').style.display='none';consRun(false);activeCtrl=null;if(g('rcont').querySelector('.ldr'))g('rcont').innerHTML='<div class="es"><span>Done</span></div>';}
+function stopQ(){if(activeCtrl){activeCtrl.abort();activeCtrl=null;}}
+
+function onSSE(e){
+  if(e.type==='ping')return;
+  if(e.type==='debug'){logC(e.line,'se');return;}
+  if(e.type==='disk_progress'){logC('Disk: '+e.mb+'MB written','so');return;}
+  if(e.type==='error'){logC('Error: '+e.message,'er2');g('rcont').innerHTML='<div class="ebox">'+eh(e.message)+'</div>';finish();return;}
+  if(e.type==='done'){
+    var el=((Date.now()-t0)/1000).toFixed(2)+'s';g('rtm').textContent=el;
+    logC('Done in '+el+' (exit '+e.returncode+')',e.success?'ok':'er2');
+    if(e.stderr&&e.stderr.trim()){g('wlbl').style.display='inline';g('wbc').innerHTML='<div class="wbox">'+eh(e.stderr.trim())+'</div>';}
+    if(e.file){var f=e.file,b=g('dbanner');b.classList.add('on');var fn=eh(f.filename).replace(/'/g,"&#39;");b.innerHTML='File: <strong>'+eh(f.filename)+'</strong> — '+f.size_mb+'MB, '+f.lines.toLocaleString()+' lines<div style="display:flex;gap:6px;"><button class="bs sm btn" onclick="prevFile(\''+fn+'\')">Preview</button><a href="/api/files/'+encodeURIComponent(f.filename)+'/download" class="bp sm btn" download>Download</a></div>';}
+    if(!e.success&&!e.stdout&&!e.file){g('rcont').innerHTML='<div class="ebox">'+eh(e.stderr||'Query failed')+'</div>';finish();return;}
+    if(e.stdout){curData=e.stdout;renderRes(e.stdout);}
+    else if(e.file)g('rcont').innerHTML='<div class="es"><span>Written to disk: '+eh(e.file.filename)+'</span></div>';
+    finish();
+  }
+}
+
+function renderRes(out){var c=g('rcont');if(curFmt==='json'){try{var p=JSON.parse(out),rec=p.records||(p.result&&p.result.records)||[];g('rcnt').textContent=rec.length.toLocaleString();if(viewMode==='table'&&rec.length>0){renderTbl(rec,c);return;}c.innerHTML='<pre class="raw">'+hl(JSON.stringify(p,null,2))+'</pre>';return;}catch(e){}}var lines=out.trim().split('\n').filter(Boolean);g('rcnt').textContent=Math.max(0,lines.length-1).toLocaleString();if(viewMode==='table'&&curFmt==='csv'&&lines.length>1){renderCSV(lines,c);return;}c.innerHTML='<pre class="raw">'+eh(out)+'</pre>';}
+function renderTbl(rec,c){var cols=Object.keys(rec[0]).filter(function(k){return k!=='index';});var pri=['timestamp','loglevel','status','content','service.name','customer','dt.tenant.uuid'];var dc=pri.filter(function(x){return cols.indexOf(x)>=0;}).concat(cols.filter(function(x){return pri.indexOf(x)<0;})).slice(0,14);var h='<table class="rt"><thead><tr>';dc.forEach(function(k){h+='<th>'+eh(k)+'</th>';});h+='</tr></thead><tbody>';rec.slice(0,2000).forEach(function(row){h+='<tr>';dc.forEach(function(k){var vv=row[k]!==undefined?row[k]:'';if(typeof vv==='object')vv=JSON.stringify(vv);h+='<td title="'+eh(String(vv))+'">'+eh(String(vv).slice(0,120))+'</td>';});h+='</tr>';});h+='</tbody></table>';c.innerHTML=h;}
+function renderCSV(lines,c){var hdrs=lines[0].split(',');var h='<table class="rt"><thead><tr>';hdrs.forEach(function(x){h+='<th>'+eh(x.trim())+'</th>';});h+='</tr></thead><tbody>';lines.slice(1,2001).forEach(function(l){h+='<tr>';l.split(',').forEach(function(x){h+='<td>'+eh(x.trim())+'</td>';});h+='</tr>';});h+='</tbody></table>';c.innerHTML=h;}
+function toggleView(){viewMode=viewMode==='raw'?'table':'raw';g('vtgl').textContent=viewMode==='table'?'Raw':'Table';if(curData)renderRes(curData);}
+function clearAll(){curData=null;g('rcnt').textContent='-';g('rtm').textContent='-';g('wbc').innerHTML='';g('wlbl').style.display='none';g('dbanner').classList.remove('on');g('rcont').innerHTML='<div class="es"><span>Run a DQL query to see results</span></div>';clearCons();}
+function toggleExp(){g('edrop').classList.toggle('on');}
+document.addEventListener('click',function(e){if(!e.target.closest('.emenu'))g('edrop').classList.remove('on');});
+function doExp(mode){g('edrop').classList.remove('on');if(!curData){toast('No data','er');return;}if(mode==='raw'){var ext=curFmt==='csv'?'csv':curFmt==='yaml'?'yaml':'json';var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([curData],{type:'text/plain'}));a.download='grailkeeper-'+Date.now()+'.'+ext;a.click();toast('Downloaded','ok');return;}fetch(mode==='content'?'/api/export/content':'/api/export/full',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:curData,mode:mode,fmt:curFmt})}).then(function(r){if(!r.ok)return r.json().then(function(e){toast('Error: '+(e.detail||'?'),'er');});return r.blob().then(function(blob){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=mode==='content'?'content_'+Date.now()+'.log':'full_'+Date.now()+'.csv';a.click();toast('Downloaded','ok');});}).catch(function(e){toast('Error: '+e.message,'er');});}
+
+// ── Extract ───────────────────────────────────────────────────────────────────
+function setRange(days){var end=new Date(),start=new Date();start.setDate(start.getDate()-days);g('ex-end-date').value=end.toISOString().slice(0,10);g('ex-start-date').value=start.toISOString().slice(0,10);syncDates();}
+function syncDates(){var sd=val('ex-start-date'),ed=val('ex-end-date');if(sd){var iso=sd+'T00:00:00Z';g('ex-start').value=iso;g('ex-start-iso').textContent=iso;}if(ed){var iso2=ed+'T23:59:59Z';g('ex-end').value=iso2;g('ex-end-iso').textContent=iso2;}}
+function startEx(){
+  var dql=g('ex-dql').value.trim(),start=val('ex-start').trim(),end=val('ex-end').trim();
+  var chunk=parseInt(val('ex-chunk'))||6,maxrec=parseInt(val('ex-maxrec'))||500000,fname=val('ex-fname').trim();
+  if(!dql){toast('Enter DQL query','er');return;}if(!start){toast('Select start date','er');return;}if(!end){toast('Select end date','er');return;}
+  if(!fname){fname='extraction_'+new Date().toISOString().slice(0,10)+'.jsonl';g('ex-fname').value=fname;}
+  g('ex-runbtn').style.display='none';g('ex-stopbtn').style.display='inline-flex';
+  g('ex-progress-wrap').style.display='block';g('ex-log').style.display='block';
+  g('ex-log').innerHTML='';g('ex-srec').textContent='0';g('ex-schunk').textContent='0';
+  g('ex-ssize').textContent='0 MB';g('ex-seta').textContent='-';
+  g('ex-pbar').style.width='0%';g('ex-ppct').textContent='0%';g('ex-status').textContent='Running...';
+  exStartTime=Date.now();exChunkTimes=[];
+  exCtrl=new AbortController();
+  fetch('/api/extract/chunked',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dql_template:dql,start:start,end:end,chunk_hours:chunk,max_records_per_chunk:maxrec,output_filename:fname}),signal:exCtrl.signal})
+  .then(function(resp){var reader=resp.body.getReader(),dec=new TextDecoder(),buf='';
+    function read(){reader.read().then(function(c2){if(c2.done){exDone();return;}buf+=dec.decode(c2.value,{stream:true});var parts=buf.split('\n\n');buf=parts.pop();parts.forEach(function(p){if(!p.startsWith('data:'))return;try{onExSSE(JSON.parse(p.slice(5).trim()));}catch(e){}});read();}).catch(function(e){if(e.name!=='AbortError')exLine('Error: '+e.message,'var(--err)');exDone();});}read();})
+  .catch(function(e){if(e.name==='AbortError')exLine('Stopped.','var(--err)');else exLine('Error: '+e.message,'var(--err)');exDone();});
+}
+function stopEx(){if(exCtrl){exCtrl.abort();exCtrl=null;}g('ex-status').textContent='Stopped.';}
+function exDone(){g('ex-runbtn').style.display='inline-flex';g('ex-stopbtn').style.display='none';exCtrl=null;}
+function exLine(msg,color){var el=g('ex-log'),d=document.createElement('div');d.style.color=color||'var(--td)';d.textContent=new Date().toTimeString().slice(0,8)+'  '+msg;el.appendChild(d);el.scrollTop=el.scrollHeight;}
+function onExSSE(e){
+  if(e.type==='ping')return;
+  if(e.type==='resume'){exLine('Resuming from chunk '+e.chunks_done,'var(--warn)');return;}
+  if(e.type==='chunk_start'){g('ex-plabel').textContent='Chunk '+e.chunk+' / '+e.total;g('ex-ppct').textContent=e.progress_pct+'%';g('ex-pbar').style.width=e.progress_pct+'%';g('ex-status').textContent=e.from+' to '+e.to;exLine(e.chunk+'/'+e.total+': '+e.from+' to '+e.to);return;}
+  if(e.type==='chunk_done'){var elapsed=(Date.now()-exStartTime)/1000;exChunkTimes.push(elapsed/e.chunk);var avg=exChunkTimes.reduce(function(a,b){return a+b;},0)/exChunkTimes.length;var rem=(e.total-e.chunk)*avg;var eta=rem>3600?Math.round(rem/3600)+'h':rem>60?Math.round(rem/60)+'m':Math.round(rem)+'s';g('ex-srec').textContent=e.total_records.toLocaleString();g('ex-schunk').textContent=e.chunk;g('ex-seta').textContent=eta;g('ex-pbar').style.width=e.progress_pct+'%';g('ex-ppct').textContent=e.progress_pct+'%';exLine('  OK: '+e.chunk_records.toLocaleString()+' records | total: '+e.total_records.toLocaleString(),'var(--ac3)');if(e.chunk%10===0){fetch('/api/files').then(function(r){return r.json();}).then(function(d){var fn=val('ex-fname').trim();var f=d.files?d.files.find(function(x){return x.filename===fn;}):null;if(f)g('ex-ssize').textContent=f.size_mb+' MB';});}return;}
+  if(e.type==='chunk_error'){exLine('  ERROR chunk '+e.chunk+': '+e.error,'var(--err)');return;}
+  if(e.type==='extraction_done'){g('ex-pbar').style.width='100%';g('ex-ppct').textContent='100%';g('ex-srec').textContent=e.total_records.toLocaleString();g('ex-ssize').textContent=e.size_mb+' MB';g('ex-seta').textContent='Done!';g('ex-status').textContent='Complete!';g('ex-schunk').textContent=e.total_chunks;exLine('DONE: '+e.total_records.toLocaleString()+' records, '+e.size_mb+'MB','var(--ac3)');toast('Extraction complete! '+e.total_records.toLocaleString()+' records','ok');exDone();return;}
+  if(e.type==='error'){exLine('Error: '+e.message,'var(--err)');g('ex-status').textContent='Error.';exDone();}
+}
+
+// ── Ingest ────────────────────────────────────────────────────────────────────
+var igIngestUrl='',igIngestToken='',igAttrs=[];
+
+function igLoadConfig(){
+  fetch('/api/ingest-config').then(function(r){return r.json();}).then(function(d){
+    if(d.ingest_url){igIngestUrl=d.ingest_url;igIngestToken=d.ingest_token;igLogLine('Ingest configured: '+igIngestUrl,'var(--ac3)');}
+  });
+}
+
+var igDemoData={
+  apache:[
+    '192.168.1.101 - - [15/Mar/2026:10:00:01 +0000] "GET /api/users HTTP/1.1" 200 1234',
+    '10.0.0.5 - admin [15/Mar/2026:10:00:02 +0000] "POST /api/login HTTP/1.1" 401 89',
+    '172.16.0.22 - - [15/Mar/2026:10:00:03 +0000] "GET /health HTTP/1.1" 200 17',
+    '192.168.1.200 - - [15/Mar/2026:10:00:04 +0000] "DELETE /api/records/99 HTTP/1.1" 403 56',
+    '10.0.0.1 - - [15/Mar/2026:10:00:05 +0000] "GET /api/metrics HTTP/1.1" 500 234',
+    '192.168.1.101 - - [15/Mar/2026:10:00:06 +0000] "GET /api/users HTTP/1.1" 200 1234',
+    '10.0.0.5 - admin [15/Mar/2026:10:00:07 +0000] "POST /api/login HTTP/1.1" 200 512',
+    '172.16.0.22 - - [15/Mar/2026:10:00:08 +0000] "PUT /api/config HTTP/1.1" 200 89',
+    '192.168.1.200 - - [15/Mar/2026:10:00:09 +0000] "GET /api/reports HTTP/1.1" 200 4567',
+    '10.0.0.1 - - [15/Mar/2026:10:00:10 +0000] "GET /api/status HTTP/1.1" 200 45',
+  ],
+  syslog:[
+    'Mar 15 10:00:01 server01 sshd[1234]: Accepted publickey for ubuntu from 192.168.1.10 port 54321 ssh2',
+    'Mar 15 10:00:02 server01 kernel: [12345.678] Out of memory: Kill process 5678 (java) score 900',
+    'Mar 15 10:00:03 server01 systemd[1]: Started Session 42 of user admin.',
+    'Mar 15 10:00:04 server01 cron[789]: (root) CMD (/usr/bin/backup.sh)',
+    'Mar 15 10:00:05 server01 sshd[1235]: Failed password for root from 10.0.0.5 port 22 ssh2',
+    'Mar 15 10:00:06 server01 kernel: [12346.000] EXT4-fs error: device sda1: ext4_find_entry:1455',
+    'Mar 15 10:00:07 server01 systemd[1]: grailkeeper.service: Main process exited, code=killed, status=9/KILL',
+    'Mar 15 10:00:08 server01 sudo: ubuntu : TTY=pts/0 ; PWD=/home/ubuntu ; USER=root ; COMMAND=/bin/systemctl restart nginx',
+  ],
+  app:[
+    '{"timestamp":"2026-03-15T10:00:01Z","level":"INFO","service":"api-gateway","message":"Request received","method":"GET","path":"/api/v1/users","duration_ms":12}',
+    '{"timestamp":"2026-03-15T10:00:02Z","level":"ERROR","service":"user-service","message":"Database connection failed","error":"connection refused","host":"db-01"}',
+    '{"timestamp":"2026-03-15T10:00:03Z","level":"WARN","service":"cache","message":"Cache miss rate high","rate":0.87,"threshold":0.5}',
+    '{"timestamp":"2026-03-15T10:00:04Z","level":"INFO","service":"auth","message":"User login successful","user_id":"u-12345","ip":"192.168.1.10"}',
+    '{"timestamp":"2026-03-15T10:00:05Z","level":"ERROR","service":"payment","message":"Payment processing failed","order_id":"ord-999","amount":299.99,"reason":"card_declined"}',
+    '{"timestamp":"2026-03-15T10:00:06Z","level":"DEBUG","service":"scheduler","message":"Job executed","job":"cleanup_expired_tokens","duration_ms":342}',
+  ],
+  security:[
+    '2026-03-15T10:00:01Z ALERT brute_force src=10.0.0.5 dst=192.168.1.1 attempts=47 protocol=SSH',
+    '2026-03-15T10:00:02Z INFO login_success user=admin src=192.168.1.10 mfa=true',
+    '2026-03-15T10:00:03Z WARN privilege_escalation user=webuser cmd=sudo target=root',
+    '2026-03-15T10:00:04Z ALERT malware_detected file=/tmp/payload.sh hash=d41d8cd98f00 action=quarantined',
+    '2026-03-15T10:00:05Z INFO firewall_blocked src=185.220.101.5 dst=10.0.0.1 port=3389 reason=geo_block',
+    '2026-03-15T10:00:06Z CRITICAL data_exfiltration user=contractor bytes_out=524288000 dst=external',
+    '2026-03-15T10:00:07Z INFO policy_updated rule=MFA_required scope=all_users changed_by=admin',
+  ],
+  cdr:[
+    'MSISDN=39012345678;IMSI=222010123456789;CALL_TYPE=MOC;DURATION=120;RESULT=0;TIMESTAMP=2026-03-15T10:00:01Z',
+    'MSISDN=39098765432;IMSI=222010987654321;CALL_TYPE=MTC;DURATION=0;RESULT=17;TIMESTAMP=2026-03-15T10:00:02Z',
+    'MSISDN=39011111111;IMSI=222010111111111;CALL_TYPE=SMS;DURATION=0;RESULT=0;TIMESTAMP=2026-03-15T10:00:03Z',
+    'MSISDN=39022222222;IMSI=222010222222222;CALL_TYPE=DATA;BYTES_UP=1024000;BYTES_DOWN=5120000;TIMESTAMP=2026-03-15T10:00:04Z',
+    'MSISDN=39033333333;IMSI=222010333333333;CALL_TYPE=MOC;DURATION=300;RESULT=0;TIMESTAMP=2026-03-15T10:00:05Z',
+    'MSISDN=39044444444;IMSI=222010444444444;CALL_TYPE=ROAMING;DURATION=60;PLMN=26201;TIMESTAMP=2026-03-15T10:00:06Z',
+  ]
+};
+
+function igFileLoad(){
+  var file=g('ig-file').files[0];if(!file)return;
+  var reader=new FileReader();
+  reader.onload=function(e){
+    igLines=e.target.result.split('\n').filter(function(l){return l.trim();});
+    g('ig-fileinfo').style.display='block';
+    g('ig-fileinfo').textContent=file.name+' — '+igLines.length.toLocaleString()+' lines';
+    igLogLine('Loaded: '+file.name+' ('+igLines.length.toLocaleString()+' lines)','var(--ac3)');
+    g('ig-demo').value='';
+  };reader.readAsText(file);
+}
+
+function igDemoLoad(){
+  var key=val('ig-demo');if(!key)return;
+  igLines=igDemoData[key]||[];
+  g('ig-fileinfo').style.display='block';
+  g('ig-fileinfo').textContent='Demo: '+key+' — '+igLines.length+' lines';
+  g('ig-file').value='';
+  igLogLine('Loaded demo: '+key+' ('+igLines.length+' lines)','var(--ac3)');
+}
+
+function setMode(m){
+  igMode=m;
+  ['sequential','historic','scattered'].forEach(function(x){g('mode-'+x).classList.toggle('on',x===m);});
+  var descs={sequential:'Real-time playback with delay between lines. Great for live troubleshooting demos.',historic:'Fast ingest with planned timestamps starting from a chosen time. Great to retrofit entities with logs.',scattered:'Distribute timestamps between start/end with jitter. Simulate hours of logs ingested in seconds.'};
+  g('mode-desc').textContent=descs[m];
+  // Show/hide params
+  g('mp-delay').style.display=m==='sequential'?'block':'none';
+  g('mp-batch').style.display='block';
+  g('mp-loop').style.display=m==='sequential'?'block':'none';
+  g('mp-start').style.display=m!=='sequential'?'block':'none';
+  g('mp-end').style.display=m==='scattered'?'block':'none';
+  g('mp-chunks').style.display=m==='scattered'?'block':'none';
+}
+
+function igAddAttr(){
+  var row=document.createElement('div');row.className='attr-row';
+  row.innerHTML='<input type="text" placeholder="key" style="width:130px;"><input type="text" placeholder="value" style="flex:1;"><button class="bs sm btn" onclick="this.parentElement.remove()">✕</button>';
+  g('ig-attrs').appendChild(row);
+}
+
+function igGetAttrs(){
+  var attrs={};
+  g('ig-attrs').querySelectorAll('.attr-row').forEach(function(row){
+    var inputs=row.querySelectorAll('input');var k=inputs[0].value.trim(),v=inputs[1].value.trim();if(k)attrs[k]=v;
+  });return attrs;
+}
+
+function igDetectLevel(line){
+  var l=line.toUpperCase();
+  if(/\bCRITICAL\b|\bFATAL\b/.test(l))return'CRITICAL';
+  if(/\bERROR\b|\bERR\b/.test(l))return'ERROR';
+  if(/\bWARN\b|\bWARNING\b|\bALERT\b/.test(l))return'WARN';
+  if(/\bINFO\b/.test(l))return'INFO';
+  if(/\bDEBUG\b/.test(l))return'DEBUG';
+  return null;
+}
+
+function igBuildPayload(lines, startTs, attrs){
+  return lines.map(function(line,i){
+    var ev={content:line};
+    var ts=startTs?new Date(startTs.getTime()+i*1000).toISOString():new Date().toISOString();
+    ev.timestamp=ts;
+    var lvl=igDetectLevel(line);if(lvl)ev.loglevel=lvl;
+    Object.assign(ev,attrs);
+    return ev;
+  });
+}
+
+function igLogLine(msg,color){
+  var el=g('ig-log'),d=document.createElement('div');
+  d.style.color=color||'var(--td)';
+  d.textContent=new Date().toTimeString().slice(0,8)+'  '+msg;
+  el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+function igClearLog(){g('ig-log').innerHTML='';}
+
+function igUpdateStats(){
+  g('ig-ssent').textContent=igSent.toLocaleString();
+  g('ig-serr').textContent=igErr;
+  if(igSent>0&&igStartTime>0){
+    var elapsed=(Date.now()-igStartTime)/1000;
+    var rate=Math.round(igSent/elapsed);
+    g('ig-srate').textContent=rate+'/s';
+  }
+}
+
+async function igSendBatch(payload){
+  try{
+    var resp=await fetch('/api/ingest/send',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({events:payload})});
+    var d=await resp.json();
+    if(!resp.ok){
+      igErr++;
+      var msg=d.detail||d.message||JSON.stringify(d);
+      igLogLine('Error '+resp.status+': '+msg,'var(--err)');
+      if(resp.status===400&&String(msg).indexOf('configured')>=0){igLogLine('Go to Configure → Ingest and save your token first','var(--warn)');igStop();}
+      return false;
+    }
+    if(d.ok){igSent+=payload.length;igLogLine('OK: '+payload.length+' events sent (HTTP '+d.status+')','var(--ac3)');}
+    else if(d.status===429){igLogLine('Rate limited (429) — slowing down','var(--warn)');await new Promise(function(r){setTimeout(r,2000);});}
+    else{igErr++;igLogLine('HTTP '+d.status+': '+(d.body||'').slice(0,200),'var(--err)');}
+  }catch(e){igErr++;igLogLine('Error: '+e.message,'var(--err)');}
+  igUpdateStats();return true;
+}
+
+async function igRunSequential(){
+  var delay=parseInt(val('ig-delay'))||200;
+  var batch=parseInt(val('ig-batch'))||10;
+  var loop=chk('ig-loop');
+  var attrs=igGetAttrs();
+  do{
+    igIdx=0;
+    while(igRunning&&igIdx<igLines.length){
+      var chunk=igLines.slice(igIdx,igIdx+batch);
+      var payload=igBuildPayload(chunk,null,attrs);
+      await igSendBatch(payload);
+      igIdx+=batch;
+      if(delay>0)await new Promise(function(r){setTimeout(r,delay);});
+    }
+  }while(igRunning&&loop);
+  if(igRunning)igStop();
+}
+
+async function igRunHistoric(){
+  var start=g('ig-hstart').value?new Date(g('ig-hstart').value):new Date(Date.now()-3600000);
+  var batch=parseInt(val('ig-batch'))||50;
+  var attrs=igGetAttrs();
+  igIdx=0;
+  while(igRunning&&igIdx<igLines.length){
+    var chunk=igLines.slice(igIdx,igIdx+batch);
+    var payload=igBuildPayload(chunk,new Date(start.getTime()+igIdx*1000),attrs);
+    await igSendBatch(payload);
+    igIdx+=batch;
+  }
+  if(igRunning)igStop();
+}
+
+async function igRunScattered(){
+  var start=g('ig-hstart').value?new Date(g('ig-hstart').value):new Date(Date.now()-7200000);
+  var end=g('ig-hend').value?new Date(g('ig-hend').value):new Date();
+  var chunks=parseInt(val('ig-chunks'))||10;
+  var attrs=igGetAttrs();
+  var totalMs=end-start;
+  var linesPerChunk=Math.ceil(igLines.length/chunks);
+  for(var c=0;c<chunks&&igRunning;c++){
+    var chunkStart=new Date(start.getTime()+(c/chunks)*totalMs+Math.random()*5000);
+    var chunk=igLines.slice(c*linesPerChunk,(c+1)*linesPerChunk);
+    if(!chunk.length)break;
+    var payload=igBuildPayload(chunk,chunkStart,attrs);
+    await igSendBatch(payload);
+    await new Promise(function(r){setTimeout(r,100+Math.random()*200);});
+  }
+  if(igRunning)igStop();
+}
+
+function igStart(){
+  if(!igLines.length){toast('Load a file or select a demo first','er');return;}
+  if(!igIngestUrl||!igIngestToken){toast('Configure ingest token first','er');showTab('config');return;}
+  igRunning=true;igSent=0;igErr=0;igStartTime=Date.now();igUpdateStats();
+  g('ig-startbtn').style.display='none';g('ig-stopbtn').style.display='inline-flex';
+  g('ig-sstatus').textContent='Running';g('ig-sstatus').style.color='var(--ac3)';
+  igLogLine('Starting ingest — mode: '+igMode+', lines: '+igLines.length,'var(--ac)');
+  if(igMode==='sequential')igRunSequential();
+  else if(igMode==='historic')igRunHistoric();
+  else igRunScattered();
+}
+function igStop(){
+  igRunning=false;
+  g('ig-startbtn').style.display='inline-flex';g('ig-stopbtn').style.display='none';
+  g('ig-sstatus').textContent='Stopped';g('ig-sstatus').style.color='var(--td)';
+  igLogLine('Stopped. Sent: '+igSent+' events, Errors: '+igErr,'var(--warn)');
+}
+
+// ── Files ─────────────────────────────────────────────────────────────────────
+function loadFiles(){var fl=g('flist');fl.innerHTML='<div class="es"><div class="sp"></div></div>';fetch('/api/files').then(function(r){return r.json();}).then(function(d){if(!d.files.length){fl.innerHTML='<div class="es"><span>No files yet</span></div>';return;}fl.innerHTML=d.files.map(function(f){var dt=new Date(f.modified*1000).toLocaleString();var fn=eh(f.filename).replace(/'/g,"&#39;");return'<div class="frow"><div><div class="fn2">'+eh(f.filename)+'</div><div class="fm">'+f.size_mb+'MB — '+dt+'</div></div><div style="display:flex;gap:6px;"><button class="bs sm btn" onclick="prevFile(\''+fn+'\')">Preview</button><a href="/api/files/'+encodeURIComponent(f.filename)+'/download" class="bp sm btn" download>Download</a><button class="bs sm btn" style="color:var(--err);border-color:var(--err)" onclick="delFile(\''+fn+'\')">Delete</button></div></div>';}).join('');}).catch(function(e){fl.innerHTML='<div class="ebox">'+e.message+'</div>';});}
+function prevFile(fn){curPrevFile=fn;var lines=val('fpln')||50;g('fpanel').classList.add('on');g('fpname').textContent=fn;g('fpc').textContent='Loading...';fetch('/api/files/'+encodeURIComponent(fn)+'/preview?lines='+lines).then(function(r){return r.json();}).then(function(d){g('fpc').textContent='--- '+d.filename+' | '+d.size_mb+'MB | '+d.total_lines.toLocaleString()+' lines | last '+lines+' ---\n\n'+d.preview;}).catch(function(e){g('fpc').textContent='Error: '+e.message;});}
+function refreshPrev(){if(curPrevFile)prevFile(curPrevFile);}
+function closePrev(){g('fpanel').classList.remove('on');curPrevFile=null;}
+function delFile(fn){if(!confirm('Delete '+fn+'?'))return;fetch('/api/files/'+encodeURIComponent(fn),{method:'DELETE'}).then(function(){toast('Deleted','ok');loadFiles();}).catch(function(e){toast('Error: '+e.message,'er');});}
+
+// ── Config ────────────────────────────────────────────────────────────────────
+function loadConf(){
+  fetch('/api/ingest-config').then(function(r){return r.json();}).then(function(d){
+    if(d.ingest_url){g('ienv').value=d.ingest_url;updateIngestUrl();}
+    if(d.ingest_token)g('itok').value=d.ingest_token;
+    igIngestUrl=d.ingest_url||'';igIngestToken=d.ingest_token||'';
+  });
+}
+function updateIngestUrl(){
+  var env=val('ienv').trim();
+  if(!env){g('iendpoint').value='';return;}
+  var url=env.replace('.apps.dynatrace.com','.live.dynatrace.com');
+  url=url.replace(/\/+$/,'');
+  if(!url.endsWith('/api/v2/logs/ingest'))url=url+'/api/v2/logs/ingest';
+  g('iendpoint').value=url;
+}
+function saveConf(){
+  var env=val('cenv').trim(),tok=val('ctok').trim(),ctx=val('cctx').trim()||'default';
+  if(!env||!tok){toast('URL and token required','er');return;}
+  fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({environment:env,token:tok,context_name:ctx})})
+  .then(function(r){return r.json();}).then(function(d){if(d.success){g('senv').textContent=env.replace('https://','');toast('dtctl configured!','ok');health();}else toast('Error: '+(d.detail||'?'),'er');}).catch(function(e){toast('Error: '+e.message,'er');});
+}
+function saveIngestConf(){
+  var env=val('ienv').trim(),tok=val('itok').trim();
+  if(!env||!tok){toast('URL and token required','er');return;}
+  updateIngestUrl();
+  fetch('/api/ingest-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ingest_url:env,ingest_token:tok})})
+  .then(function(r){return r.json();}).then(function(d){if(d.success){igIngestUrl=env;igIngestToken=tok;toast('Ingest configured!','ok');}else toast('Error','er');}).catch(function(e){toast('Error: '+e.message,'er');});
+}
+
+// ── Query History ─────────────────────────────────────────────────────────────
+var qHistory = JSON.parse(localStorage.getItem('gk_history') || '[]');
+
+function saveToHistory(dql) {
+  if (!dql || dql.trim().length < 5) return;
+  var entry = { dql: dql.trim(), ts: Date.now() };
+  // Remove duplicate if exists
+  qHistory = qHistory.filter(function(h) { return h.dql !== entry.dql; });
+  qHistory.unshift(entry);
+  if (qHistory.length > 200) qHistory = qHistory.slice(0, 200);
+  localStorage.setItem('gk_history', JSON.stringify(qHistory));
+  renderHistory();
+}
+
+function clearHistory() {
+  if (!confirm('Delete all query history?')) return;
+  qHistory = [];
+  localStorage.setItem('gk_history', JSON.stringify(qHistory));
+  renderHistory();
+  toast('History cleared', 'ok');
+}
+
+function renderHistory() {
+  var el = g('hlist');
+  if (!el) return;
+  if (!qHistory.length) {
+    el.innerHTML = '<div class="es"><span>No queries yet — run a DQL query to start recording history</span></div>';
+    return;
+  }
+  el.innerHTML = qHistory.map(function(h, i) {
+    var dt = new Date(h.ts).toLocaleString();
+    var dql = eh(h.dql);
+    var dqlSafe = h.dql.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/"/g,'\\"').replace(/\n/g,' ');
+    return '<div class="frow" style="flex-direction:column;align-items:flex-start;gap:6px;">' +
+      '<div style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;">' +
+      '<span style="font-size:9px;color:var(--tm);">' + dt + '</span>' +
+      '<div style="display:flex;gap:6px;">' +
+      '<button class="bp sm btn" onclick="reuseQuery(' + i + ')">▶ Run</button>' +
+      '<button class="bs sm btn" onclick="reuseQueryEdit(' + i + ')">✎ Edit</button>' +
+      '<button class="bs sm btn" style="color:var(--err);border-color:var(--err)" onclick="deleteHistory(' + i + ')">✕</button>' +
+      '</div></div>' +
+      '<pre style="font-size:10px;color:var(--ac);white-space:pre-wrap;word-break:break-all;margin:0;font-family:var(--fn);">' + dql + '</pre>' +
+      '</div>';
+  }).join('');
+}
+
+function reuseQuery(i) {
+  var h = qHistory[i];
+  if (!h) return;
+  g('dql').value = h.dql;
+  showTab('query');
+  updCmd();
+  runQ();
+}
+
+function reuseQueryEdit(i) {
+  var h = qHistory[i];
+  if (!h) return;
+  g('dql').value = h.dql;
+  showTab('query');
+  updCmd();
+}
+
+function deleteHistory(i) {
+  qHistory.splice(i, 1);
+  localStorage.setItem('gk_history', JSON.stringify(qHistory));
+  renderHistory();
+}
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+health();setInterval(health,30000);renderHistory();
+setMode('sequential');
+igLoadConfig();
+g('dql').addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='Enter')runQ();});
+g('dql').addEventListener('input',updCmd);
+updCmd();
+</script>
+</body>
+</html>

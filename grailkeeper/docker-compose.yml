@@ -1,0 +1,13 @@
+services:
+  grailkeeper:
+    build: .
+    container_name: grailkeeper
+    ports:
+      - "8000:8000"
+    volumes:
+      - grailkeeper-config:/root/.config/dtctl
+    restart: unless-stopped
+    mem_limit: 20g
+
+volumes:
+  grailkeeper-config:

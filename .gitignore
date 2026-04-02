@@ -1,0 +1,31 @@
+# Docker
+.env
+*.env
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+.venv/
+venv/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Exports (runtime only, not source)
+exports/
+*.jsonl
+*.log
+
+# Secrets
+*.pem
+*.key
+config.json
