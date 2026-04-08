@@ -115,7 +115,7 @@ pre.raw{padding:12px;font-size:11px;line-height:1.6;color:var(--td);white-space:
 .statbox{background:var(--s2);border:1px solid var(--bd);border-radius:5px;padding:8px 10px;}
 .statbox .slbl{font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;}
 .statbox .sval{font-size:16px;font-weight:600;margin-top:2px;}
-.exlog{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:10px;font-size:10px;line-height:1.7;color:var(--td);max-height:260px;overflow-y:auto;font-family:var(--fn);}
+.exlog{background:var(--bg);border:1px solid var(--bd);border-radius:5px;padding:10px;font-size:10px;line-height:1.7;color:var(--td);height:320px;overflow-y:auto;font-family:var(--fn);}
 /* Files */
 .frow{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:1px solid var(--bd);gap:10px;}
 .frow:hover{background:var(--s2);}
@@ -133,6 +133,8 @@ pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:v
 .modebtn:hover{border-color:var(--ac);color:var(--ac);}
 .attr-row{display:flex;gap:6px;align-items:center;margin-bottom:5px;}
 .attr-row input{font-size:10px;padding:4px 7px;}
+.grp-sub button.sb{padding-left:20px;}
+.grp-hidden{display:none;}
 .tc{position:fixed;bottom:20px;right:20px;display:flex;flex-direction:column;gap:6px;z-index:9999;}
 .ts{padding:9px 14px;border-radius:5px;font-size:11px;background:var(--s2);border:1px solid var(--bd);color:var(--tx);animation:si .2s ease;max-width:300px;}
 .ts.ok{border-color:var(--ac3);color:var(--ac3);}.ts.er{border-color:var(--err);color:var(--err);}
@@ -153,22 +155,42 @@ pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:v
 </header>
 <div class="layout">
 <aside class="sidebar">
+  <!-- Query group -->
   <div class="sg">
-    <div class="sl">Navigation</div>
-    <button class="sb on" onclick="showTab('query')" id="nb-query"><span class="sbi">⚡</span> Query</button>
-    <button class="sb" onclick="showTab('extract')" id="nb-extract"><span class="sbi">⛏</span> Extract</button>
-    <button class="sb" onclick="showTab('ingest')" id="nb-ingest"><span class="sbi">📥</span> Ingest</button>
-    <button class="sb" onclick="showTab('files')" id="nb-files"><span class="sbi">📁</span> Files</button>
+    <div class="sl" style="cursor:pointer;user-select:none;" onclick="toggleGroup('grp-query')">⚡ Query <span id="grp-query-arr" style="float:right;">▾</span></div>
+    <div id="grp-query">
+      <button class="sb on" onclick="showTab('query')" id="nb-query"><span class="sbi" style="font-size:10px;">DQL</span> Query</button>
+      <button class="sb" onclick="showTab('history')" id="nb-history"><span class="sbi" style="font-size:10px;">📜</span> History</button>
+    </div>
   </div>
   <hr class="sd">
+  <!-- Extract group -->
   <div class="sg">
-    <div class="sl">History</div>
-    <button class="sb" onclick="showTab('history')" id="nb-history"><span class="sbi">📜</span> Query History</button>
+    <div class="sl" style="cursor:pointer;user-select:none;" onclick="toggleGroup('grp-extract')">⛏ Extract <span id="grp-extract-arr" style="float:right;">▾</span></div>
+    <div id="grp-extract">
+      <button class="sb" onclick="showTab('extract')" id="nb-extract"><span class="sbi" style="font-size:10px;">DQL</span> Extract</button>
+      <button class="sb" onclick="showTab('exhistory')" id="nb-exhistory"><span class="sbi" style="font-size:10px;">📜</span> History</button>
+      <button class="sb" onclick="showTab('exfiles')" id="nb-exfiles"><span class="sbi" style="font-size:10px;">📁</span> Files</button>
+      <button class="sb" onclick="showTab('exjobs')" id="nb-exjobs"><span class="sbi" style="font-size:10px;">⚙</span> Jobs</button>
+    </div>
   </div>
   <hr class="sd">
+  <!-- Ingest group -->
   <div class="sg">
-    <div class="sl">Settings</div>
-    <button class="sb" onclick="showTab('config')" id="nb-config"><span class="sbi">🔑</span> Configure</button>
+    <div class="sl" style="cursor:pointer;user-select:none;" onclick="toggleGroup('grp-ingest')">📥 Ingest <span id="grp-ingest-arr" style="float:right;">▾</span></div>
+    <div id="grp-ingest">
+      <button class="sb" onclick="showTab('ingest')" id="nb-ingest"><span class="sbi" style="font-size:10px;">▶</span> Ingest</button>
+      <button class="sb" onclick="showTab('ingesthistory')" id="nb-ingesthistory"><span class="sbi" style="font-size:10px;">📜</span> History</button>
+    </div>
+  </div>
+  <hr class="sd">
+  <!-- Settings group -->
+  <div class="sg">
+    <div class="sl" style="cursor:pointer;user-select:none;" onclick="toggleGroup('grp-settings')">🔑 Settings <span id="grp-settings-arr" style="float:right;">▾</span></div>
+    <div id="grp-settings">
+      <button class="sb" onclick="showTab('config')" id="nb-config"><span class="sbi" style="font-size:10px;">⚡⛏</span> Query & Extract</button>
+      <button class="sb" onclick="showTab('config-ingest')" id="nb-config-ingest"><span class="sbi" style="font-size:10px;">📥</span> Ingest</button>
+    </div>
   </div>
 </aside>
 <main class="main">
@@ -266,57 +288,154 @@ pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:v
 
 <!-- EXTRACT -->
 <div class="panel" id="p-extract">
-  <div class="ptb"><span class="ptt">⛏ Chunked Extraction</span></div>
+  <div class="ptb"><span class="ptt">⛏ Smart Extraction</span></div>
   <div class="scrl">
-    <div class="infobox">Splits a date range into hourly chunks. Each chunk runs one dtctl query and appends to a single JSONL file. Safe for tenants with millions of records. Resume supported — stops and restarts with the same filename continue from the last record.</div>
-    <div class="card">
-      <div class="card-title"><span>◆</span> Query</div>
-      <div class="fg"><div class="fl">DQL <span class="flg">(timeframe injected automatically per chunk)</span></div>
-        <textarea id="ex-dql" style="height:52px;font-size:12px;color:var(--ac);resize:vertical;" spellcheck="false">fetch logs, scanLimitGBytes:-1 | limit 50000000</textarea>
+    <div class="infobox">Auto-calibrating extraction engine: pre-flight density profiling → dynamic caps per window → auto-split on truncation → background job (browser-safe) → pause/stop/resume → scheduling. Zero configuration needed.</div>
+
+    <!-- Job reconnect banner -->
+    <div id="ex-reconnect-banner" style="display:none;background:var(--warn);color:#000;padding:8px 12px;border-radius:4px;margin-bottom:10px;font-size:11px;justify-content:space-between;align-items:center;">
+      <span id="ex-reconnect-msg">⚡ Active job detected</span>
+      <div style="display:flex;gap:6px;">
+        <button class="btn bs sm" onclick="exReconnect()">Reconnect</button>
+        <button class="btn bs sm" onclick="exDismissBanner()">Dismiss</button>
       </div>
     </div>
-    <div class="card">
-      <div class="card-title"><span>◆</span> Date Range</div>
-      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
-        <span style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;">Quick:</span>
-        <button class="bs sm btn" onclick="setRange(7)">7d</button>
-        <button class="bs sm btn" onclick="setRange(30)">30d</button>
-        <button class="bs sm btn" onclick="setRange(90)">90d</button>
-        <button class="bs sm btn" onclick="setRange(180)">180d</button>
-        <button class="bs sm btn" onclick="setRange(365)">365d</button>
-        <button class="bs sm btn" onclick="setRange(300)">300d</button>
+
+    <!-- Input form -->
+    <div id="ex-form">
+      <div class="card">
+        <div class="card-title"><span>◆</span> Query</div>
+        <div class="fg"><div class="fl">DQL <span class="flg">(timeframe injected automatically — filters applied to pre-flight too)</span></div>
+          <textarea id="ex-dql" style="height:60px;font-size:12px;color:var(--ac);resize:vertical;" spellcheck="false">fetch logs, scanLimitGBytes:-1</textarea>
+        </div>
       </div>
-      <div class="grid4">
-        <div class="fg"><div class="fl">Start Date</div><input type="date" id="ex-start-date" onchange="syncDates()"><div style="font-size:9px;color:var(--tm);margin-top:2px;" id="ex-start-iso"></div></div>
-        <div class="fg"><div class="fl">End Date</div><input type="date" id="ex-end-date" onchange="syncDates()"><div style="font-size:9px;color:var(--tm);margin-top:2px;" id="ex-end-iso"></div></div>
-        <div class="fg"><div class="fl">Chunk Size (hours)</div><input type="number" id="ex-chunk" value="6" min="1" max="168"></div>
-        <div class="fg"><div class="fl">Max Records / Chunk</div><input type="number" id="ex-maxrec" value="500000" min="1000"></div>
+      <div class="card">
+        <div class="card-title"><span>◆</span> Date Range</div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px;align-items:center;">
+          <span style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;">Quick:</span>
+          <button class="bs sm btn" onclick="setRange(1)">1d</button>
+          <button class="bs sm btn" onclick="setRange(7)">7d</button>
+          <button class="bs sm btn" onclick="setRange(30)">30d</button>
+          <button class="bs sm btn" onclick="setRange(90)">90d</button>
+          <button class="bs sm btn" onclick="setRange(180)">180d</button>
+          <button class="bs sm btn" onclick="setRange(365)">365d</button>
+        </div>
+        <div class="grid2">
+          <div class="fg"><div class="fl">Start Date</div><input type="date" id="ex-start-date" onchange="syncDates()"><div style="font-size:9px;color:var(--tm);margin-top:2px;" id="ex-start-iso"></div></div>
+          <div class="fg"><div class="fl">End Date</div><input type="date" id="ex-end-date" onchange="syncDates()"><div style="font-size:9px;color:var(--tm);margin-top:2px;" id="ex-end-iso"></div></div>
+        </div>
+        <input type="hidden" id="ex-start" value="">
+        <input type="hidden" id="ex-end" value="">
       </div>
-      <input type="hidden" id="ex-start" value="">
-      <input type="hidden" id="ex-end" value="">
-    </div>
-    <div class="card">
-      <div class="card-title"><span>◆</span> Output</div>
-      <div class="fg"><div class="fl">Filename <span class="flg">saved as JSONL in Files panel</span></div><input type="text" id="ex-fname" placeholder="extraction.jsonl"></div>
-    </div>
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;">
-      <button class="bp2 btn" id="ex-runbtn" onclick="startEx()">⛏ Start Extraction</button>
-      <button class="bst btn" id="ex-stopbtn" style="display:none" onclick="stopEx()">■ Stop</button>
-      <span id="ex-status" style="font-size:11px;color:var(--td)"></span>
-    </div>
-    <div id="ex-progress-wrap" style="display:none;">
-      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-bottom:5px;">
-        <span id="ex-plabel">Chunk 0 / 0</span><span id="ex-ppct">0%</span>
+      <div class="card">
+        <div class="card-title"><span>◆</span> Output</div>
+        <div class="fg"><div class="fl">Filename <span class="flg">saved as JSONL in Files panel — persistent across Docker rebuilds</span></div>
+          <input type="text" id="ex-fname" placeholder="extraction_YYYY-MM-DD_HHMM.jsonl">
+        </div>
       </div>
-      <div class="pgbar-wrap" style="margin-bottom:10px;"><div class="pgbar" id="ex-pbar"></div></div>
-      <div class="istat">
+      <div class="card">
+        <div class="card-title"><span>◆</span> Performance</div>
+        <div class="grid2">
+          <div class="fg">
+            <div class="fl">Parallel Workers</div>
+            <select id="ex-workers">
+              <option value="1" selected>1 — Sequential (default, safe)</option>
+              <option value="2">2 — Parallel (2× speed, same cost)</option>
+              <option value="3">3 — Parallel (3× speed, higher API load)</option>
+            </select>
+            <div style="font-size:9px;color:var(--tm);margin-top:4px;">ℹ 2 workers doubles speed with the same DQL license cost. Use 1 for small ranges or rate-limited tenants.</div>
+          </div>
+        </div>
+      </div>
+      <!-- Schedule (collapsed by default) -->
+      <div class="card">
+        <div class="card-title" style="cursor:pointer;" onclick="toggleSchedule()">
+          <span>◆</span> Schedule <span style="font-size:9px;color:var(--tm);margin-left:8px;">optional — avoid business hours</span>
+          <span id="ex-sched-toggle" style="float:right;font-size:10px;color:var(--tm)">▼ expand</span>
+        </div>
+        <div id="ex-sched-body" style="display:none;margin-top:10px;">
+          <div class="grid3">
+            <div class="fg"><div class="fl">Run From (hour)</div><input type="number" id="ex-sched-from" value="22" min="0" max="23" placeholder="22"></div>
+            <div class="fg"><div class="fl">Run To (hour)</div><input type="number" id="ex-sched-to" value="6" min="0" max="23" placeholder="6"></div>
+            <div class="fg"><div class="fl">Timezone</div>
+              <select id="ex-sched-tz">
+                <option value="UTC">UTC</option>
+                <option value="Europe/Rome" selected>Europe/Rome</option>
+                <option value="Europe/London">Europe/London</option>
+                <option value="Europe/Zurich">Europe/Zurich</option>
+                <option value="America/New_York">America/New_York</option>
+                <option value="America/Los_Angeles">America/Los_Angeles</option>
+                <option value="Asia/Tokyo">Asia/Tokyo</option>
+              </select>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--tm);margin-top:6px;">ⓘ Extraction auto-pauses outside the run window and resumes automatically. Leave blank to run continuously.</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;margin-bottom:4px;">
+        <button class="bp2 btn" id="ex-runbtn" onclick="startEx()">⛏ Start Extraction</button>
+        <span style="font-size:10px;color:var(--tm)">Auto-calibrated: pre-flight + dynamic caps + auto-split</span>
+      </div>
+    </div>
+
+    <!-- Active job panel -->
+    <div id="ex-job-panel" style="display:none;">
+
+      <!-- Job header -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div>
+          <span id="ex-job-status-badge" style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:3px;background:var(--ac);color:#000;">RUNNING</span>
+          <span id="ex-job-id-label" style="font-size:10px;color:var(--tm);margin-left:8px;"></span>
+          <div id="ex-job-dql" style="margin-top:6px;font-size:10px;color:var(--ac);font-family:var(--fn);white-space:pre-wrap;word-break:break-all;max-height:60px;overflow-y:auto;background:rgba(0,0,0,0.2);border-radius:3px;padding:4px 8px;border-left:2px solid var(--ac);opacity:0.9;"></div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn bs sm" id="ex-pause-btn" onclick="exPause()">⏸ Pause</button>
+          <button class="btn bst sm" id="ex-stop-btn" onclick="exStop()">■ Stop</button>
+          <button class="btn bs sm" id="ex-resume-btn" style="display:none;" onclick="exResume()">▶ Resume</button>
+          <button class="btn bs sm" onclick="exNewJob()">+ New</button>
+        </div>
+      </div>
+
+      <!-- Progress bar -->
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--td);margin-bottom:4px;">
+        <span id="ex-plabel">Initialising...</span>
+        <span id="ex-ppct">0%</span>
+      </div>
+      <div class="pgbar-wrap" style="margin-bottom:10px;"><div class="pgbar" id="ex-pbar" style="transition:width 0.5s;"></div></div>
+
+      <!-- Stats row -->
+      <div class="istat" style="margin-bottom:10px;">
         <div class="statbox"><div class="slbl">Records</div><div class="sval" id="ex-srec" style="color:var(--ac)">0</div></div>
-        <div class="statbox"><div class="slbl">Chunks</div><div class="sval" id="ex-schunk" style="color:var(--ac3)">0</div></div>
-        <div class="statbox"><div class="slbl">File Size</div><div class="sval" id="ex-ssize" style="color:var(--warn)">0 MB</div></div>
+        <div class="statbox"><div class="slbl">Windows</div><div class="sval" id="ex-swin" style="color:var(--ac3)">0</div></div>
+        <div class="statbox"><div class="slbl">Splits</div><div class="sval" id="ex-ssplit" style="color:var(--warn)">0</div></div>
+        <div class="statbox"><div class="slbl">File Size</div><div class="sval" id="ex-ssize" style="color:var(--td)">-</div></div>
+        <div class="statbox"><div class="slbl">API Calls</div><div class="sval" id="ex-scalls" style="color:var(--tm)">0</div></div>
         <div class="statbox"><div class="slbl">ETA</div><div class="sval" id="ex-seta" style="color:var(--td)">-</div></div>
       </div>
+
+      <!-- Live log -->
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
+        <div style="display:flex;align-items:center;gap:8px;">
+          <span style="font-size:9px;color:var(--tm);text-transform:uppercase;letter-spacing:1px;">Live Log</span>
+          <button class="btn bs sm" id="ex-log-lock" onclick="exToggleLogLock()" title="Lock scroll to read history">🔒 Lock</button>
+          <button class="btn bs sm" onclick="g('ex-log').innerHTML='';exLastLogIdx=0;">clear</button>
+        </div>
+      </div>
+      <div class="exlog" id="ex-log"></div>
+
+      <!-- Summary panel (shown on completion) -->
+      <div id="ex-summary-panel" style="display:none;margin-top:12px;">
+        <div class="card" style="border-color:var(--ac3);">
+          <div class="card-title" style="color:var(--ac3);"><span>✅</span> Extraction Summary</div>
+          <div id="ex-summary-body" style="font-size:11px;color:var(--td);line-height:1.8;"></div>
+          <div style="display:flex;gap:8px;margin-top:10px;">
+            <button class="btn bs sm" id="ex-dl-summary-btn" onclick="exDownloadSummary()">↓ Download Summary</button>
+            <button class="btn bp2 sm" onclick="showTab('files')">→ View Files</button>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="exlog" id="ex-log" style="display:none;"></div>
+
   </div>
 </div>
 
@@ -395,8 +514,16 @@ pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:v
 
 <!-- FILES -->
 <div class="panel" id="p-files">
-  <div class="ptb"><span class="ptt">📁 Exported Files</span><button class="bs sm btn" onclick="loadFiles()">Refresh</button></div>
-  <div style="flex:1;overflow-y:auto;" id="flist"><div class="es"><span>Click Refresh</span></div></div>
+  <div class="ptb"><span class="ptt">📁 Exported Files</span><button class="bs sm btn" onclick="loadFiles();loadJobs()">Refresh</button></div>
+  <div style="flex:1;overflow-y:auto;padding:12px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);font-weight:600;">Active Jobs</div>
+      <button class="bs sm btn" onclick="clearAllJobs()" style="font-size:9px;">Clear All Orphaned</button>
+    </div>
+    <div id="jobs-list" style="margin-bottom:14px;"><div class="es" style="height:40px;"><span>No active jobs</span></div></div>
+    <div style="font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--tm);font-weight:600;margin-bottom:6px;">Files</div>
+    <div id="flist"></div>
+  </div>
   <div class="fpanel" id="fpanel">
     <div class="fph">
       <span id="fpname" style="font-size:11px;color:var(--ac)"></span>
@@ -407,6 +534,42 @@ pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:v
       </div>
     </div>
     <pre class="fpc" id="fpc"></pre>
+  </div>
+</div>
+
+<!-- EXTRACT FILES PANEL -->
+<div class="panel" id="p-exfiles">
+  <div class="ptb">
+    <div><div class="ptt">📁 Extraction Files</div><div class="ptd">Downloaded JSONL files from completed extractions</div></div>
+    <button class="bs sm btn" onclick="loadExFiles()">Refresh</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px;">
+    <div id="exfiles-list"><div class="es"><span>No extraction files yet</span></div></div>
+  </div>
+  <div class="fpanel" id="exfpanel">
+    <div class="fph">
+      <span id="exfpname" style="font-size:11px;color:var(--ac)"></span>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <span style="font-size:9px;color:var(--tm)">last <input type="number" id="exfpln" value="50" min="10" max="1000" style="width:55px;padding:3px 5px;font-size:10px;" onchange="refreshExPrev()"> lines</span>
+        <button class="bs sm btn" onclick="refreshExPrev()">Refresh</button>
+        <button class="bs sm btn" onclick="closeExPrev()">Close</button>
+      </div>
+    </div>
+    <pre class="fpc" id="exfpc"></pre>
+  </div>
+</div>
+
+<!-- EXTRACT JOBS PANEL -->
+<div class="panel" id="p-exjobs">
+  <div class="ptb">
+    <div><div class="ptt">⚙ Extraction Jobs</div><div class="ptd">All extraction jobs — active, paused, completed</div></div>
+    <div style="display:flex;gap:6px;">
+      <button class="bs sm btn" onclick="loadExJobs()">Refresh</button>
+      <button class="bs sm btn" onclick="clearAllJobs()" style="color:var(--err);border-color:var(--err);">Clear Orphaned</button>
+    </div>
+  </div>
+  <div style="flex:1;overflow-y:auto;padding:12px;">
+    <div id="exjobs-list"><div class="es"><span>No jobs yet</span></div></div>
   </div>
 </div>
 
@@ -421,9 +584,31 @@ pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:v
   </div>
 </div>
 
+<!-- EXTRACTION HISTORY -->
+<div class="panel" id="p-exhistory">
+  <div class="ptb">
+    <div><div class="ptt">⛏ Extraction History</div><div class="ptd">All extractions — click to replay</div></div>
+    <button class="bst sm btn" onclick="clearExHistory()">Reset All</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;" id="exhlist">
+    <div class="es"><span>No extractions yet</span></div>
+  </div>
+</div>
+
+<!-- INGEST HISTORY -->
+<div class="panel" id="p-ingesthistory">
+  <div class="ptb">
+    <div><div class="ptt">📥 Ingest History</div><div class="ptd">All ingestions — click to replay</div></div>
+    <button class="bst sm btn" onclick="clearIngestHistory()">Reset All</button>
+  </div>
+  <div style="flex:1;overflow-y:auto;" id="ighlist">
+    <div class="es"><span>No ingestions recorded yet</span></div>
+  </div>
+</div>
+
 <!-- CONFIG -->
 <div class="panel" id="p-config">
-  <div class="ptb"><span class="ptt">🔑 Configure</span></div>
+  <div class="ptb"><span class="ptt">🔑 Query & Extract Config</span></div>
   <div class="scrl">
     <div class="card">
       <div class="card-title"><span>◆</span> Query & Extract — dtctl (Platform Token)</div>
@@ -465,6 +650,24 @@ pre.fpc{flex:1;overflow:auto;padding:10px;font-size:10px;line-height:1.5;color:v
   </div>
 </div>
 
+<!-- INGEST CONFIG PANEL (separate nav entry) -->
+<div class="panel" id="p-config-ingest">
+  <div class="ptb"><span class="ptt">📥 Ingest Config</span></div>
+  <div class="scrl">
+    <div class="infobox">Configure the Logs API v2 ingest token. This is separate from the Platform Token used for Query and Extract.</div>
+    <div class="card">
+      <div class="card-title"><span>◆</span> Ingest — Logs API (Access Token)</div>
+      <p style="font-size:10px;color:var(--td);margin-bottom:12px;line-height:1.6;">Requires an Access Token with <code style="color:var(--ac)">logs.ingest</code> scope.</p>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:520px;">
+        <div class="fg"><div class="fl">Dynatrace Environment URL</div><input type="text" id="ienv2" placeholder="https://xxxxxxxx.apps.dynatrace.com" oninput="updateIngestUrl2()"></div>
+        <div class="fg"><div class="fl">Computed Ingest Endpoint</div><input type="text" id="iendpoint2" readonly style="color:var(--ac3);font-size:10px;"></div>
+        <div class="fg"><div class="fl">Access Token <span class="flg">logs.ingest scope</span></div><input type="password" id="itok2" placeholder="dt0e.xxx or dt0s01.xxx"></div>
+        <button class="bp2 btn" style="width:fit-content" onclick="saveIngestConf2()">✓ Save Ingest Config</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 </main>
 </div>
 <div class="tc" id="tc"></div>
@@ -494,8 +697,21 @@ function showTab(n){
   document.querySelectorAll('.panel').forEach(function(p){p.classList.remove('on');});
   document.querySelectorAll('button.sb').forEach(function(b){b.classList.remove('on');});
   g('p-'+n).classList.add('on');g('nb-'+n).classList.add('on');
-  if(n==='files')loadFiles();
+  if(n==='files'){loadFiles();loadJobs();}
+  if(n==='exfiles'){loadExFiles();}
+  if(n==='exjobs'){loadExJobs();}
+  if(n==='extract'){var _fn=g('ex-fname');if(_fn&&!_fn.value){var _nd=new Date();
+var _hh=String(_nd.getHours()).padStart(2,'0');
+var _mm=String(_nd.getMinutes()).padStart(2,'0');
+var _ss=String(_nd.getSeconds()).padStart(2,'0');
+var _dd=String(_nd.getDate()).padStart(2,'0');
+var _mo=String(_nd.getMonth()+1).padStart(2,'0');
+var _yy=_nd.getFullYear();
+_fn.value='extraction_'+_hh+'h'+_mm+'m'+_ss+'s_'+_dd+'-'+_mo+'-'+_yy+'.jsonl';}}
+  if(n==='exhistory')renderExHistory();
   if(n==='config')loadConf();
+  if(n==='config-ingest'){loadConf();setTimeout(loadIngestConf2,200);}
+  if(n==='ingesthistory')renderIgHistory();
 }
 
 // ── Query ─────────────────────────────────────────────────────────────────────
@@ -574,39 +790,337 @@ document.addEventListener('click',function(e){if(!e.target.closest('.emenu'))g('
 function doExp(mode){g('edrop').classList.remove('on');if(!curData){toast('No data','er');return;}if(mode==='raw'){var ext=curFmt==='csv'?'csv':curFmt==='yaml'?'yaml':'json';var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([curData],{type:'text/plain'}));a.download='grailkeeper-'+Date.now()+'.'+ext;a.click();toast('Downloaded','ok');return;}fetch(mode==='content'?'/api/export/content':'/api/export/full',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:curData,mode:mode,fmt:curFmt})}).then(function(r){if(!r.ok)return r.json().then(function(e){toast('Error: '+(e.detail||'?'),'er');});return r.blob().then(function(blob){var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=mode==='content'?'content_'+Date.now()+'.log':'full_'+Date.now()+'.csv';a.click();toast('Downloaded','ok');});}).catch(function(e){toast('Error: '+e.message,'er');});}
 
 // ── Extract ───────────────────────────────────────────────────────────────────
-function setRange(days){var end=new Date(),start=new Date();start.setDate(start.getDate()-days);g('ex-end-date').value=end.toISOString().slice(0,10);g('ex-start-date').value=start.toISOString().slice(0,10);syncDates();}
-function syncDates(){var sd=val('ex-start-date'),ed=val('ex-end-date');if(sd){var iso=sd+'T00:00:00Z';g('ex-start').value=iso;g('ex-start-iso').textContent=iso;}if(ed){var iso2=ed+'T23:59:59Z';g('ex-end').value=iso2;g('ex-end-iso').textContent=iso2;}}
-function startEx(){
-  var dql=g('ex-dql').value.trim(),start=val('ex-start').trim(),end=val('ex-end').trim();
-  var chunk=parseInt(val('ex-chunk'))||6,maxrec=parseInt(val('ex-maxrec'))||500000,fname=val('ex-fname').trim();
-  if(!dql){toast('Enter DQL query','er');return;}if(!start){toast('Select start date','er');return;}if(!end){toast('Select end date','er');return;}
-  if(!fname){fname='extraction_'+new Date().toISOString().slice(0,10)+'.jsonl';g('ex-fname').value=fname;}
-  g('ex-runbtn').style.display='none';g('ex-stopbtn').style.display='inline-flex';
-  g('ex-progress-wrap').style.display='block';g('ex-log').style.display='block';
-  g('ex-log').innerHTML='';g('ex-srec').textContent='0';g('ex-schunk').textContent='0';
-  g('ex-ssize').textContent='0 MB';g('ex-seta').textContent='-';
-  g('ex-pbar').style.width='0%';g('ex-ppct').textContent='0%';g('ex-status').textContent='Running...';
-  exStartTime=Date.now();exChunkTimes=[];
-  exCtrl=new AbortController();
-  fetch('/api/extract/chunked',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dql_template:dql,start:start,end:end,chunk_hours:chunk,max_records_per_chunk:maxrec,output_filename:fname}),signal:exCtrl.signal})
-  .then(function(resp){var reader=resp.body.getReader(),dec=new TextDecoder(),buf='';
-    function read(){reader.read().then(function(c2){if(c2.done){exDone();return;}buf+=dec.decode(c2.value,{stream:true});var parts=buf.split('\n\n');buf=parts.pop();parts.forEach(function(p){if(!p.startsWith('data:'))return;try{onExSSE(JSON.parse(p.slice(5).trim()));}catch(e){}});read();}).catch(function(e){if(e.name!=='AbortError')exLine('Error: '+e.message,'var(--err)');exDone();});}read();})
-  .catch(function(e){if(e.name==='AbortError')exLine('Stopped.','var(--err)');else exLine('Error: '+e.message,'var(--err)');exDone();});
+// ── Extract v3.2 ─────────────────────────────────────────────────────────────
+var exJobId=null,exPollTimer=null,exLastLogIdx=0;window.exLogLocked=false;
+
+function setRange(days){
+  var end=new Date();
+  var start=new Date(end.getTime()-days*24*60*60*1000);  // exact N×24h ago
+  // Set date inputs for display
+  g('ex-end-date').value=end.toISOString().slice(0,10);
+  g('ex-start-date').value=start.toISOString().slice(0,10);
+  // Set hidden ISO values directly — precise to the second
+  var startIso=start.toISOString().slice(0,19)+'Z';
+  var endIso=end.toISOString().slice(0,19)+'Z';
+  g('ex-start').value=startIso;g('ex-start-iso').textContent=startIso;
+  g('ex-end').value=endIso;g('ex-end-iso').textContent=endIso;
 }
-function stopEx(){if(exCtrl){exCtrl.abort();exCtrl=null;}g('ex-status').textContent='Stopped.';}
-function exDone(){g('ex-runbtn').style.display='inline-flex';g('ex-stopbtn').style.display='none';exCtrl=null;}
-function exLine(msg,color){var el=g('ex-log'),d=document.createElement('div');d.style.color=color||'var(--td)';d.textContent=new Date().toTimeString().slice(0,8)+'  '+msg;el.appendChild(d);el.scrollTop=el.scrollHeight;}
-function onExSSE(e){
-  if(e.type==='ping')return;
-  if(e.type==='resume'){exLine('Resuming from chunk '+e.chunks_done,'var(--warn)');return;}
-  if(e.type==='chunk_start'){g('ex-plabel').textContent='Chunk '+e.chunk+' / '+e.total;g('ex-ppct').textContent=e.progress_pct+'%';g('ex-pbar').style.width=e.progress_pct+'%';g('ex-status').textContent=e.from+' to '+e.to;exLine(e.chunk+'/'+e.total+': '+e.from+' to '+e.to);return;}
-  if(e.type==='chunk_done'){var elapsed=(Date.now()-exStartTime)/1000;exChunkTimes.push(elapsed/e.chunk);var avg=exChunkTimes.reduce(function(a,b){return a+b;},0)/exChunkTimes.length;var rem=(e.total-e.chunk)*avg;var eta=rem>3600?Math.round(rem/3600)+'h':rem>60?Math.round(rem/60)+'m':Math.round(rem)+'s';g('ex-srec').textContent=e.total_records.toLocaleString();g('ex-schunk').textContent=e.chunk;g('ex-seta').textContent=eta;g('ex-pbar').style.width=e.progress_pct+'%';g('ex-ppct').textContent=e.progress_pct+'%';exLine('  OK: '+e.chunk_records.toLocaleString()+' records | total: '+e.total_records.toLocaleString(),'var(--ac3)');if(e.chunk%10===0){fetch('/api/files').then(function(r){return r.json();}).then(function(d){var fn=val('ex-fname').trim();var f=d.files?d.files.find(function(x){return x.filename===fn;}):null;if(f)g('ex-ssize').textContent=f.size_mb+' MB';});}return;}
-  if(e.type==='chunk_error'){exLine('  ERROR chunk '+e.chunk+': '+e.error,'var(--err)');return;}
-  if(e.type==='extraction_done'){g('ex-pbar').style.width='100%';g('ex-ppct').textContent='100%';g('ex-srec').textContent=e.total_records.toLocaleString();g('ex-ssize').textContent=e.size_mb+' MB';g('ex-seta').textContent='Done!';g('ex-status').textContent='Complete!';g('ex-schunk').textContent=e.total_chunks;exLine('DONE: '+e.total_records.toLocaleString()+' records, '+e.size_mb+'MB','var(--ac3)');toast('Extraction complete! '+e.total_records.toLocaleString()+' records','ok');exDone();return;}
-  if(e.type==='error'){exLine('Error: '+e.message,'var(--err)');g('ex-status').textContent='Error.';exDone();}
+function syncDates(){
+  var sd=val('ex-start-date'),ed=val('ex-end-date');
+  if(sd){var iso=sd+'T00:00:00Z';g('ex-start').value=iso;g('ex-start-iso').textContent=iso;}
+  // End date: if it's today use current time, otherwise end of day
+  if(ed){
+    var today=new Date().toISOString().slice(0,10);
+    var iso2=ed===today
+      ? new Date().toISOString().slice(0,19)+'Z'   // now
+      : ed+'T23:59:59Z';                            // end of selected day
+    g('ex-end').value=iso2;g('ex-end-iso').textContent=iso2;
+  }
+}
+function toggleSchedule(){
+  var body=g('ex-sched-body'),tog=g('ex-sched-toggle');
+  var vis=body.style.display==='none';
+  body.style.display=vis?'block':'none';
+  tog.textContent=vis?'▲ collapse':'▼ expand';
+}
+function startEx(){
+  var dql=g('ex-dql').value.trim();
+  var start=val('ex-start').trim(),end=val('ex-end').trim();
+  var fname=val('ex-fname').trim();
+  if(!dql){toast('Enter DQL query','er');return;}
+  if(!start){toast('Select start date','er');return;}
+  if(!end){toast('Select end date','er');return;}
+  if(!fname){var _n=new Date();
+var _hh2=String(_n.getHours()).padStart(2,'0'),_mm2=String(_n.getMinutes()).padStart(2,'0'),_ss2=String(_n.getSeconds()).padStart(2,'0');
+var _dd2=String(_n.getDate()).padStart(2,'0'),_mo2=String(_n.getMonth()+1).padStart(2,'0'),_yy2=_n.getFullYear();
+fname='extraction_'+_hh2+'h'+_mm2+'m'+_ss2+'s_'+_dd2+'-'+_mo2+'-'+_yy2+'.jsonl';g('ex-fname').value=fname;}
+  var schedFrom=parseInt(val('ex-sched-from'));
+  var schedTo=parseInt(val('ex-sched-to'));
+  var schedTz=val('ex-sched-tz');
+  var schedule=null;
+  if(g('ex-sched-body').style.display!=='none'&&!isNaN(schedFrom)&&!isNaN(schedTo)){
+    schedule={run_from_hour:schedFrom,run_to_hour:schedTo,timezone:schedTz};
+  }
+  fetch('/api/extract/start',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({dql_template:dql,start:start,end:end,output_filename:fname,schedule:schedule,workers:parseInt(val('ex-workers'))||1})
+  }).then(function(r){return r.json();}).then(function(d){
+    if(d.job_id){
+      exJobId=d.job_id;localStorage.setItem('gk_job_id',exJobId);
+      exLastLogIdx=0;exShowJobPanel();exStartPolling();
+      toast('Extraction started — job '+exJobId,'ok');
+    } else { toast('Failed: '+(d.detail||'?'),'er'); }
+  }).catch(function(e){toast('Error: '+e.message,'er');});
+}
+function exShowJobPanel(){
+  g('ex-form').style.display='none';g('ex-job-panel').style.display='block';
+  g('ex-summary-panel').style.display='none';g('ex-log').innerHTML='';
+  g('ex-srec').textContent='0';g('ex-swin').textContent='0';g('ex-ssplit').textContent='0';
+  g('ex-ssize').textContent='-';g('ex-scalls').textContent='0';g('ex-seta').textContent='-';
+  g('ex-pbar').style.width='0%';g('ex-ppct').textContent='0%';
+  g('ex-plabel').textContent='Initialising...';
+  g('ex-job-id-label').textContent='job: '+exJobId;
+  exUpdateStatusBadge('running');
+  g('ex-pause-btn').style.display='inline-flex';
+  g('ex-stop-btn').style.display='inline-flex';
+  g('ex-resume-btn').style.display='none';
+}
+function exStartPolling(){
+  if(exPollTimer)clearInterval(exPollTimer);
+  exPollTimer=setInterval(function(){exPollJob();exPollLog();},2000);
+  exPollJob();exPollLog();
+}
+function exStopPolling(){if(exPollTimer){clearInterval(exPollTimer);exPollTimer=null;}}
+function exPollJob(){
+  if(!exJobId)return;
+  fetch('/api/extract/job/'+exJobId).then(function(r){return r.json();}).then(function(s){exUpdateFromState(s);}).catch(function(){});
+}
+function exPollLog(){
+  if(!exJobId)return;
+  fetch('/api/extract/job/'+exJobId+'/log?tail=200').then(function(r){return r.json();}).then(function(d){
+    if(!d.events)return;
+    var newEvts=d.events.slice(exLastLogIdx);
+    exLastLogIdx=d.events.length;
+    newEvts.forEach(function(ev){exRenderLogEvent(ev);});
+  }).catch(function(){});
+}
+function exRenderLogEvent(ev){
+  var ts=ev.ts?ev.ts.slice(11,19):'';
+  var msg='',color='var(--td)';
+  if(ev.type==='preflight_start'){msg='Searching data density...';color='var(--ac)';}
+  else if(ev.type==='preflight_done'){msg='Pre-flight: '+ev.intervals+' intervals, ~'+(ev.total_expected||0).toLocaleString()+' records expected, '+Math.round(ev.avg_bytes||0)+' bytes/rec';color='var(--ac3)';}
+  else if(ev.type==='preflight_skip'){msg='Pre-flight skipped: '+ev.reason;color='var(--warn)';}
+  else if(ev.type==='preflight_error'){msg='Pre-flight error: '+ev.error;color='var(--err)';}
+  else if(ev.type==='preflight_warn'){msg='Pre-flight warning: '+ev.msg;color='var(--warn)';}
+  else if(ev.type==='preflight_parsed'){
+    msg='Pre-flight parsed: '+ev.records_count+' records, sc_recs='+ev.sc_recs+
+        ', avg_b='+ev.avg_b+', meta_keys='+JSON.stringify(ev.meta_keys)+
+        (ev.first_record?', first='+JSON.stringify(ev.first_record):'');
+    color='var(--tm)';
+  }
+  else if(ev.type==='preflight_raw'){
+    msg='Pre-flight raw: stdout='+ev.stdout_len+'b | preview: '+ev.stdout_preview.slice(0,200);
+    color='var(--tm)';
+  }
+  else if(ev.type==='schedule_built'){msg='Schedule: '+ev.windows+' windows built';color='var(--ac)';}
+  else if(ev.type==='resumed'){msg='Resumed from window '+ev.from_window+'/'+ev.total;color='var(--warn)';}
+  else if(ev.type==='window_start'){msg='['+ev.window+'/'+ev.total+'] '+ev.from.slice(0,19)+' to '+ev.to.slice(0,19)+' (cap:'+( ev.max_records||0).toLocaleString()+', '+(ev.max_bytes_mb||0)+'MB)';color='var(--td)';}
+  else if(ev.type==='window_done'){msg='  OK '+ev.count.toLocaleString()+' records';color='var(--ac3)';}
+  else if(ev.type==='window_split'){msg='  SPLIT depth '+ev.depth+' at '+ev.mid.slice(11,19);color='var(--warn)';}
+  else if(ev.type==='window_error'){msg='  ERROR: '+ev.error;color='var(--err)';}
+  else if(ev.type==='truncation_warning'){msg='  WARNING min-window truncation: '+ev.count.toLocaleString()+' written';color='var(--err)';}
+  else if(ev.type==='window_complete'){
+    var eta=ev.eta_minutes>60?Math.round(ev.eta_minutes/60)+'h '+Math.round(ev.eta_minutes%60)+'m':Math.round(ev.eta_minutes||0)+'m';
+    msg='  OK '+ev.records.toLocaleString()+' rec | '+ev.calls+' calls, '+ev.splits+' splits | '+
+        (ev.duration_sec||'?')+'s | ETA '+eta;
+    color='var(--ac3)';
+  }
+  else if(ev.type==='progress'){
+    var pe=ev.eta_minutes>60?Math.round(ev.eta_minutes/60)+'h '+Math.round(ev.eta_minutes%60)+'m':Math.round(ev.eta_minutes||0)+'m';
+    msg=ev.pct+'% | '+ev.records.toLocaleString()+' rec | '+ev.mb+'MB | ETA '+pe+
+        (ev.avg_window_sec?' | '+ev.avg_window_sec+'s/win':'');
+    color='var(--ac)';
+  }
+  else if(ev.type==='paused'){msg='Paused at window '+ev.window_idx;color='var(--warn)';}
+  else if(ev.type==='stopped'){msg='Stopped'+(ev.window_idx!==undefined?' at window '+ev.window_idx:'');color='var(--err)';}
+  else if(ev.type==='scheduled_pause'){msg='Scheduled pause — resumes '+ev.resumes_at;color='var(--warn)';}
+  else if(ev.type==='interrupted'){msg='Interrupted (container restart) — '+ev.last_window;color='var(--err)';}
+  else if(ev.type==='job_done'){msg='DONE: '+(ev.total_records||0).toLocaleString()+' records, delta '+(ev.delta_pct||0)+'%, '+ev.duration_minutes+'min';color='var(--ac3)';}
+  else if(ev.type==='job_error'){msg='Job error: '+ev.error;color='var(--err)';}
+  else return;
+  var el=g('ex-log'),d=document.createElement('div');
+  d.style.cssText='color:'+color+';padding:1px 0;border-bottom:1px solid rgba(255,255,255,0.03);';
+  d.textContent=ts+'  '+msg;el.appendChild(d);el.scrollTop=el.scrollHeight;
+}
+function exUpdateFromState(s){
+  if(!s||!s.status)return;
+  var status=s.status;
+  exUpdateStatusBadge(status);
+  exShowWorkers(s);
+  // Show full DQL from state
+  var dqlEl=g('ex-job-dql');
+  if(dqlEl&&s.dql){
+    dqlEl.textContent=s.dql;  // full DQL, scrollable
+  }
+  if(s.total_records!==undefined)g('ex-srec').textContent=(s.total_records||0).toLocaleString();
+  if(s.windows_done!==undefined)g('ex-swin').textContent=(s.windows_done||0).toLocaleString();
+  if(s.api_calls!==undefined){
+    g('ex-scalls').textContent=(s.api_calls||0).toLocaleString();
+    g('ex-ssplit').textContent=Math.max(0,(s.api_calls||0)-(s.windows_done||0)).toLocaleString();
+  }
+  if(s.size_mb!==undefined)g('ex-ssize').textContent=s.size_mb+'MB';
+  if(s.progress_pct!==undefined){g('ex-pbar').style.width=s.progress_pct+'%';g('ex-ppct').textContent=s.progress_pct+'%';}
+  if(s.current_window_from&&s.current_window_to)g('ex-plabel').textContent=s.current_window_from.slice(0,19)+' to '+s.current_window_to.slice(0,19);
+  var isActive=status==='running'||status==='preflight';
+  var isPaused=status==='paused'||status==='stopped'||status==='interrupted'||status==='scheduled_pause';
+  var isDone=status==='done'||status==='error';
+  g('ex-pause-btn').style.display=isActive?'inline-flex':'none';
+  g('ex-stop-btn').style.display=(isActive||isPaused)?'inline-flex':'none';
+  g('ex-resume-btn').style.display=isPaused?'inline-flex':'none';
+  if(s.eta_minutes!==undefined&&s.eta_minutes>0){
+    var em=s.eta_minutes;
+    var etaStr=em>1440?Math.round(em/1440)+'d '+(Math.round(em/60)%24)+'h':
+               em>60?Math.round(em/60)+'h '+Math.round(em%60)+'m':
+               Math.round(em)+'m';
+    g('ex-seta').textContent=etaStr+(s.avg_window_sec?' ('+s.avg_window_sec+'s/win)':'');
+  }
+  if(status==='scheduled_pause'&&s.resumes_at)g('ex-seta').textContent='paused until '+s.resumes_at.slice(11,16);
+  if(isDone){exStopPolling();if(status==='done')exLoadSummary();}
+}
+function exShowWorkers(s){
+  if(s&&s.workers&&s.workers>1){
+    g('ex-job-id-label').textContent='job: '+exJobId+' | '+s.workers+'× parallel';
+  } else {
+    g('ex-job-id-label').textContent='job: '+exJobId;
+  }
+}
+function exUpdateStatusBadge(status){
+  var badge=g('ex-job-status-badge');
+  var colors={running:'background:var(--ac);color:#000',preflight:'background:var(--ac2);color:#fff',
+    paused:'background:var(--warn);color:#000',stopped:'background:var(--err);color:#fff',
+    interrupted:'background:var(--err);color:#fff',scheduled_pause:'background:var(--tm);color:#fff',
+    done:'background:var(--ac3);color:#000',error:'background:var(--err);color:#fff',starting:'background:var(--ac2);color:#fff'};
+  badge.style.cssText=colors[status]||'background:var(--tm);color:#fff';
+  badge.textContent=status.replace(/_/g,' ').toUpperCase();
+}
+function exLoadSummary(){
+  if(!exJobId)return;
+  fetch('/api/extract/job/'+exJobId+'/summary').then(function(r){return r.json();}).then(function(s){exShowSummary(s);}).catch(function(){});
+}
+function exShowSummary(s){
+  if(!s)return;
+  var ex=s.extraction||{},integ=s.integrity||{},out=s.output||{},pf=s.preflight||{};
+  var deltaOk=integ.complete;
+  var html='<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">'+
+    '<div class="statbox"><div class="slbl">Records Written</div><div class="sval" style="color:var(--ac)">'+(ex.total_records||0).toLocaleString()+'</div></div>'+
+    '<div class="statbox"><div class="slbl">Expected</div><div class="sval" style="color:var(--td)">'+(integ.expected||0).toLocaleString()+'</div></div>'+
+    '<div class="statbox"><div class="slbl">Delta</div><div class="sval" style="color:'+(deltaOk?'var(--ac3)':'var(--err)');
+  html+='">'+(integ.delta_pct||0)+'% '+(deltaOk?'OK':'CHECK')+'</div></div>'+
+    '<div class="statbox"><div class="slbl">File Size</div><div class="sval" style="color:var(--td)">'+(ex.total_mb||0)+' MB</div></div>'+
+    '<div class="statbox"><div class="slbl">API Calls</div><div class="sval" style="color:var(--tm)">'+(ex.api_calls||0).toLocaleString()+'</div></div>'+
+    '<div class="statbox"><div class="slbl">Auto-splits</div><div class="sval" style="color:var(--warn)">'+(ex.splits_triggered||0).toLocaleString()+'</div></div>'+
+    '<div class="statbox"><div class="slbl">Duration</div><div class="sval" style="color:var(--td)">'+(ex.duration_minutes||0)+' min</div></div>'+
+    '<div class="statbox"><div class="slbl">Errors/Warn</div><div class="sval" style="color:'+(ex.errors>0?'var(--err)':'var(--ac3)');
+  html+='">'+(ex.errors||0)+' / '+(ex.warnings||0)+'</div></div></div>'+
+    '<div style="font-size:10px;color:var(--tm);margin-bottom:4px;">Pre-flight: '+(pf.interval||'?')+' bins, '+(Math.round(pf.avg_bytes_per_record||0))+' bytes/rec'+(pf.skipped?' (skipped)':'')+'</div>'+
+    '<div style="font-size:10px;color:var(--tm);">Output: <strong style="color:var(--ac)">'+(out.filename||'?')+'</strong> — '+(out.size_mb||0)+' MB</div>';
+  g('ex-summary-body').innerHTML=html;
+  g('ex-summary-panel').style.display='block';
+  toast('Extraction complete!','ok');
+  // Save to extraction history
+  if(s)saveToExHistory(s);
+}
+function exPause(){if(!exJobId)return;fetch('/api/extract/job/'+exJobId+'/pause',{method:'POST'}).then(function(r){return r.json();}).then(function(){toast('Pause requested','ok');}).catch(function(e){toast('Error: '+e.message,'er');});}
+function exStop(){if(!exJobId)return;if(!confirm('Stop extraction? You can resume later.'))return;fetch('/api/extract/job/'+exJobId+'/stop',{method:'POST'}).then(function(r){return r.json();}).then(function(){toast('Stop requested','ok');}).catch(function(e){toast('Error: '+e.message,'er');});}
+function exResume(){if(!exJobId)return;fetch('/api/extract/job/'+exJobId+'/resume',{method:'POST'}).then(function(r){return r.json();}).then(function(){exLastLogIdx=0;exStartPolling();toast('Resumed','ok');exUpdateStatusBadge('running');}).catch(function(e){toast('Error: '+e.message,'er');});}
+function exNewJob(){
+  exStopPolling();
+  // Only delete job metadata if done/stopped — keep if paused (user may resume)
+  if(exJobId){
+    fetch('/api/extract/job/'+exJobId).then(function(r){return r.json();}).then(function(s){
+      if(s.status==='done'||s.status==='error'){
+        fetch('/api/extract/job/'+exJobId,{method:'DELETE'}).catch(function(){});
+      }
+    }).catch(function(){});
+  }
+  exJobId=null;localStorage.removeItem('gk_job_id');
+  g('ex-form').style.display='block';
+  g('ex-job-panel').style.display='none';
+  g('ex-summary-panel').style.display='none';
+  g('ex-reconnect-banner').style.display='none';
+}
+function exReconnect(){var jid=localStorage.getItem('gk_job_id');if(!jid)return;exJobId=jid;exLastLogIdx=0;exShowJobPanel();exStartPolling();g('ex-reconnect-banner').style.display='none';toast('Reconnected to job '+jid,'ok');}
+function exDismissBanner(){
+  var jid=localStorage.getItem('gk_job_id');
+  if(jid){
+    fetch('/api/extract/job/'+jid,{method:'DELETE'}).catch(function(){});
+  }
+  localStorage.removeItem('gk_job_id');  // always clear regardless
+  g('ex-reconnect-banner').style.display='none';
+}
+function showJobSummaryOverlay(fn){
+  var ov=g('job-summary-overlay');
+  if(!ov){
+    ov=document.createElement('div');
+    ov.id='job-summary-overlay';
+    ov.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.7);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    ov.innerHTML='<div style="background:var(--s2);border:1px solid var(--bd);border-radius:8px;padding:20px;max-width:700px;width:90%;max-height:80vh;display:flex;flex-direction:column;gap:12px;">'+
+      '<div style="display:flex;justify-content:space-between;align-items:center;">'+
+        '<span style="font-family:var(--fd);font-size:14px;font-weight:700;color:var(--ac);">Extraction Summary</span>'+
+        '<button class="bs sm btn" id="job-sum-close">✕ Close</button>'+
+      '</div>'+
+      '<pre id="job-summary-content" style="flex:1;overflow-y:auto;font-size:11px;line-height:1.7;color:var(--td);white-space:pre-wrap;word-break:break-all;margin:0;">Loading...</pre>'+
+    '</div>';
+    ov.addEventListener('click',function(e){if(e.target===ov)ov.remove();});
+    document.body.appendChild(ov);
+    g('job-sum-close').addEventListener('click',function(){ov.remove();});
+  }
+  ov.style.display='flex';
+  var pre=g('job-summary-content');
+  pre.textContent='Loading...';
+  fetch('/api/files/'+encodeURIComponent(fn)+'/summary').then(function(r){return r.json();}).then(function(s){
+    var ex=s.extraction||{},integ=s.integrity||{},inp=s.input||{};
+    var lines=['=== EXTRACTION SUMMARY ===',''];
+    lines.push('Status:    '+s.status);
+    lines.push('Job ID:    '+(s.job_id||'?'));
+    if(inp.from){lines.push('From:      '+inp.from.slice(0,19));lines.push('To:        '+inp.to.slice(0,19));}
+    lines.push('');
+    lines.push('Records:   '+(ex.total_records||0).toLocaleString());
+    lines.push('Expected:  '+(integ.expected||0).toLocaleString());
+    lines.push('Delta:     '+(integ.delta_pct||0)+'% '+(integ.complete?'OK':'CHECK'));
+    lines.push('Size:      '+(ex.total_mb||0)+' MB');
+    lines.push('API Calls: '+(ex.api_calls||0));
+    lines.push('Splits:    '+(ex.splits_triggered||0));
+    lines.push('Duration:  '+(ex.duration_minutes||0)+' min');
+    lines.push('Errors:    '+(ex.errors||0)+' / Warn: '+(ex.warnings||0));
+    lines.push('');
+    lines.push('Completed: '+(s.completed_at||s.saved_at||'?'));
+    if(inp.dql){lines.push('');lines.push('DQL:');lines.push(inp.dql);}
+    pre.textContent=lines.join('\n');
+  }).catch(function(e){pre.textContent='No summary: '+e.message;});
+}
+function toggleGroup(id){
+  var el=g(id);
+  if(!el)return;
+  var hidden=el.style.display==='none';
+  el.style.display=hidden?'block':'none';
+  var arr=g(id+'-arr');
+  if(arr)arr.textContent=hidden?'▾':'▸';
+}
+function exToggleLogLock(){
+  window.exLogLocked=!window.exLogLocked;
+  var btn=g('ex-log-lock');
+  if(window.exLogLocked){
+    btn.textContent='🔓 Unlock';
+    btn.style.borderColor='var(--warn)';btn.style.color='var(--warn)';
+  } else {
+    btn.textContent='🔒 Lock';
+    btn.style.borderColor='';btn.style.color='';
+    var el=g('ex-log');el.scrollTop=el.scrollHeight;
+  }
+}
+function exDownloadSummary(){if(!exJobId)return;fetch('/api/extract/job/'+exJobId+'/summary').then(function(r){return r.json();}).then(function(s){var a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(s,null,2)],{type:'application/json'}));a.download='summary_'+exJobId+'.json';a.click();});}
+function exCheckReconnect(){
+  var jid=localStorage.getItem('gk_job_id');if(!jid)return;
+  fetch('/api/extract/job/'+jid).then(function(r){
+    if(r.status===404){
+      // Job deleted — clean up localStorage silently
+      localStorage.removeItem('gk_job_id');
+      return null;
+    }
+    return r.json();
+  }).then(function(s){
+    if(!s||!s.status)return;
+    var active=['running','preflight','paused','stopped','interrupted','scheduled_pause','done'];
+    if(active.indexOf(s.status)>=0){
+      g('ex-reconnect-msg').textContent='Job '+jid+' — '+s.status.toUpperCase()+(s.total_records?' ('+s.total_records.toLocaleString()+' records)':'');
+      g('ex-reconnect-banner').style.display='flex';
+    } else {
+      // Unknown/expired status — clean up
+      localStorage.removeItem('gk_job_id');
+    }
+  }).catch(function(){localStorage.removeItem('gk_job_id');});
 }
 
-// ── Ingest ────────────────────────────────────────────────────────────────────
 var igIngestUrl='',igIngestToken='',igAttrs=[];
 
 function igLoadConfig(){
@@ -738,7 +1252,7 @@ function igLogLine(msg,color){
   var el=g('ig-log'),d=document.createElement('div');
   d.style.color=color||'var(--td)';
   d.textContent=new Date().toTimeString().slice(0,8)+'  '+msg;
-  el.appendChild(d);el.scrollTop=el.scrollHeight;
+  el.appendChild(d);if(!window.exLogLocked)el.scrollTop=el.scrollHeight;
 }
 function igClearLog(){g('ig-log').innerHTML='';}
 
@@ -832,6 +1346,7 @@ function igStart(){
   else igRunScattered();
 }
 function igStop(){
+  if(igRunning&&igSent>0)igSaveHistory();  // save to history when run completes
   igRunning=false;
   g('ig-startbtn').style.display='inline-flex';g('ig-stopbtn').style.display='none';
   g('ig-sstatus').textContent='Stopped';g('ig-sstatus').style.color='var(--td)';
@@ -839,11 +1354,332 @@ function igStop(){
 }
 
 // ── Files ─────────────────────────────────────────────────────────────────────
-function loadFiles(){var fl=g('flist');fl.innerHTML='<div class="es"><div class="sp"></div></div>';fetch('/api/files').then(function(r){return r.json();}).then(function(d){if(!d.files.length){fl.innerHTML='<div class="es"><span>No files yet</span></div>';return;}fl.innerHTML=d.files.map(function(f){var dt=new Date(f.modified*1000).toLocaleString();var fn=eh(f.filename).replace(/'/g,"&#39;");return'<div class="frow"><div><div class="fn2">'+eh(f.filename)+'</div><div class="fm">'+f.size_mb+'MB — '+dt+'</div></div><div style="display:flex;gap:6px;"><button class="bs sm btn" onclick="prevFile(\''+fn+'\')">Preview</button><a href="/api/files/'+encodeURIComponent(f.filename)+'/download" class="bp sm btn" download>Download</a><button class="bs sm btn" style="color:var(--err);border-color:var(--err)" onclick="delFile(\''+fn+'\')">Delete</button></div></div>';}).join('');}).catch(function(e){fl.innerHTML='<div class="ebox">'+e.message+'</div>';});}
-function prevFile(fn){curPrevFile=fn;var lines=val('fpln')||50;g('fpanel').classList.add('on');g('fpname').textContent=fn;g('fpc').textContent='Loading...';fetch('/api/files/'+encodeURIComponent(fn)+'/preview?lines='+lines).then(function(r){return r.json();}).then(function(d){g('fpc').textContent='--- '+d.filename+' | '+d.size_mb+'MB | '+d.total_lines.toLocaleString()+' lines | last '+lines+' ---\n\n'+d.preview;}).catch(function(e){g('fpc').textContent='Error: '+e.message;});}
-function refreshPrev(){if(curPrevFile)prevFile(curPrevFile);}
+function loadJobs(){
+  fetch('/api/extract/jobs').then(function(r){return r.json();}).then(function(d){
+    var jl=g('jobs-list');
+    var active=(d.jobs||[]).filter(function(j){
+      // Show all jobs with valid job_id — including done/completed
+      return j.job_id && j.job_id!=='undefined' && j.status;
+    });
+    // Sort: running first, then by recency
+    active.sort(function(a,b){
+      var order=['running','preflight','paused','scheduled_pause','stopped','interrupted','done','error'];
+      var ai=order.indexOf(a.status), bi=order.indexOf(b.status);
+      return ai!==bi ? ai-bi : 0;
+    });
+    if(!active.length){jl.innerHTML='<div class="es" style="height:40px;"><span>No jobs yet</span></div>';return;}
+    var sc={running:'var(--ac)',preflight:'var(--ac2)',paused:'var(--warn)',
+            stopped:'var(--err)',interrupted:'var(--err)',scheduled_pause:'var(--tm)',
+            done:'var(--ac3)',error:'var(--err)'};
+    var html='';
+    active.forEach(function(j,i){
+      var stc=sc[j.status]||'var(--tm)';
+      var stxt=j.status.toUpperCase();
+      var stcol=(j.status==='running'||j.status==='done')?'#000':'#fff';
+      var prog=j.progress_pct?j.progress_pct+'%':'0%';
+      var eta='';
+      if(j.eta_minutes){eta=j.eta_minutes>60?Math.round(j.eta_minutes/60)+'h '+Math.round(j.eta_minutes%60)+'m':Math.round(j.eta_minutes)+'m';}
+      var workers=j.workers&&j.workers>1?' | '+j.workers+'x parallel':'';
+      html+='<div class="frow" style="flex-wrap:wrap;gap:6px;" data-idx="'+i+'">';
+      html+='<div style="flex:1;min-width:200px;">';
+      html+='<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">';
+      html+='<span style="font-size:9px;padding:2px 6px;border-radius:2px;background:'+stc+';color:'+stcol+'">'+stxt+'</span>';
+      html+='<span class="fn2">'+eh(j.filename||'no file')+'</span>';
+      html+='</div>';
+      html+='<div style="font-size:9px;color:var(--tm);margin-top:2px;">job: '+eh(j.job_id||'?')+workers+' | '+prog+(eta?' | ETA '+eta:'')+(j.total_records?' | '+(j.total_records||0).toLocaleString()+' rec':'')+(j.size_mb?' | '+j.size_mb+'MB':'')+'</div>';
+      // filename + stats now in the header block above
+      // DQL removed from jobs list — visible in Summary and Extract History instead
+      html+='</div><div style="display:flex;gap:6px;align-items:center;">';
+      if(j.has_summary){html+='<button class="bs sm btn jbl-sum" data-idx="'+i+'">Summary</button>';}
+      html+='<button class="bs sm btn jbl-view" data-idx="'+i+'">View</button>';
+      html+='<button class="bs sm btn jbl-del" data-idx="'+i+'" data-jid="'+eh(j.job_id)+'" style="color:var(--err);border-color:var(--err)">Delete</button>';
+      html+='</div></div>';
+    });
+    jl.innerHTML=html;
+    window._gkJobs=active;
+    jl.querySelectorAll('.jbl-sum').forEach(function(b){
+      b.addEventListener('click',function(){
+        var j=active[+this.dataset.idx];
+        if(!j||!j.filename)return;
+        // Show summary in a floating overlay
+        showJobSummaryOverlay(j.filename);
+      });
+    });
+    jl.querySelectorAll('.jbl-view').forEach(function(b){
+      b.addEventListener('click',function(){
+        var j=active[+this.dataset.idx];
+        if(j&&j.job_id){
+          exStopPolling();exJobId=j.job_id;exLastLogIdx=0;
+          exShowJobPanel();exStartPolling();
+        }
+        showTab('extract');
+      });
+    });
+    jl.querySelectorAll('.jbl-del').forEach(function(b){
+      b.addEventListener('click',function(){deleteJob(this.dataset.jid);});
+    });
+  }).catch(function(){});
+}
+function clearAllJobs(){
+  if(!confirm('Delete all orphaned/completed jobs and their metadata?'))return;
+  fetch('/api/extract/jobs').then(function(r){return r.json();}).then(function(d){
+    var jobs=d.jobs||[];
+    var toDelete=jobs.filter(function(j){
+      // Delete: no job_id, done, interrupted, stopped, error
+      return !j.job_id||j.job_id==='undefined'||
+             ['done','interrupted','error','stopped'].indexOf(j.status)>=0;
+    });
+    var promises=toDelete.map(function(j){
+      if(!j.job_id||j.job_id==='undefined')return Promise.resolve();
+      return fetch('/api/extract/job/'+j.job_id,{method:'DELETE'}).catch(function(){});
+    });
+    Promise.all(promises).then(function(){
+      toast('Cleared '+toDelete.length+' orphaned jobs','ok');
+      loadJobs();loadFiles();
+    });
+  });
+}
+function deleteJob(jid){
+  if(!confirm('Delete job '+jid+' and all its metadata?'))return;
+  fetch('/api/extract/job/'+jid,{method:'DELETE'}).then(function(){
+    toast('Job deleted','ok');loadJobs();loadFiles();
+  }).catch(function(e){toast('Error: '+e.message,'er');});
+}
+function loadExFiles(){
+  var fl=g('exfiles-list');
+  if(!fl)return;
+  fl.innerHTML='<div class="es"><div class="sp"></div></div>';
+  fetch('/api/files').then(function(r){return r.json();}).then(function(d){
+    if(!d.files||!d.files.length){fl.innerHTML='<div class="es"><span>No extraction files yet</span></div>';return;}
+    var html='';
+    d.files.forEach(function(f,idx){
+      var dt=new Date(f.modified*1000).toLocaleString();
+      var fne=eh(f.filename);
+      var sc={running:'var(--ac)',preflight:'var(--ac2)',paused:'var(--warn)',stopped:'var(--err)',interrupted:'var(--err)',done:'var(--ac3)',error:'var(--err)'};
+      var badge=f.status?('<span style="font-size:9px;padding:2px 6px;border-radius:2px;background:'+(sc[f.status]||'var(--tm)')+';color:'+((f.status==='done'||f.status==='running')?'#000':'#fff')+'">'+f.status.toUpperCase()+'</span> '):'';
+      html+='<div class="frow">';
+      html+='<div><div class="fn2">'+badge+fne+'</div><div class="fm">'+f.size_mb+'MB — '+dt+(f.job_id?' | job:'+f.job_id:'')+'</div></div>';
+      html+='<div style="display:flex;gap:6px;">';
+      if(f.has_summary){html+='<button class="bs sm btn exf-btn" data-action="sum" data-idx="'+idx+'">Summary</button>';}
+      html+='<button class="bs sm btn exf-btn" data-action="head" data-idx="'+idx+'">First</button>';
+      html+='<button class="bs sm btn exf-btn" data-action="tail" data-idx="'+idx+'">Last</button>';
+      html+='<a href="/api/files/'+encodeURIComponent(f.filename)+'/download" class="bp sm btn" download>Download</a>';
+      html+='<button class="bs sm btn exf-btn" data-action="del" data-idx="'+idx+'" style="color:var(--err);border-color:var(--err)">Delete</button>';
+      html+='</div></div>';
+    });
+    fl.innerHTML=html;
+    window._gkExFiles=d.files;
+    fl.querySelectorAll('.exf-btn').forEach(function(b){
+      b.addEventListener('click',function(){
+        var f=window._gkExFiles[+this.dataset.idx];
+        var a=this.dataset.action;
+        if(a==='sum')showJobSummaryOverlay(f.filename);
+        else if(a==='head')prevExFile(f.filename,'head');
+        else if(a==='tail')prevExFile(f.filename,'tail');
+        else if(a==='del')delExFile(f.filename,f.job_id);
+      });
+    });
+  }).catch(function(e){fl.innerHTML='<div class="ebox">'+e.message+'</div>';});
+}
+
+function prevExFile(fn,position){
+  window._exCurPrevFile=fn;var pos=position||'tail';var lines=val('exfpln')||50;
+  g('exfpanel').classList.add('on');g('exfpname').textContent=fn+' ('+pos+')';g('exfpc').textContent='Loading...';
+  fetch('/api/files/'+encodeURIComponent(fn)+'/preview?lines='+lines+'&position='+pos)
+    .then(function(r){return r.json();})
+    .then(function(d){g('exfpc').textContent='--- '+d.filename+' | '+d.size_mb+'MB | '+d.total_lines.toLocaleString()+' lines | '+pos+' '+lines+' ---\n\n'+d.preview;})
+    .catch(function(e){g('exfpc').textContent='Error: '+e.message;});
+}
+function showExFileSummary(fn){
+  g('exfpanel').classList.add('on');g('exfpname').textContent='Summary: '+fn;g('exfpc').textContent='Loading...';
+  fetch('/api/files/'+encodeURIComponent(fn)+'/summary').then(function(r){return r.json();}).then(function(s){
+    var ex=s.extraction||{},integ=s.integrity||{},inp=s.input||{};
+    var lines=['=== EXTRACTION SUMMARY ===',''];
+    lines.push('Status:    '+s.status);
+    lines.push('Job ID:    '+(s.job_id||'?'));
+    if(inp.from){lines.push('From:      '+inp.from.slice(0,19));lines.push('To:        '+inp.to.slice(0,19));}
+    lines.push('');
+    lines.push('Records:   '+(ex.total_records||0).toLocaleString());
+    lines.push('Expected:  '+(integ.expected||0).toLocaleString());
+    lines.push('Delta:     '+(integ.delta_pct||0)+'% '+(integ.complete?'OK':'CHECK'));
+    lines.push('Size:      '+(ex.total_mb||0)+' MB');
+    lines.push('API Calls: '+(ex.api_calls||0));
+    lines.push('Splits:    '+(ex.splits_triggered||0));
+    lines.push('Duration:  '+(ex.duration_minutes||0)+' min');
+    lines.push('Errors:    '+(ex.errors||0)+' / Warn: '+(ex.warnings||0));
+    lines.push('');
+    lines.push('Completed: '+(s.completed_at||s.saved_at||'?'));
+    if(inp.dql){lines.push('');lines.push('DQL:');lines.push(inp.dql);}
+    g('exfpc').textContent=lines.join('\n');
+  }).catch(function(e){g('exfpc').textContent='No summary: '+e.message;});
+}
+function refreshExPrev(){if(window._exCurPrevFile)prevExFile(window._exCurPrevFile,'tail');}
+function closeExPrev(){g('exfpanel').classList.remove('on');window._exCurPrevFile=null;}
+function delExFile(fn,jid){
+  if(!confirm('Delete '+fn+'?'))return;
+  fetch('/api/files/'+encodeURIComponent(fn),{method:'DELETE'}).then(function(){
+    if(jid)fetch('/api/extract/job/'+jid,{method:'DELETE'}).catch(function(){});
+    toast('Deleted','ok');loadExFiles();
+  }).catch(function(e){toast('Error: '+e.message,'er');});
+}
+
+function loadExJobs(){
+  var jl=g('exjobs-list');
+  if(!jl)return;
+  fetch('/api/extract/jobs').then(function(r){return r.json();}).then(function(d){
+    var jobs=(d.jobs||[]).filter(function(j){return j.job_id&&j.job_id!=='undefined'&&j.status;});
+    jobs.sort(function(a,b){
+      var order=['running','preflight','paused','scheduled_pause','stopped','interrupted','done','error'];
+      return order.indexOf(a.status)-order.indexOf(b.status);
+    });
+    if(!jobs.length){jl.innerHTML='<div class="es"><span>No jobs yet</span></div>';return;}
+    var sc={running:'var(--ac)',preflight:'var(--ac2)',paused:'var(--warn)',stopped:'var(--err)',interrupted:'var(--err)',scheduled_pause:'var(--tm)',done:'var(--ac3)',error:'var(--err)'};
+    var html='';
+    jobs.forEach(function(j,i){
+      var stc=sc[j.status]||'var(--tm)';
+      var stcol=j.status==='running'||j.status==='done'?'#000':'#fff';
+      var prog=j.progress_pct?j.progress_pct+'%':'0%';
+      var eta='';
+      if(j.eta_minutes){eta=j.eta_minutes>60?Math.round(j.eta_minutes/60)+'h '+Math.round(j.eta_minutes%60)+'m':Math.round(j.eta_minutes)+'m';}
+      var workers=j.workers&&j.workers>1?' | '+j.workers+'× parallel':'';
+      html+='<div class="frow" style="flex-direction:column;align-items:flex-start;gap:4px;">';
+      html+='<div style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:8px;">';
+      html+='<div>';
+      html+='<span style="font-size:9px;padding:2px 6px;border-radius:2px;background:'+stc+';color:'+stcol+'">'+j.status.toUpperCase()+'</span> ';
+      html+='<span class="fn2" style="font-size:11px;">'+eh(j.filename||'no file')+'</span>';
+      html+='</div>';
+      html+='<div style="display:flex;gap:6px;">';
+      if(j.has_summary){html+='<button class="bs sm btn exj-btn" data-action="sum" data-fn="'+eh(j.filename||'')+'" data-idx="'+i+'">Summary</button>';}
+      if(['running','preflight','scheduled_pause'].indexOf(j.status)>=0){
+        html+='<button class="bp sm btn exj-btn" data-action="view" data-jid="'+eh(j.job_id)+'" data-idx="'+i+'">▶ View</button>';
+      }
+      if(['paused','stopped','interrupted'].indexOf(j.status)>=0){
+        html+='<button class="bp2 sm btn exj-btn" data-action="resume" data-jid="'+eh(j.job_id)+'" data-idx="'+i+'">▶ Resume</button>';
+      }
+      html+='<button class="bs sm btn exj-btn" data-action="del" data-jid="'+eh(j.job_id)+'" data-fn="'+eh(j.filename||'')+'" data-idx="'+i+'" style="color:var(--err);border-color:var(--err)">Delete</button>';
+      html+='</div></div>';
+      html+='<div style="font-size:9px;color:var(--tm);">job:'+eh(j.job_id)+workers+' | '+prog+(eta?' | ETA '+eta:'')+(j.total_records?' | '+(j.total_records||0).toLocaleString()+' rec':'')+(j.size_mb?' | '+j.size_mb+'MB':'')+'</div>';
+      // DQL not shown here — visible in Summary and Extract History
+      html+='</div>';
+    });
+    jl.innerHTML=html;
+    window._gkExJobs=jobs;
+    jl.querySelectorAll('.exj-btn').forEach(function(b){
+      b.addEventListener('click',function(){
+        var a=this.dataset.action;
+        var jid=this.dataset.jid;
+        var fn=this.dataset.fn;
+        if(a==='sum'&&fn)showJobSummaryOverlay(fn);
+        else if(a==='view'&&jid){
+          // Reconnect to running job in Extract panel
+          exStopPolling();
+          exJobId=jid;
+          exLastLogIdx=0;
+          exShowJobPanel();
+          exStartPolling();
+          showTab('extract');
+          toast('Connected to job '+jid,'ok');
+        }
+        else if(a==='resume'&&jid){
+          fetch('/api/extract/job/'+jid+'/resume',{method:'POST'})
+            .then(function(){showTab('extract');exJobId=jid;exLastLogIdx=0;exShowJobPanel();exStartPolling();toast('Resumed job '+jid,'ok');})
+            .catch(function(e){toast('Error: '+e.message,'er');});
+        }
+        else if(a==='del'&&jid){
+          if(!confirm('Delete job '+jid+'?'))return;
+          fetch('/api/extract/job/'+jid,{method:'DELETE'}).then(function(){
+            if(fn)fetch('/api/files/'+encodeURIComponent(fn),{method:'DELETE'}).catch(function(){});
+            toast('Deleted','ok');loadExJobs();
+          }).catch(function(e){toast('Error: '+e.message,'er');});
+        }
+      });
+    });
+  }).catch(function(e){jl.innerHTML='<div class="ebox">'+e.message+'</div>';});
+}
+
+function loadFiles(){
+  var fl=g('flist');fl.innerHTML='<div class="es"><div class="sp"></div></div>';
+  fetch('/api/files').then(function(r){return r.json();}).then(function(d){
+    if(!d.files||!d.files.length){fl.innerHTML='<div class="es"><span>No files yet</span></div>';return;}
+    var html='';
+    d.files.forEach(function(f,idx){
+      var dt=new Date(f.modified*1000).toLocaleString();
+      var fne=eh(f.filename);
+      var sc={running:'var(--ac)',preflight:'var(--ac2)',paused:'var(--warn)',stopped:'var(--err)',interrupted:'var(--err)',done:'var(--ac3)',error:'var(--err)'};
+      var badge=f.status?('<span style="font-size:9px;padding:2px 6px;border-radius:2px;background:'+(sc[f.status]||'var(--tm)')+';color:'+((f.status==='done'||f.status==='running')?'#000':'#fff')+'">'+f.status.toUpperCase()+'</span> '):'';
+      html+='<div class="frow">';
+      html+='<div><div class="fn2">'+badge+fne+'</div><div class="fm">'+f.size_mb+'MB - '+dt+(f.job_id?' | job:'+f.job_id:'')+'</div></div>';
+      html+='<div style="display:flex;gap:6px;">';
+      if(f.has_summary){html+='<button class="bs sm btn fb-btn" data-action="sum" data-idx="'+idx+'">Summary</button>';}
+      html+='<button class="bs sm btn fb-btn" data-action="head" data-idx="'+idx+'">First</button>';
+      html+='<button class="bs sm btn fb-btn" data-action="tail" data-idx="'+idx+'">Last</button>';
+      html+='<a href="/api/files/'+encodeURIComponent(f.filename)+'/download" class="bp sm btn" download>Download</a>';
+      html+='<button class="bs sm btn fb-btn" data-action="del" data-idx="'+idx+'" style="color:var(--err);border-color:var(--err)">Delete</button>';
+      html+='</div></div>';
+    });
+    fl.innerHTML=html;
+    window._gkFiles=d.files;
+    fl.querySelectorAll('.fb-btn').forEach(function(b){
+      b.addEventListener('click',function(){
+        var f=window._gkFiles[+this.dataset.idx];
+        var a=this.dataset.action;
+        if(a==='sum')showJobSummaryOverlay(f.filename);
+        else if(a==='head')prevFile(f.filename,'head');
+        else if(a==='tail')prevFile(f.filename,'tail');
+        else if(a==='del')delFile(f.filename);
+      });
+    });
+  }).catch(function(e){fl.innerHTML='<div class="ebox">'+e.message+'</div>';});
+}
+function prevFile(fn,position){
+  curPrevFile=fn;var pos=position||'tail';var lines=val('fpln')||20;
+  g('fpanel').classList.add('on');g('fpname').textContent=fn+' ('+pos+')';g('fpc').textContent='Loading...';
+  fetch('/api/files/'+encodeURIComponent(fn)+'/preview?lines='+lines+'&position='+pos)
+    .then(function(r){return r.json();})
+    .then(function(d){g('fpc').textContent='--- '+d.filename+' | '+d.size_mb+'MB | '+d.total_lines.toLocaleString()+' lines | '+pos+' '+lines+' ---\n\n'+d.preview;})
+    .catch(function(e){g('fpc').textContent='Error: '+e.message;});
+}
+function showFileSummary(fn){
+  g('fpanel').classList.add('on');g('fpname').textContent='Summary: '+fn;g('fpc').textContent='Loading...';
+  fetch('/api/files/'+encodeURIComponent(fn)+'/summary').then(function(r){return r.json();}).then(function(s){
+    var ex=s.extraction||{},integ=s.integrity||{};
+    var inp=s.input||{};
+    var t='=== EXTRACTION SUMMARY ===\n\n';
+    t+='Status:    '+s.status+'\n';
+    t+='Job ID:    '+(s.job_id||'?')+'\n';
+    if(inp.from)t+='From:      '+inp.from.slice(0,19)+'\n';
+    if(inp.to)  t+='To:        '+inp.to.slice(0,19)+'\n';
+    t+='\n';
+    t+='Records:   '+(ex.total_records||0).toLocaleString()+'\n';
+    t+='Expected:  '+(integ.expected||0).toLocaleString()+'\n';
+    t+='Delta:     '+(integ.delta_pct||0)+'% '+(integ.complete?'OK':'CHECK')+'\n';
+    t+='Size:      '+(ex.total_mb||0)+' MB\n';
+    t+='API Calls: '+(ex.api_calls||0)+'\n';
+    t+='Splits:    '+(ex.splits_triggered||0)+'\n';
+    t+='Duration:  '+(ex.duration_minutes||0)+' min\n';
+    t+='Errors:    '+(ex.errors||0)+' / Warnings: '+(ex.warnings||0)+'\n';
+    t+='\nCompleted: '+(s.completed_at||s.saved_at||'?')+'\n';
+    if(inp.dql)t+='\nDQL:\n'+inp.dql;
+    g('fpc').textContent=t;
+  }).catch(function(e){g('fpc').textContent='No summary: '+e.message;});
+}
+function refreshPrev(){if(curPrevFile)prevFile(curPrevFile,'tail');}
 function closePrev(){g('fpanel').classList.remove('on');curPrevFile=null;}
-function delFile(fn){if(!confirm('Delete '+fn+'?'))return;fetch('/api/files/'+encodeURIComponent(fn),{method:'DELETE'}).then(function(){toast('Deleted','ok');loadFiles();}).catch(function(e){toast('Error: '+e.message,'er');});}
+function delFile(fn){
+  if(!confirm('Delete '+fn+' and its job data?'))return;
+  // Find associated job_id from file list
+  var jid=null;
+  if(window._gkFiles){
+    var f=window._gkFiles.find(function(x){return x.filename===fn;});
+    if(f)jid=f.job_id;
+  }
+  fetch('/api/files/'+encodeURIComponent(fn),{method:'DELETE'}).then(function(){
+    if(jid){
+      fetch('/api/extract/job/'+jid,{method:'DELETE'}).catch(function(){});
+    }
+    toast('Deleted','ok');loadFiles();
+  }).catch(function(e){toast('Error: '+e.message,'er');});
+}
 
 // ── Config ────────────────────────────────────────────────────────────────────
 function loadConf(){
@@ -873,6 +1709,198 @@ function saveIngestConf(){
   updateIngestUrl();
   fetch('/api/ingest-config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ingest_url:env,ingest_token:tok})})
   .then(function(r){return r.json();}).then(function(d){if(d.success){igIngestUrl=env;igIngestToken=tok;toast('Ingest configured!','ok');}else toast('Error','er');}).catch(function(e){toast('Error: '+e.message,'er');});
+}
+
+// ── Ingest History ───────────────────────────────────────────────────────────
+var igHistory = JSON.parse(localStorage.getItem('gk_ig_history') || '[]');
+
+function saveToIgHistory(entry){
+  igHistory = igHistory.filter(function(h){return h.ts!==entry.ts;});
+  igHistory.unshift(entry);
+  if(igHistory.length>100)igHistory=igHistory.slice(0,100);
+  localStorage.setItem('gk_ig_history',JSON.stringify(igHistory));
+  renderIgHistory();
+}
+
+function clearIngestHistory(){
+  if(!confirm('Delete all ingest history?'))return;
+  igHistory=[];localStorage.setItem('gk_ig_history',JSON.stringify(igHistory));
+  renderIgHistory();toast('Ingest history cleared','ok');
+}
+
+function renderIgHistory(){
+  var el=g('ighlist');if(!el)return;
+  if(!igHistory.length){el.innerHTML='<div class="es"><span>No ingestions recorded yet</span></div>';return;}
+  el.innerHTML=igHistory.map(function(h,i){
+    var dt=new Date(h.ts).toLocaleString();
+    return '<div class="frow" style="flex-direction:column;align-items:flex-start;gap:4px;">'+
+      '<div style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;">'+
+        '<span style="font-size:9px;color:var(--tm);">'+dt+'</span>'+
+        '<div style="display:flex;gap:6px;">'+
+          '<button class="bp sm btn igh-replay" data-idx="'+i+'">▶ Replay</button>'+
+          '<button class="bs sm btn igh-del" data-idx="'+i+'" style="color:var(--err);border-color:var(--err)">✕</button>'+
+        '</div>'+
+      '</div>'+
+      '<div style="font-size:10px;color:var(--ac);font-family:var(--fn);">'+eh(h.mode||'sequential')+' | '+(h.lines||0).toLocaleString()+' lines | '+(h.sent||0).toLocaleString()+' sent | '+eh(h.demo||h.filename||'custom')+'</div>'+
+      '<div style="font-size:9px;color:var(--tm);">'+(h.attrs?JSON.stringify(h.attrs):'no custom attrs')+'</div>'+
+    '</div>';
+  }).join('');
+  el.querySelectorAll('.igh-replay').forEach(function(b){
+    b.addEventListener('click',function(){
+      var h=igHistory[+this.dataset.idx];
+      if(!h)return;
+      // Pre-fill ingest form
+      if(h.demo&&g('ig-demo'))g('ig-demo').value=h.demo;
+      if(h.mode&&g('ig-mode'))g('ig-mode').value=h.mode;
+      showTab('ingest');
+      if(h.demo)igDemoLoad();
+      toast('Ingest settings loaded — review and click Start Ingest','ok');
+    });
+  });
+  el.querySelectorAll('.igh-del').forEach(function(b){
+    b.addEventListener('click',function(){
+      igHistory.splice(+this.dataset.idx,1);
+      localStorage.setItem('gk_ig_history',JSON.stringify(igHistory));
+      renderIgHistory();
+    });
+  });
+}
+
+// Save ingest run to history when it completes
+function igSaveHistory(){
+  saveToIgHistory({
+    ts:     Date.now(),
+    mode:   igMode,
+    lines:  igLines.length,
+    sent:   igSent,
+    demo:   val('ig-demo')||'',
+    filename: g('ig-file')&&g('ig-file').files[0]?g('ig-file').files[0].name:'',
+    attrs:  igGetAttrs()
+  });
+}
+
+// config-ingest panel form sync with main config
+function updateIngestUrl2(){
+  var env=val('ienv2').trim().replace(/\/$/,'');
+  var ep=env?env+'/api/v2/logs/ingest':'';
+  if(g('iendpoint2'))g('iendpoint2').value=ep;
+}
+function saveIngestConf2(){
+  // sync values back to main config form and save
+  if(g('ienv'))g('ienv').value=val('ienv2');
+  if(g('itok'))g('itok').value=val('itok2');
+  saveIngestConf();
+  toast('Ingest config saved','ok');
+}
+function loadIngestConf2(){
+  // sync from main config values
+  if(g('ienv2'))g('ienv2').value=val('ienv')||'';
+  if(g('itok2'))g('itok2').value=val('itok')||'';
+  updateIngestUrl2();
+}
+
+// ── Extraction History ───────────────────────────────────────────────────────
+var exHistory = JSON.parse(localStorage.getItem('gk_ex_history') || '[]');
+
+function saveToExHistory(s) {
+  // s is the summary object from /api/extract/job/{id}/summary
+  if(!s)return;
+  var inp=s.input||{};
+  var ex=s.extraction||{};
+  var integ=s.integrity||{};
+  var out=s.output||{};
+  if(!inp.dql)return;
+  var entry={
+    job_id:   s.job_id,
+    dql:      inp.dql,
+    start:    inp.from,
+    end:      inp.to,
+    filename: out.filename,
+    records:  ex.total_records||0,
+    status:   s.status||'done',
+    workers:  s.workers||1,
+    duration: ex.duration_minutes||0,
+    delta_pct:integ.delta_pct||0,
+    size_mb:  out.size_mb||0,
+    ts:       Date.now()
+  };
+  exHistory=exHistory.filter(function(h){return h.job_id!==entry.job_id;});
+  exHistory.unshift(entry);
+  if(exHistory.length>100)exHistory=exHistory.slice(0,100);
+  localStorage.setItem('gk_ex_history',JSON.stringify(exHistory));
+  renderExHistory();
+}
+
+function clearExHistory(){
+  if(!confirm('Delete all extraction history?'))return;
+  exHistory=[];
+  localStorage.setItem('gk_ex_history',JSON.stringify(exHistory));
+  renderExHistory();
+  toast('Extraction history cleared','ok');
+}
+
+function renderExHistory(){
+  var el=g('exhlist');if(!el)return;
+  if(!exHistory.length){
+    el.innerHTML='<div class="es"><span>No extractions yet</span></div>';return;
+  }
+  el.innerHTML=exHistory.map(function(h,i){
+    var dt=new Date(h.ts).toLocaleString();
+    var sc={done:'var(--ac3)',stopped:'var(--err)',error:'var(--err)',paused:'var(--warn)',interrupted:'var(--err)'};
+    var badge='<span style="font-size:9px;padding:2px 6px;border-radius:2px;background:'+(sc[h.status]||'var(--tm)')+';color:'+(h.status==='done'?'#000':'#fff')+'">'+h.status.toUpperCase()+'</span>';
+    var delta=h.delta_pct!==null?(' | Δ'+h.delta_pct+'%'):'';
+    var workers=h.workers>1?' | '+h.workers+'× parallel':'';
+    return '<div class="frow" style="flex-direction:column;align-items:flex-start;gap:4px;">'+
+      '<div style="display:flex;width:100%;justify-content:space-between;align-items:center;gap:10px;">'+
+        '<div>'+badge+' <span style="font-size:9px;color:var(--tm);">'+dt+'</span></div>'+
+        '<div style="display:flex;gap:6px;">'+
+          '<button class="bp sm btn exh-replay" data-idx="'+i+'">▶ Replay</button>'+
+          '<button class="bs sm btn exh-del" data-idx="'+i+'" style="color:var(--err);border-color:var(--err)">✕</button>'+
+        '</div>'+
+      '</div>'+
+      '<pre style="font-size:10px;color:var(--ac);white-space:pre-wrap;word-break:break-all;margin:0;font-family:var(--fn);">'+eh(h.dql)+'</pre>'+
+      '<div style="font-size:9px;color:var(--tm);">'+
+        eh(h.filename||'')+(h.start?' | '+h.start.slice(0,10)+' → '+h.end.slice(0,10):'')+
+        ' | '+(h.records||0).toLocaleString()+' rec'+
+        (h.duration?' | '+h.duration+'min':'')+delta+workers+
+      '</div>'+
+    '</div>';
+  }).join('');
+  // Attach events
+  el.querySelectorAll('.exh-replay').forEach(function(b){
+    b.addEventListener('click',function(){
+      var h=exHistory[+this.dataset.idx];
+      if(!h)return;
+      // Always show the new extraction form — dismiss any active job banner
+      exStopPolling();
+      exJobId=null;
+      localStorage.removeItem('gk_job_id');
+      // Show form panel fresh
+      g('ex-form').style.display='block';
+      g('ex-job-panel').style.display='none';
+      g('ex-summary-panel').style.display='none';
+      g('ex-reconnect-banner').style.display='none';
+      // Pre-fill form fields
+      g('ex-dql').value=h.dql;
+      if(h.start)g('ex-start-date').value=h.start.slice(0,10);
+      if(h.end)g('ex-end-date').value=h.end.slice(0,10);
+      syncDates();
+      // Use new filename with today's date to avoid overwriting old file
+      var today=new Date().toISOString().slice(0,10);
+      var base=(h.filename||'extraction').replace(/_[0-9]{4}-[0-9]{2}-[0-9]{2}/,'');
+      g('ex-fname').value=base.replace('.jsonl','')+'_'+today+'.jsonl';
+      if(h.workers&&g('ex-workers'))g('ex-workers').value=String(h.workers);
+      showTab('extract');
+      toast('Form pre-filled — review and click Start Extraction','ok');
+    });
+  });
+  el.querySelectorAll('.exh-del').forEach(function(b){
+    b.addEventListener('click',function(){
+      exHistory.splice(+this.dataset.idx,1);
+      localStorage.setItem('gk_ex_history',JSON.stringify(exHistory));
+      renderExHistory();
+    });
+  });
 }
 
 // ── Query History ─────────────────────────────────────────────────────────────
@@ -945,9 +1973,19 @@ function deleteHistory(i) {
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
-health();setInterval(health,30000);renderHistory();
+health();setInterval(health,30000);renderHistory();renderExHistory();renderIgHistory();
+// Set default extraction filename with timestamp
+(function(){var _fn=g('ex-fname');if(_fn&&!_fn.value){var _nd=new Date();
+var _hh=String(_nd.getHours()).padStart(2,'0');
+var _mm=String(_nd.getMinutes()).padStart(2,'0');
+var _ss=String(_nd.getSeconds()).padStart(2,'0');
+var _dd=String(_nd.getDate()).padStart(2,'0');
+var _mo=String(_nd.getMonth()+1).padStart(2,'0');
+var _yy=_nd.getFullYear();
+_fn.value='extraction_'+_hh+'h'+_mm+'m'+_ss+'s_'+_dd+'-'+_mo+'-'+_yy+'.jsonl';}})();
 setMode('sequential');
 igLoadConfig();
+exCheckReconnect();
 g('dql').addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='Enter')runQ();});
 g('dql').addEventListener('input',updCmd);
 updCmd();
