@@ -1,0 +1,1887 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>⚡</text></svg>">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grailkeeper v4.0.18</title>
+<style>
+  :root{--bg:#0d1117;--bg2:#161b22;--bg3:#21262d;--border:#30363d;--text:#e6edf3;--muted:#8b949e;--cyan:#39d0d8;--green:#3fb950;--yellow:#d29922;--red:#f85149;--orange:#e3b341;--blue:#58a6ff;--font-mono:'JetBrains Mono','Fira Code',monospace;--font-ui:'IBM Plex Sans',system-ui,sans-serif;--radius:6px;}
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;overflow:hidden;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font-ui);font-size:13px;display:flex;flex-direction:column;}
+  #header{display:flex;align-items:center;gap:12px;padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);flex-shrink:0;}
+  .logo{font-family:var(--font-mono);font-size:15px;font-weight:700;color:var(--cyan);}
+  .version{font-family:var(--font-mono);font-size:10px;color:var(--muted);background:var(--bg3);padding:2px 6px;border-radius:10px;border:1px solid var(--border);}
+  #health-dot{width:8px;height:8px;border-radius:50%;background:var(--muted);margin-left:auto;transition:background 0.3s;}
+  #health-dot.ok{background:var(--green);box-shadow:0 0 6px var(--green);}
+  #health-dot.error{background:var(--red);}
+  #health-dot.blink{animation:blink 1s infinite;}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+  #health-label{font-size:11px;color:var(--muted);}
+  #layout{display:flex;flex:1;overflow:hidden;min-height:0;}
+  #sidebar{width:160px;background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:8px 0;flex-shrink:0;overflow-y:auto;}
+  .nav-group-label{font-size:9px;font-weight:700;letter-spacing:1.2px;color:var(--muted);text-transform:uppercase;padding:12px 14px 4px;}
+  .nav-item{display:flex;align-items:center;gap:8px;padding:7px 14px;cursor:pointer;color:var(--muted);font-size:12px;border-left:2px solid transparent;transition:all 0.15s;user-select:none;}
+  .nav-item:hover{color:var(--text);background:var(--bg3);}
+  .nav-item.active{color:var(--cyan);border-left-color:var(--cyan);background:rgba(57,208,216,0.06);}
+  #main{flex:1;overflow:hidden;display:flex;flex-direction:column;min-width:0;}
+  .panel{display:none;flex-direction:column;height:100%;overflow:hidden;}
+  .panel.active{display:flex;}
+  .panel-header{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  .panel-title{font-size:13px;font-weight:600;}
+  .panel-subtitle{font-size:11px;color:var(--muted);}
+  .panel-body{flex:1;overflow-y:auto;padding:16px;min-height:0;}
+  /* Extract special layout */
+  #extract-form-area{overflow-y:auto;padding:16px;flex-shrink:0;border-bottom:1px solid var(--border);}
+  #extract-bottom{display:flex;flex-direction:column;flex:1;min-height:0;padding:8px 16px 16px;}
+  /* Forms */
+  .form-row{display:flex;gap:8px;margin-bottom:10px;align-items:flex-end;flex-wrap:wrap;}
+  .form-group{display:flex;flex-direction:column;gap:4px;}
+  .form-group.grow{flex:1;}
+  label{font-size:10px;font-weight:600;letter-spacing:0.5px;color:var(--muted);text-transform:uppercase;}
+  input,textarea,select{background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);font-family:var(--font-mono);font-size:12px;padding:6px 9px;outline:none;transition:border-color 0.15s;}
+  input:focus,textarea:focus,select:focus{border-color:var(--cyan);}
+  textarea{resize:vertical;min-height:60px;}
+  select{cursor:pointer;}
+  .btn{padding:6px 14px;border-radius:var(--radius);border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:var(--font-ui);transition:all 0.15s;white-space:nowrap;}
+  .btn-primary{background:var(--cyan);color:#0d1117;}.btn-primary:hover{background:#5be8ef;}
+  .btn-danger{background:var(--red);color:#fff;}.btn-danger:hover{background:#ff6b63;}
+  .btn-ghost{background:transparent;border:1px solid var(--border);color:var(--muted);}.btn-ghost:hover{color:var(--text);border-color:var(--muted);}
+  .btn-sm{padding:3px 8px;font-size:11px;}
+  .btn:disabled{opacity:0.4;cursor:not-allowed;}
+  .range-btns{display:flex;gap:4px;}
+  .range-btn{padding:4px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius);color:var(--muted);font-size:11px;cursor:pointer;font-family:var(--font-mono);}
+  .range-btn:hover{color:var(--cyan);border-color:var(--cyan);}
+  /* Live summary */
+  #live-summary{display:none;margin-bottom:8px;flex-shrink:0;}
+  .ls-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;}
+  .ls-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px;text-align:center;}
+  .ls-label{font-size:9px;font-weight:700;letter-spacing:1px;color:var(--muted);text-transform:uppercase;margin-bottom:3px;}
+  .ls-value{font-family:var(--font-mono);font-size:14px;font-weight:700;color:var(--cyan);}
+  .ls-value.err{color:var(--red);}
+  /* Log */
+  .log-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;flex-shrink:0;}
+  .log-wrap{flex:1;overflow-y:auto;background:var(--bg);border:1px solid var(--border);border-radius:var(--radius);padding:10px;font-family:var(--font-mono);font-size:11px;line-height:1.6;min-height:0;}
+  .log-line{padding:1px 0;}
+  .log-line.info{color:var(--text);}
+  .log-line.warn{color:var(--orange);}
+  .log-line.error{color:var(--red);}
+  .log-ts{color:var(--muted);margin-right:6px;}
+  .log-started{color:var(--green);font-weight:700;}
+  .log-done{color:var(--green);font-weight:700;}
+  .log-stopped{color:var(--orange);font-weight:700;}
+  /* Query */
+  #query-results-wrap{display:flex;flex-direction:column;gap:12px;margin-top:12px;flex:1;min-height:200px;}
+  #query-meta-panel{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;font-family:var(--font-mono);font-size:11px;display:none;flex-shrink:0;}
+  #query-meta-panel.visible{display:block;}
+  .meta-row{display:flex;gap:20px;flex-wrap:wrap;}
+  .meta-item{display:flex;flex-direction:column;gap:2px;}
+  .meta-key{color:var(--muted);font-size:9px;text-transform:uppercase;letter-spacing:0.8px;}
+  .meta-val{color:var(--cyan);font-weight:600;}
+  .meta-trunc{color:var(--red);font-weight:700;}
+  .meta-notif{color:var(--orange);}
+  #query-table-wrap{flex:1;overflow:auto;border:1px solid var(--border);border-radius:var(--radius);min-height:100px;}
+  table{width:100%;border-collapse:collapse;font-family:var(--font-mono);font-size:11px;}
+  th{background:var(--bg3);color:var(--muted);font-size:10px;font-weight:700;text-transform:uppercase;padding:7px 10px;text-align:left;position:sticky;top:0;z-index:1;border-bottom:1px solid var(--border);white-space:nowrap;}
+  td{padding:5px 10px;border-bottom:1px solid rgba(48,54,61,0.5);color:var(--text);max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  tr:hover td{background:rgba(255,255,255,0.02);}
+  /* Jobs */
+  .job-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;}
+  .job-card.selected,.history-card.selected{border-color:var(--cyan);background:rgba(57,208,216,0.04);}
+  .job-card-header{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap;}
+  .job-id{font-family:var(--font-mono);font-size:11px;color:var(--muted);}
+  .job-dt{font-family:var(--font-mono);font-size:10px;color:var(--muted);}
+  .job-status{font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;}
+  .job-status.running{background:rgba(57,208,216,0.15);color:var(--cyan);}
+  .job-status.done{background:rgba(63,185,80,0.15);color:var(--green);}
+  .job-status.stopped,.job-status.stopping,.job-status.paused{background:rgba(227,179,65,0.15);color:var(--orange);}
+  .job-status.scheduled{background:rgba(188,140,255,0.15);color:var(--purple);}
+  .job-status.error{background:rgba(248,81,73,0.15);color:var(--red);}
+  .job-dql{font-family:var(--font-mono);font-size:10px;color:var(--muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-bottom:6px;}
+  .job-stats{display:flex;gap:14px;font-family:var(--font-mono);font-size:10px;color:var(--muted);flex-wrap:wrap;}
+  .job-stats span{color:var(--text);}
+  .job-actions{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+  .job-progress{height:4px;background:var(--bg3);border-radius:2px;margin-top:6px;overflow:hidden;}
+  .job-progress-bar{height:100%;background:var(--cyan);border-radius:2px;transition:width 0.5s ease;}
+  /* Log modal */
+  #log-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);}
+  #log-modal.open{display:flex;flex-direction:column;}
+  #log-modal-header{padding:10px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-shrink:0;}
+  #log-modal-title{font-family:var(--font-mono);font-size:13px;color:var(--cyan);font-weight:700;}
+  #log-modal-meta{font-size:11px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-family:var(--font-mono);}
+  #log-modal-close{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;}
+  #log-modal-close:hover{color:var(--text);border-color:var(--text);}
+  #log-modal-body{flex:1;overflow-y:auto;padding:12px 16px;background:var(--bg);font-family:var(--font-mono);font-size:11px;line-height:1.7;}
+  #log-modal-stats{padding:6px 16px;background:var(--bg2);border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:var(--font-mono);display:flex;gap:16px;flex-shrink:0;}
+  /* Tree modal */
+  #tree-modal{display:none;position:fixed;inset:0;z-index:1000;background:rgba(0,0,0,0.85);backdrop-filter:blur(4px);}
+  #tree-modal.open{display:flex;flex-direction:column;}
+  #tree-header{padding:12px 16px;background:var(--bg2);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;flex-shrink:0;}
+  #tree-title{font-family:var(--font-mono);font-size:13px;color:var(--cyan);font-weight:700;}
+  #tree-dql{font-family:var(--font-mono);font-size:11px;color:var(--muted);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  #tree-close{margin-left:auto;background:none;border:1px solid var(--border);color:var(--muted);padding:4px 10px;border-radius:var(--radius);cursor:pointer;font-size:12px;}
+  #tree-close:hover{color:var(--text);border-color:var(--text);}
+  #tree-canvas-wrap{flex:1;overflow:hidden;position:relative;cursor:grab;}
+  #tree-canvas-wrap.dragging{cursor:grabbing;}
+  #tree-svg{width:100%;height:100%;}
+  #tree-hint{position:absolute;bottom:12px;right:16px;font-size:10px;color:var(--muted);font-family:var(--font-mono);pointer-events:none;}
+  #tree-stats-bar{padding:6px 16px;background:var(--bg2);border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:var(--font-mono);display:flex;gap:16px;flex-shrink:0;}
+  @keyframes pulse-green{0%,100%{box-shadow:0 0 0 0 rgba(63,185,80,0.7);}50%{box-shadow:0 0 0 7px rgba(63,185,80,0);}}
+  @keyframes pulse-yellow{0%,100%{box-shadow:0 0 0 0 rgba(210,153,34,0.7);}50%{box-shadow:0 0 0 7px rgba(210,153,34,0);}}
+  @keyframes pulse-red{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,0.7);}50%{box-shadow:0 0 0 7px rgba(248,81,73,0);}}
+  @keyframes flash-text{0%,100%{opacity:1;}50%{opacity:0.3;}}
+  .flash-count{animation:flash-text 1.2s ease-in-out infinite;color:var(--muted);font-style:italic;}
+  .flash-extract{animation:flash-text 0.8s ease-in-out infinite;color:var(--cyan);font-style:italic;}
+  .verify-dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px;vertical-align:middle;flex-shrink:0;}
+  .verify-dot.green{background:var(--green);animation:pulse-green 1.5s ease-in-out 3;}
+  .verify-dot.yellow{background:var(--yellow);animation:pulse-yellow 1.5s ease-in-out 3;}
+  .verify-dot.red{background:var(--red);animation:pulse-red 1.5s ease-in-out 3;}
+  /* Files */
+  .file-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:8px;overflow:hidden;}
+  .file-card.selected{border-color:var(--cyan);background:rgba(57,208,216,0.04);}
+  .file-cb{width:15px;height:15px;accent-color:var(--cyan);cursor:pointer;flex-shrink:0;}
+  #files-toolbar{display:none;padding:8px 0;margin-bottom:8px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+  #files-toolbar.visible{display:flex;}
+  .file-row{display:flex;align-items:center;gap:10px;padding:8px 12px;flex-wrap:wrap;}
+  .file-name{font-family:var(--font-mono);font-size:12px;color:var(--blue);flex:1;min-width:150px;}
+  .file-meta{font-size:11px;color:var(--muted);}
+  .file-preview-area{display:none;border-top:1px solid var(--border);padding:10px 12px;background:var(--bg);}
+  .file-preview-area.open{display:block;}
+  .preview-records{font-family:var(--font-mono);font-size:10px;line-height:1.8;max-height:180px;overflow-y:auto;}
+  .preview-job-link{color:var(--cyan);cursor:pointer;text-decoration:underline;font-size:10px;}
+  /* Settings */
+  .settings-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:12px;}
+  .settings-section h3{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--muted);margin-bottom:12px;}
+  .s-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+  .s-grid.full{grid-template-columns:1fr;}
+  /* Help */
+  .help-section{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:10px;}
+  .help-section h3{font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:var(--cyan);margin-bottom:8px;}
+  .help-section p,.help-section li{font-size:12px;color:var(--muted);line-height:1.7;margin-bottom:4px;}
+  .help-section ul{padding-left:16px;}
+  .help-section code{font-family:var(--font-mono);font-size:11px;color:var(--orange);background:var(--bg3);padding:1px 4px;border-radius:3px;}
+  /* History */
+  .history-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:10px 14px;margin-bottom:8px;}
+  .htype{font-size:9px;font-weight:700;padding:2px 6px;border-radius:10px;text-transform:uppercase;}
+  .htype.query{background:rgba(88,166,255,0.15);color:var(--blue);}
+  .htype.extract{background:rgba(57,208,216,0.15);color:var(--cyan);}
+  .hdql{font-family:var(--font-mono);font-size:10px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin:4px 0;}
+  .hmeta{font-size:10px;color:var(--muted);display:flex;gap:12px;flex-wrap:wrap;}
+  .hmeta span{color:var(--text);}
+  /* Misc */
+  .divider{height:1px;background:var(--border);margin:10px 0;}
+  .empty-state{color:var(--muted);font-size:12px;padding:20px 0;text-align:center;}
+  .spin{animation:spin 1s linear infinite;display:inline-block;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .tag-orange{font-size:10px;padding:1px 6px;border-radius:3px;font-family:var(--font-mono);background:rgba(227,179,65,0.1);color:var(--orange);border:1px solid rgba(227,179,65,0.3);}
+  #statusbar{padding:4px 16px;background:var(--bg2);border-top:1px solid var(--border);font-size:10px;color:var(--muted);font-family:var(--font-mono);display:flex;gap:16px;flex-shrink:0;}
+  ::-webkit-scrollbar{width:6px;height:6px;}
+  ::-webkit-scrollbar-track{background:var(--bg);}
+  ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+  ::-webkit-scrollbar-thumb:hover{background:var(--muted);}
+</style>
+</head>
+<body>
+
+<div id="header">
+  <div class="logo">⬡ Grailkeeper</div>
+  <div class="version">v4.0.18</div>
+  <div style="margin-left:auto;display:flex;align-items:center;gap:8px;">
+    <div id="health-label">checking...</div>
+    <div id="health-dot" class="blink"></div>
+  </div>
+</div>
+
+<div id="layout">
+  <div id="sidebar">
+    <div class="nav-group-label">Query</div>
+    <div class="nav-item active" data-panel="query"><span>⬡</span> Query</div>
+    <div class="nav-group-label">Extract</div>
+    <div class="nav-item" data-panel="extract"><span>↓</span> Extract</div>
+    <div class="nav-item" data-panel="jobs"><span>⚙</span> Jobs</div>
+    <div class="nav-item" data-panel="files"><span>◫</span> Files</div>
+    <div class="nav-group-label">System</div>
+    <div class="nav-item" data-panel="history"><span>⏱</span> History</div>
+    <div class="nav-item" data-panel="settings"><span>⚙</span> Settings</div>
+    <div class="nav-item" data-panel="help"><span>?</span> Help</div>
+  </div>
+
+  <div id="main">
+
+    <!-- QUERY -->
+    <div class="panel active" id="panel-query">
+      <div class="panel-header">
+        <div class="panel-title">Query</div>
+        <div class="panel-subtitle">Direct Grail API · full metadata</div>
+      </div>
+      <div class="panel-body" style="display:flex;flex-direction:column;min-height:0;">
+        <div class="form-group" style="margin-bottom:10px;">
+          <label style="display:flex;justify-content:space-between;">DQL <span style="color:var(--muted);cursor:pointer;font-size:9px;text-transform:none;letter-spacing:0;" onclick="toggleDql('q-dql')">⤢ expand</span></label>
+          <textarea id="q-dql" rows="3" placeholder="fetch logs | limit 100" style="resize:vertical;transition:height 0.2s;"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group grow"><label>Start</label><input type="datetime-local" id="q-start"></div>
+          <div class="form-group grow"><label>End</label><input type="datetime-local" id="q-end"></div>
+          <div class="form-group" style="justify-content:flex-end;">
+            <div class="range-btns">
+              <div class="range-btn" onclick="setQRange(1)">1d</div>
+              <div class="range-btn" onclick="setQRange(7)">7d</div>
+              <div class="range-btn" onclick="setQRange(30)">30d</div>
+              <div class="range-btn" onclick="setQRange(365)">1y</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <button class="btn btn-primary" onclick="runQuery()" id="btn-run-query">▶ Run Query</button>
+          <span id="q-status" style="font-size:11px;color:var(--muted);align-self:center;"></span>
+        </div>
+        <div id="query-results-wrap">
+          <div id="query-meta-panel"><div class="meta-row" id="meta-row"></div></div>
+          <div id="query-table-wrap"><div class="empty-state">Run a query to see results</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- EXTRACT -->
+    <div class="panel" id="panel-extract">
+      <div class="panel-header">
+        <div class="panel-title">Extract</div>
+        <div class="panel-subtitle">Recursive window splitting · notification-driven</div>
+      </div>
+      <div id="extract-form-area">
+        <div class="form-group" style="margin-bottom:10px;">
+          <label style="display:flex;justify-content:space-between;">DQL <span style="color:var(--muted);cursor:pointer;font-size:9px;text-transform:none;letter-spacing:0;" onclick="toggleDql('e-dql')">⤢ expand</span></label>
+          <textarea id="e-dql" rows="3" placeholder="fetch logs | filter ..." style="resize:vertical;transition:height 0.2s;"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group grow"><label>Start</label><input type="datetime-local" id="e-start"></div>
+          <div class="form-group grow"><label>End</label><input type="datetime-local" id="e-end"></div>
+          <div class="form-group" style="justify-content:flex-end;">
+            <div class="range-btns">
+              <div class="range-btn" onclick="setERange(1)">1d</div>
+              <div class="range-btn" onclick="setERange(7)">7d</div>
+              <div class="range-btn" onclick="setERange(30)">30d</div>
+              <div class="range-btn" onclick="setERange(365)">1y</div>
+            </div>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group grow"><label>Output filename — job_id prefix added automatically</label><input type="text" id="e-filename" placeholder="auto-generated (job_id_date_time)"></div>
+          <div class="form-group">
+            <label>Format</label>
+            <select id="e-fmt" onchange="toggleRawFields()">
+              <option value="jsonl">JSONL</option>
+              <option value="csv">CSV</option>
+              <option value="raw">Raw</option>
+            </select>
+          </div>
+        </div>
+        <div id="raw-fields-row" style="display:none;" class="form-row">
+          <div class="form-group grow">
+            <label>Raw fields (comma-separated — default: content)</label>
+            <input type="text" id="e-fields" value="content" placeholder="content,timestamp">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Initial window</label>
+            <select id="e-init-hours">
+              <option value="0">Full range</option>
+              <option value="1">1 hour</option>
+              <option value="6">6 hours</option>
+              <option value="12">12 hours</option>
+              <option value="24" selected>24 hours</option>
+              <option value="48">48 hours</option>
+              <option value="168">1 week</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Max records/window</label>
+            <input type="number" id="e-maxrec" value="500000" style="width:110px;">
+          </div>
+          <div class="form-group">
+            <label>Max split depth</label>
+            <input type="number" id="e-depth" value="10" min="1" style="width:80px;">
+          </div>
+          <div class="form-group" style="justify-content:flex-end;align-self:flex-end;">
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;text-transform:none;font-size:11px;font-weight:600;letter-spacing:0;">
+              <input type="checkbox" id="e-probe" style="width:14px;height:14px;accent-color:var(--cyan);">
+              🔍 Pre-flight profiling
+            </label>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group" style="flex:1;">
+            <label>Schedule start (optional — leave blank to start now)</label>
+            <input type="datetime-local" id="e-schedule">
+          </div>
+        </div>
+        <div class="form-row">
+          <button class="btn btn-primary" id="btn-start-extract" onclick="startExtraction()">▼ Start Extraction</button>
+          <button class="btn btn-danger" id="btn-pause-extract" style="display:none;" onclick="pauseExtraction()">⏸ Pause</button>
+          <button class="btn btn-ghost btn-sm" id="btn-resume-extract" style="display:none;" onclick="resumeExtraction()">▶ Resume</button>
+          <button class="btn btn-danger" id="btn-stop-extract" style="display:none;" onclick="stopCurrentExtraction()">■ Stop</button>
+          <button id="btn-tree-extract" class="btn btn-ghost btn-sm" style="display:none;" onclick="openTree(currentJobId)" title="View split tree">🌳 Tree</button>
+        </div>
+      </div>
+      <div id="extract-bottom">
+        <!-- Live summary at top of bottom area -->
+        <div id="live-summary">
+          <div class="ls-grid">
+            <div class="ls-card"><div class="ls-label">Records</div><div class="ls-value" id="ls-records">0</div></div>
+            <div class="ls-card"><div class="ls-label">API Calls</div><div class="ls-value" id="ls-calls">0</div></div>
+            <div class="ls-card"><div class="ls-label">Splits</div><div class="ls-value" id="ls-splits">0</div></div>
+            <div class="ls-card"><div class="ls-label">Scanned</div><div class="ls-value" id="ls-scanned">—</div></div>
+            <div class="ls-card"><div class="ls-label">Runtime</div><div class="ls-value" id="ls-elapsed">—</div></div>
+            <div class="ls-card"><div class="ls-label">Errors</div><div class="ls-value err" id="ls-errors">0</div></div>
+            <div class="ls-card"><div class="ls-label">Status</div><div class="ls-value" id="ls-status">—</div></div>
+          </div>
+          <!-- Window progress bar — only shown during active extraction -->
+          <div id="ls-progress-wrap" style="display:none;margin-top:8px;">
+            <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--muted);margin-bottom:3px;font-family:var(--font-mono);">
+              <span id="ls-progress-label">Window 0/0</span>
+              <span id="ls-progress-pct">0%</span>
+            </div>
+            <div class="job-progress"><div class="job-progress-bar" id="ls-progress-bar" style="width:0%"></div></div>
+          </div>
+        </div>
+        <!-- Log header -->
+        <div class="log-header" style="margin-top:6px;">
+          <div style="font-size:11px;color:var(--muted);">LIVE LOG</div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-sm" id="btn-lock-log" onclick="toggleLogLock()">🔓 Auto-scroll</button>
+            <button class="btn btn-ghost btn-sm" onclick="clearLog()">Clear</button>
+          </div>
+        </div>
+        <!-- Log - takes all remaining space -->
+        <div class="log-wrap" id="extract-log"></div>
+      </div>
+    </div>
+
+    <!-- JOBS -->
+    <div class="panel" id="panel-jobs">
+      <div class="panel-header">
+        <div class="panel-title">Jobs</div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;text-transform:none;font-size:11px;font-weight:600;letter-spacing:0;color:var(--muted);">
+            <input type="checkbox" id="cb-jobs-all" style="width:14px;height:14px;accent-color:var(--cyan);" onchange="toggleSelectAllJobs(this)">
+            Select all
+          </label>
+          <button class="btn btn-danger btn-sm" id="btn-jobs-bulk-delete" style="display:none;" onclick="bulkDeleteJobs()">🗑 Delete selected</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadJobs()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="panel-body" id="jobs-list"><div class="empty-state">No jobs yet</div></div>
+    </div>
+
+    <!-- FILES -->
+    <div class="panel" id="panel-files">
+      <div class="panel-header">
+        <div class="panel-title">Files</div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;text-transform:none;font-size:11px;font-weight:600;letter-spacing:0;color:var(--muted);">
+            <input type="checkbox" id="cb-select-all" style="width:14px;height:14px;accent-color:var(--cyan);" onchange="toggleSelectAll(this)">
+            Select all
+          </label>
+          <button class="btn btn-danger btn-sm" id="btn-bulk-delete" style="display:none;" onclick="bulkDelete()">🗑 Delete selected</button>
+          <button class="btn btn-ghost btn-sm" onclick="loadFiles()">↻ Refresh</button>
+        </div>
+      </div>
+      <div class="panel-body" id="files-list"><div class="empty-state">No files yet</div></div>
+    </div>
+
+    <!-- HISTORY -->
+    <div class="panel" id="panel-history">
+      <div class="panel-header">
+        <div class="panel-title">History</div>
+        <div class="panel-subtitle">Queries and extractions</div>
+        <div style="margin-left:auto;display:flex;gap:6px;align-items:center;">
+          <label style="display:flex;align-items:center;gap:5px;cursor:pointer;text-transform:none;font-size:11px;font-weight:600;letter-spacing:0;color:var(--muted);">
+            <input type="checkbox" id="cb-hist-all" style="width:14px;height:14px;accent-color:var(--cyan);" onchange="toggleSelectAllHist(this)">
+            Select all
+          </label>
+          <button class="btn btn-danger btn-sm" id="btn-hist-bulk-delete" style="display:none;" onclick="bulkDeleteHist()">🗑 Delete selected</button>
+          <button class="btn btn-ghost btn-sm" onclick="clearHistory()">🗑 Clear all</button>
+        </div>
+      </div>
+      <div class="panel-body" id="history-list"><div class="empty-state">No history yet</div></div>
+    </div>
+
+    <!-- SETTINGS -->
+    <div class="panel" id="panel-settings">
+      <div class="panel-header"><div class="panel-title">Settings</div></div>
+      <div class="panel-body">
+        <div class="settings-section">
+          <h3>Connection</h3>
+          <div class="s-grid full" style="gap:10px;">
+            <div class="form-group"><label>Environment URL</label><input type="text" id="s-env" placeholder="https://xxxxxxxx.apps.dynatrace.com"></div>
+            <div class="form-group"><label>API Token (dt0s16.xxx)</label><input type="password" id="s-token" placeholder="leave blank to keep existing"></div>
+          </div>
+        </div>
+        <div class="settings-section">
+          <h3>Extraction Defaults</h3>
+          <div class="s-grid">
+            <div class="form-group"><label>Initial window (hrs, 0=full range)</label><input type="number" id="s-init-hours" value="24" min="0"></div>
+            <div class="form-group"><label>Max records per window</label><input type="number" id="s-max-records" value="500000"></div>
+            <div class="form-group"><label>Max split depth</label><input type="number" id="s-max-depth" value="10" min="1"></div>
+            <div class="form-group"><label>Raw format default fields</label><input type="text" id="s-default-fields" value="content"></div>
+          </div>
+          <div style="margin-top:10px;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;text-transform:none;font-size:12px;font-weight:600;letter-spacing:0;">
+              <input type="checkbox" id="s-default-probe" style="width:14px;height:14px;accent-color:var(--cyan);">
+              Enable pre-flight profiling by default (can be overridden per extraction)
+            </label>
+          </div>
+        </div>
+        <button class="btn btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+        <span id="settings-status" style="font-size:11px;color:var(--muted);margin-left:10px;"></span>
+        <div class="divider"></div>
+        <div class="settings-section">
+          <h3>Connection Test</h3>
+          <button class="btn btn-ghost" onclick="testHealth()">▶ Test Connection</button>
+          <div id="health-result" style="margin-top:10px;font-family:var(--font-mono);font-size:11px;"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HELP -->
+    <div class="panel" id="panel-help">
+      <div class="panel-header"><div class="panel-title">Help &amp; Reference</div></div>
+      <div class="panel-body">
+        <div class="help-section">
+          <h3>Token Setup</h3>
+          <p>Go to <strong>Settings</strong> → enter your environment URL and a Platform Token (<code>dt0s16.xxx</code>).</p>
+          <p>Required scopes: <code>storage:logs:read</code> <code>storage:events:read</code> <code>storage:metrics:read</code> <code>storage:spans:read</code> <code>storage:bizevents:read</code> <code>storage:entities:read</code> <code>storage:buckets:read</code></p>
+        </div>
+        <div class="help-section">
+          <h3>Initial Window</h3>
+          <p>How the date range is sliced before extraction starts. Each slice is independent.</p>
+          <ul>
+            <li><code>Full range (0)</code> — one call for everything. Best for sparse filtered queries.</li>
+            <li><code>24h</code> — one call per day. Good default.</li>
+            <li><code>1h</code> — use only for known very dense data.</li>
+          </ul>
+          <p>Windows that exceed Max Records split automatically in half, recursively.</p>
+        </div>
+        <div class="help-section">
+          <h3>Max Records per Window</h3>
+          <p>Cap per API call. Default <code>500,000</code>. Do not exceed — Grail may reject higher values. Truncated windows split automatically.</p>
+        </div>
+        <div class="help-section">
+          <h3>Max Split Depth</h3>
+          <p>Max halving iterations. At depth 10, min window ≈ 1.4 min from a 24h start. Increase to 15 for very dense data. Hitting max depth on a truncated window writes partial results with a warning.</p>
+        </div>
+        <div class="help-section">
+          <h3>Pre-flight Profiling</h3>
+          <p>Before extraction, binary-searches the range with <code>| limit 1</code> probes to find windows with data. Skips empty ranges entirely. Best for sparse data over long ranges (years). Each probe ≈ 10–80 MB.</p>
+        </div>
+        <div class="help-section">
+          <h3>Output Formats</h3>
+          <ul>
+            <li><code>JSONL</code> — full JSON record per line. Extension: <code>.jsonl</code></li>
+            <li><code>CSV</code> — comma-separated with headers. Extension: <code>.csv</code></li>
+            <li><code>Raw</code> — timestamp + content per line. Format: <code>2026-04-16T10:00:00Z - &lt;content&gt;</code>. Set comma-separated fields to include after the timestamp. Extension: <code>.txt</code></li>
+          </ul>
+        </div>
+        <div class="help-section">
+          <h3>Pause / Resume / Schedule</h3>
+          <ul>
+            <li><strong>Pause</strong> — current window completes, then extraction pauses. No data loss.</li>
+            <li><strong>Resume</strong> — continues from where it paused.</li>
+            <li><strong>Schedule</strong> — set a future datetime in the Extract form. Job enters <em>scheduled</em> state and starts automatically at that time. Jobs run server-side and survive browser close.</li>
+          </ul>
+        </div>
+        <div class="help-section">
+          <h3>DQL Tips</h3>
+          <ul>
+            <li><code>scanLimitGBytes:-1</code> is automatically added to every extraction — you don't need to type it.</li>
+            <li>Add <code>bucket:{"your-bucket"}</code> to limit scan to a specific bucket — much faster.</li>
+            <li><code>| limit N</code> is automatically stripped during extraction.</li>
+            <li>Use <code>filter</code> over <code>search</code> for indexed fields.</li>
+            <li>Query tab uses max 100,000 records per call — use Extract for full data retrieval.</li>
+            <li>Click <strong>⤢ expand</strong> next to DQL label to grow the text area.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<div id="statusbar">
+  <span id="sb-env">No environment configured</span>
+  <span id="sb-time"></span>
+</div>
+
+<script>
+// Global error handler — shows JS errors as visible banner
+window.onerror=function(msg,src,line,col,err){
+  const b=document.createElement('div');
+  b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:9999;background:#f85149;color:#fff;padding:8px 16px;font-family:monospace;font-size:12px;cursor:pointer;';
+  b.textContent=`JS ERROR: ${msg} (line ${line}:${col})`;
+  b.onclick=()=>b.remove();
+  document.body.appendChild(b);
+  return false;
+};
+window.onunhandledrejection=function(e){
+  const b=document.createElement('div');
+  b.style.cssText='position:fixed;top:30px;left:0;right:0;z-index:9999;background:#e3b341;color:#000;padding:8px 16px;font-family:monospace;font-size:12px;cursor:pointer;';
+  b.textContent=`PROMISE ERROR: ${e.reason}`;
+  b.onclick=()=>b.remove();
+  document.body.appendChild(b);
+};
+</script>
+<script>
+let currentJobId=null, pollInterval=null, logLocked=false, _lastLogLen=0;
+let _selectedJobs=new Set();   // persist job selections across auto-refresh
+let _selectedFiles=new Set();  // persist file selections across auto-refresh
+let gkHistory=[];
+let _fileCountPoller=null;
+
+// Navigation
+document.querySelectorAll('.nav-item').forEach(item=>{
+  item.addEventListener('click',()=>{
+    document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+    item.classList.add('active');
+    const p=document.getElementById('panel-'+item.dataset.panel);
+    if(p)p.classList.add('active');
+    sessionStorage.setItem('gk_panel', item.dataset.panel);
+    if(item.dataset.panel==='jobs'){loadJobs();if(_fileCountPoller){clearInterval(_fileCountPoller);_fileCountPoller=null;}}
+    if(item.dataset.panel==='files')loadFiles();
+    if(item.dataset.panel==='settings'){loadSettings();if(_fileCountPoller){clearInterval(_fileCountPoller);_fileCountPoller=null;}}
+    if(item.dataset.panel==='history'){renderHistory();if(_fileCountPoller){clearInterval(_fileCountPoller);_fileCountPoller=null;}}
+    if(item.dataset.panel==='extract'){
+      // Only reset if NOT navigating via jumpToExtraction
+      if(!window._jumpingToExtraction){
+        if(pollInterval){clearInterval(pollInterval);pollInterval=null;}
+        currentJobId=null;
+        document.getElementById('live-summary').style.display='none';
+        document.getElementById('extract-log').innerHTML='';
+        _lastLogLen=0;
+        document.getElementById('btn-start-extract').disabled=false;
+        document.getElementById('btn-stop-extract').style.display='none';
+        document.getElementById('btn-pause-extract').style.display='none';
+        document.getElementById('btn-resume-extract').style.display='none';
+        document.getElementById('btn-tree-extract').style.display='none';
+      }
+    }
+  });
+});
+
+// Auto-reconnect to any running job after page refresh — runs ONCE on load
+(async function(){
+  try{
+    const r=await fetch('/api/extract/jobs'),d=await r.json();
+    const running=(d.jobs||[]).find(j=>['running','paused'].includes(j.status));
+    if(running){
+      currentJobId=running.job_id;
+      document.getElementById('live-summary').style.display='block';
+      document.getElementById('btn-start-extract').disabled=true;
+      document.getElementById('btn-stop-extract').style.display='inline-block';
+      if(running.status==='paused'){
+        document.getElementById('btn-pause-extract').style.display='none';
+        document.getElementById('btn-resume-extract').style.display='inline-block';
+      } else {
+        document.getElementById('btn-pause-extract').style.display='inline-block';
+        document.getElementById('btn-resume-extract').style.display='none';
+      }
+      const lr=await fetch(`/api/extract/job/${running.job_id}/log?tail=500`),ld=await lr.json();
+      document.getElementById('extract-log').innerHTML='';
+      _lastLogLen=0;
+      (ld.entries||[]).forEach(addLogLine);
+      _lastLogLen=(ld.entries||[]).length;
+      if(running.status!=='paused'){
+        if(pollInterval){clearInterval(pollInterval);pollInterval=null;}
+        pollInterval=setInterval(()=>pollLog(currentJobId),5000);
+      }
+      const lastPanel=sessionStorage.getItem('gk_panel');
+      if(!lastPanel||lastPanel==='extract'){
+        window._jumpingToExtraction=true;
+        document.querySelector('[data-panel="extract"]').click();
+        window._jumpingToExtraction=false;
+      }
+    }
+  }catch(e){}
+})();
+
+// Restore last panel on page load
+(function(){
+  const last = sessionStorage.getItem('gk_panel');
+  if(last){
+    const item = document.querySelector(`[data-panel="${last}"]`);
+    if(item) item.click();
+  }
+})();
+
+// Dates
+function toLocal(dt){const d=new Date(dt);return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().slice(0,16);}
+function toISO(s){return new Date(s).toISOString().replace('.000Z','Z');}
+function setQRange(d){const e=new Date(),s=new Date(e-d*86400000);document.getElementById('q-start').value=toLocal(s);document.getElementById('q-end').value=toLocal(e);}
+function setERange(d){const e=new Date(),s=new Date(e-d*86400000);document.getElementById('e-start').value=toLocal(s);document.getElementById('e-end').value=toLocal(e);}
+function fmtBytes(b){if(!b)return'0 MB';if(b>1e12)return(b/1e12).toFixed(2)+' TB';if(b>1e9)return(b/1e9).toFixed(2)+' GB';if(b>1e6)return(b/1e6).toFixed(1)+' MB';return(b/1024).toFixed(0)+' KB';}
+function fmtNum(n){return(n||0).toLocaleString();}
+function fmtDT(iso){if(!iso)return'';const d=new Date(iso);const p=n=>String(n).padStart(2,'0');return`${p(d.getDate())}/${p(d.getMonth()+1)}/${d.getFullYear()} ${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;}
+function genFilename(){const d=new Date();const p=n=>String(n).padStart(2,'0');return`extraction_${p(d.getDate())}-${p(d.getMonth()+1)}-${d.getFullYear()}_${p(d.getHours())}:${p(d.getMinutes())}:${p(d.getSeconds())}`;}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+setQRange(1);setERange(1);
+
+// Raw fields toggle
+function toggleRawFields(){document.getElementById('raw-fields-row').style.display=document.getElementById('e-fmt').value==='raw'?'flex':'none';}
+
+// Health
+async function checkHealth(){
+  try{
+    const r=await fetch('/api/health'),d=await r.json();
+    const dot=document.getElementById('health-dot'),lbl=document.getElementById('health-label');
+    dot.classList.remove('blink');
+    if(d.status==='ok'){dot.className='ok';lbl.textContent='Connected';lbl.style.color='var(--green)';}
+    else if(d.status==='unconfigured'){dot.className='';dot.style.background='var(--muted)';lbl.textContent='Not configured';lbl.style.color='var(--muted)';}
+    else{dot.className='error';lbl.textContent='Error';lbl.style.color='var(--red)';}
+  }catch(e){document.getElementById('health-dot').className='error';}
+}
+setInterval(checkHealth,15000);checkHealth();
+
+// Settings
+async function loadSettings(){
+  const r=await fetch('/api/config'),d=await r.json();
+  document.getElementById('s-env').value=d.env_url||'';
+  document.getElementById('s-token').value='';
+  document.getElementById('s-init-hours').value=d.initial_hours??24;
+  document.getElementById('s-max-records').value=d.max_records??500000;
+  document.getElementById('s-max-depth').value=d.max_depth??10;
+  document.getElementById('s-default-probe').checked=d.default_probe??false;
+  document.getElementById('s-default-fields').value=d.default_fields??'content';
+  document.getElementById('e-maxrec').value=d.max_records??500000;
+  document.getElementById('e-depth').value=d.max_depth??10;
+  document.getElementById('e-init-hours').value=d.initial_hours??24;
+  document.getElementById('e-probe').checked=d.default_probe??false;
+  document.getElementById('e-fields').value=d.default_fields??'content';
+  if(d.env_url)document.getElementById('sb-env').textContent=d.env_url.replace('https://','');
+}
+async function saveSettings(){
+  const tok=document.getElementById('s-token').value.trim();
+  const payload={env_url:document.getElementById('s-env').value.trim(),token:tok||'__KEEP__',
+    max_records:parseInt(document.getElementById('s-max-records').value),
+    max_depth:parseInt(document.getElementById('s-max-depth').value),
+    initial_hours:parseInt(document.getElementById('s-init-hours').value),
+    default_probe:document.getElementById('s-default-probe').checked,
+    default_fields:document.getElementById('s-default-fields').value.trim()};
+  const r=await fetch('/api/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+  const d=await r.json();
+  const st=document.getElementById('settings-status');
+  if(d.success){st.textContent='✅ Saved';st.style.color='var(--green)';checkHealth();loadSettings();}
+  else{st.textContent='❌ Error';st.style.color='var(--red)';}
+  setTimeout(()=>{st.textContent='';},3000);
+}
+async function testHealth(){
+  const el=document.getElementById('health-result');el.textContent='⏳ Testing...';
+  const r=await fetch('/api/health'),d=await r.json();
+  el.innerHTML=d.status==='ok'?`<span style="color:var(--green)">✅ Connected</span> · queryId: ${d.query_id}`:`<span style="color:var(--red)">❌ ${d.status}</span>: ${d.detail}`;
+}
+
+// Query
+async function runQuery(){
+  const dql=document.getElementById('q-dql').value.trim();
+  const s=document.getElementById('q-start').value,e=document.getElementById('q-end').value;
+  // max_records fixed at 100000 — no UI control needed
+  if(!dql)return;
+  const btn=document.getElementById('btn-run-query'),st=document.getElementById('q-status');
+  btn.disabled=true;st.innerHTML='<span class="spin">↻</span> Running...';
+  const t0=Date.now();
+  try{
+    const r=await fetch('/api/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dql,max_records:100000,start:toISO(s),end:toISO(e)})});
+    const d=await r.json();const elapsed=Date.now()-t0;
+    if(!r.ok){st.innerHTML=`<span style="color:var(--red)">❌ ${d.detail}</span>`;return;}
+    saveHistory({type:'query',dql,start:s,end:e,records:d.count,elapsed_ms:elapsed,truncated:d.truncated,ts:new Date().toISOString()});
+    const mp=document.getElementById('query-meta-panel');mp.classList.add('visible');
+    const ns=d.notifications?.length?d.notifications.map(n=>n.notificationType||n.type||'?').join(', '):'—';
+    document.getElementById('meta-row').innerHTML=`
+      <div class="meta-item"><div class="meta-key">Records</div><div class="meta-val">${fmtNum(d.count)}</div></div>
+      <div class="meta-item"><div class="meta-key">Scanned Recs</div><div class="meta-val">${fmtNum(d.scanned_records)}</div></div>
+      <div class="meta-item"><div class="meta-key">Scanned Bytes</div><div class="meta-val">${fmtBytes(d.scanned_bytes)}</div></div>
+      <div class="meta-item"><div class="meta-key">Execution</div><div class="meta-val">${d.execution_ms}ms</div></div>
+      <div class="meta-item"><div class="meta-key">Truncated</div><div class="meta-val ${d.truncated?'meta-trunc':''}">${d.truncated?'⚠ YES':'No'}</div></div>
+      <div class="meta-item"><div class="meta-key">Notifications</div><div class="meta-val meta-notif">${ns}</div></div>
+      <div class="meta-item"><div class="meta-key">Query ID</div><div class="meta-val" style="font-size:10px;color:var(--muted);">${d.query_id||'—'}</div></div>
+      <div class="meta-item"><div class="meta-key">Round-trip</div><div class="meta-val" style="color:var(--muted);">${elapsed}ms</div></div>`;
+    const wrap=document.getElementById('query-table-wrap');
+    if(!d.records?.length){wrap.innerHTML='<div class="empty-state">No records</div>';st.textContent='0 records';return;}
+    const cols=Object.keys(d.records[0]);
+    let html='<table><thead><tr>'+cols.map(c=>`<th>${c}</th>`).join('')+'</tr></thead><tbody>';
+    d.records.forEach(rec=>{html+='<tr>'+cols.map(c=>{const v=rec[c];const sv=typeof v==='object'?JSON.stringify(v):String(v??'');return`<td title="${sv.replace(/"/g,'&quot;')}">${sv}</td>`;}).join('')+'</tr>';});
+    html+='</tbody></table>';wrap.innerHTML=html;
+    st.textContent=`${fmtNum(d.count)} records · ${d.execution_ms}ms`;
+    if(d.truncated)st.innerHTML+=` <span class="tag-orange">TRUNCATED</span>`;
+  }catch(e){st.innerHTML=`<span style="color:var(--red)">❌ ${e.message}</span>`;}
+  finally{btn.disabled=false;}
+}
+
+// Extract log
+function addLogLine(entry){
+  const wrap=document.getElementById('extract-log');
+  const line=document.createElement('div');
+  line.className='log-line '+(entry.level||'info');
+  if(entry.type==='log'){
+    const ts=entry.ts?entry.ts.slice(11,19):'';
+    const msg=entry.msg||'';
+    line.innerHTML=formatLogMsg(ts, msg);
+  }else if(entry.type==='started'){
+    line.innerHTML=`<span class="log-started">▶ STARTED · ${entry.windows} initial window(s)</span>`;
+  }else if(entry.type==='done'){
+    line.innerHTML=`<span class="log-done">✅ DONE · ${fmtNum(entry.total_records)} records · ${entry.total_api_calls} calls · ${entry.total_splits} splits · ${entry.elapsed_s}s</span>`;
+    updateLS(entry,'done');
+  }else if(entry.type==='stopped'){
+    line.innerHTML=`<span class="log-stopped">⏹ STOPPED · ${fmtNum(entry.total_records)} records</span>`;
+    updateLS(entry,'stopped');
+  }else{line.textContent=JSON.stringify(entry);}
+  wrap.appendChild(line);
+  if(!logLocked)wrap.scrollTop=wrap.scrollHeight;
+}
+
+function depthIcon(depth){
+  const icons=['🔵','🟢','🟡','🟠','🔴','🟣','🔵','🟢','🟡','🟠'];
+  return icons[depth%icons.length];
+}
+
+function formatLogMsg(ts, msg){
+  const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const tsHtml=ts?`<span class="log-ts">${ts}</span>`:'';
+
+  // Window header: ── Window N/M ──
+  if(/── Window \d+\/\d+ ──/.test(msg)){
+    const m=msg.match(/Window (\d+)\/(\d+)/);
+    return `${tsHtml}🪟 <span style="color:var(--blue);font-weight:700;">Window ${m[1]}/${m[2]}</span> `+
+      `<span style="color:var(--muted);font-size:10px;">──────────────────────────────</span>`;
+  }
+
+  // Depth + timerange: [depth=N] date → date (Xh)
+  const depthM=msg.match(/\[depth=(\d+)\]\s*(.*?→.*?\([\d.]+h\))/);
+  if(depthM){
+    const depth=parseInt(depthM[1]);
+    const indent='  '.repeat(depth);
+    const connector=depth===0?'┌':'├';
+    const icon=depthIcon(depth);
+    return `${tsHtml}<span style="font-family:var(--font-mono);">${indent}</span>${icon} `+
+      `<span style="color:var(--muted);font-family:var(--font-mono);font-size:10px;">depth=${depth}</span> `+
+      `<span style="color:var(--text);font-family:var(--font-mono);">${esc(depthM[2])}</span>`;
+  }
+
+  // Result line: → N records | scanned XMB ...
+  const recM=msg.match(/→\s*([\d,]+)\s*records\s*\|(.*)/);
+  if(recM){
+    const count=recM[1];
+    const rest=recM[2];
+    const isTrunc=/truncated=True/.test(rest);
+    const isEmpty=parseInt(count.replace(/,/g,''))===0;
+    const col=isEmpty?'var(--muted)':isTrunc?'var(--orange)':'var(--green)';
+    return `${tsHtml}<span style="color:var(--muted);font-family:var(--font-mono);">   │  </span>`+
+      `<span style="color:${col};font-weight:600;">→ ${count} records</span>`+
+      `<span style="color:var(--muted);font-family:var(--font-mono);"> |${esc(rest)}</span>`;
+  }
+
+  // Split: ↕ Split → [L] [R]
+  if(msg.includes('↕ Split')||msg.includes('Split →')){
+    const parts=msg.match(/\[([^\]]+)\]\s*\[([^\]]+)\]/);
+    if(parts)return `${tsHtml}<span style="color:var(--muted);font-family:var(--font-mono);">   │  </span>`+
+      `✂️ <span style="color:var(--yellow);font-weight:700;">split</span> `+
+      `<span style="color:var(--muted);">├─L: </span><span style="color:var(--text);font-family:var(--font-mono);font-size:10px;">${esc(parts[1])}</span>`+
+      `<span style="color:var(--muted);"> └─R: </span><span style="color:var(--text);font-family:var(--font-mono);font-size:10px;">${esc(parts[2])}</span>`;
+    return `${tsHtml}<span style="color:var(--yellow);">${esc(msg)}</span>`;
+  }
+
+  // Written: ✅ Written N records
+  if(msg.includes('✅ Written')){
+    return `${tsHtml}<span style="color:var(--muted);font-family:var(--font-mono);">   │  </span>`+
+      `<span style="color:var(--green);font-weight:700;">${esc(msg)}</span>`;
+  }
+
+  // Empty window
+  if(msg.includes('○ Empty')){
+    return `${tsHtml}<span style="color:var(--muted);font-family:var(--font-mono);">   │  </span>`+
+      `<span style="color:var(--muted);">○ empty</span>`;
+  }
+
+  // Probe lines
+  if(msg.includes('[probe]')){
+    const hasData=msg.includes('HAS DATA');
+    const isEmpty=msg.includes('empty');
+    const col=hasData?'var(--cyan)':isEmpty?'var(--muted)':'var(--text)';
+    return `${tsHtml}<span style="color:var(--purple);font-size:10px;">🔍</span> `+
+      `<span style="color:${col};font-size:10px;font-family:var(--font-mono);">${esc(msg.replace('[probe]','').trim())}</span>`;
+  }
+
+  // Paused
+  if(msg.includes('⏸')){
+    return `${tsHtml}<span style="color:var(--orange);font-weight:700;">${esc(msg)}</span>`;
+  }
+
+  // Default
+  return `${tsHtml}${esc(msg)}`;
+}
+
+function updateLS(data,status){
+  document.getElementById('live-summary').style.display='block';
+  const isProfiling = status==='running' && !data.total_api_calls && !data.total_records;
+  document.getElementById('ls-records').textContent=isProfiling?'—':fmtNum(data.total_records);
+  document.getElementById('ls-calls').textContent=isProfiling?'—':fmtNum(data.total_api_calls);
+  document.getElementById('ls-splits').textContent=isProfiling?'—':fmtNum(data.total_splits);
+  document.getElementById('ls-scanned').textContent=isProfiling?'—':fmtBytes(data.scanned_bytes||0);
+  document.getElementById('ls-elapsed').textContent=data.elapsed_s!=null?data.elapsed_s+'s':'—';
+  document.getElementById('ls-errors').textContent=isProfiling?'—':data.errors||0;
+  const el=document.getElementById('ls-status');
+  const pauseBtn   = document.getElementById('btn-pause-extract');
+  const resumeBtn  = document.getElementById('btn-resume-extract');
+  const stopBtn    = document.getElementById('btn-stop-extract');
+  const startBtn   = document.getElementById('btn-start-extract');
+  if(status==='done'||status==='stopped'||status==='error'){
+    el.textContent=status==='done'?'✅ Done':'⏹ Stopped';
+    el.style.color=status==='done'?'var(--green)':'var(--orange)';
+    if(pauseBtn)pauseBtn.style.display='none';
+    if(resumeBtn)resumeBtn.style.display='none';
+    if(stopBtn)stopBtn.style.display='none';
+    if(startBtn)startBtn.disabled=false;
+  } else if(status==='paused'){
+    el.textContent='⏸ Paused';el.style.color='var(--orange)';
+    if(pauseBtn)pauseBtn.style.display='none';
+    if(resumeBtn)resumeBtn.style.display='inline-block';
+    if(stopBtn)stopBtn.style.display='inline-block';
+  } else {
+    el.textContent=isProfiling?'🔍 Profiling':'⏳ Running';
+    el.style.color=isProfiling?'var(--purple)':'var(--cyan)';
+    if(pauseBtn)pauseBtn.style.display='inline-block';
+    if(resumeBtn)resumeBtn.style.display='none';
+    if(stopBtn)stopBtn.style.display='inline-block';
+  }
+  // Progress bar
+  const progressWrap=document.getElementById('ls-progress-wrap');
+  if(progressWrap){
+    const wt=data.windows_total||0, wd=data.windows_done||0, wc=data.windows_current||0;
+    if(wt>0 && status==='running'){
+      // Use windows_done for bar fill, windows_current for label (shows active window)
+      // Use current window as half-done for visual progress, done windows for % label
+      const visualPct=Math.round(((wd+(wc>wd?0.5:0))/wt)*100);
+      const labelPct=Math.round(wd/wt*100);
+      progressWrap.style.display='block';
+      const label=wc>0?`Window ${wc}/${wt}`:`Window 0/${wt}`;
+      document.getElementById('ls-progress-label').textContent=label;
+      document.getElementById('ls-progress-pct').textContent=`${labelPct}%`;
+      document.getElementById('ls-progress-bar').style.width=`${visualPct}%`;
+    } else if(status==='done'){
+      progressWrap.style.display='none';
+    }
+  }
+}
+
+async function pollLog(jid){
+  try{
+    const r=await fetch(`/api/extract/job/${jid}/log?tail=500`),d=await r.json();
+    const entries=d.entries||[];
+    if(entries.length>_lastLogLen){entries.slice(_lastLogLen).forEach(addLogLine);_lastLogLen=entries.length;}
+    const sr=await fetch(`/api/extract/job/${jid}`),sd=await sr.json();
+    if(sd.live)updateLS({total_records:sd.live.total_records,total_api_calls:sd.live.total_api_calls,
+      total_splits:sd.live.total_splits,scanned_bytes:sd.live.scanned_bytes,
+      elapsed_s:sd.live.elapsed_s,errors:sd.live.errors,
+      windows_total:sd.live.windows_total||0,windows_done:sd.live.windows_done||0,
+      windows_current:sd.live.windows_current||0},sd.status||'running');
+    if(['done','stopped','error'].includes(sd.status)){
+      clearInterval(pollInterval);pollInterval=null;
+      // Don't null currentJobId here — jumpToExtraction may need it
+      document.getElementById('btn-start-extract').disabled=false;
+      document.getElementById('btn-pause-extract').style.display='none';
+      document.getElementById('btn-resume-extract').style.display='none';
+      document.getElementById('btn-tree-extract').style.display='inline-block';
+      document.getElementById('btn-stop-extract').style.display='none';
+      gkHistory=[];
+    }
+  }catch(e){}
+}
+
+async function startExtraction(){
+  const dql=document.getElementById('e-dql').value.trim();
+  const s=document.getElementById('e-start').value,e=document.getElementById('e-end').value;
+  const filename=document.getElementById('e-filename').value.trim()||genFilename();
+  const fmt=document.getElementById('e-fmt').value;
+  const fields=document.getElementById('e-fields').value.trim()||'content';
+  const initHours=parseInt(document.getElementById('e-init-hours').value);
+  const maxRecords=parseInt(document.getElementById('e-maxrec').value);
+  const maxDepth=parseInt(document.getElementById('e-depth').value);
+  const probe=document.getElementById('e-probe').checked;
+  const schedVal=document.getElementById('e-schedule').value;
+  const scheduled_at=schedVal?new Date(schedVal).toISOString():null;
+  if(!dql||!s||!e)return;
+  document.getElementById('extract-log').innerHTML='';
+  document.getElementById('live-summary').style.display='block';
+  ['ls-records','ls-calls','ls-splits','ls-errors'].forEach(id=>document.getElementById(id).textContent='0');
+  document.getElementById('ls-scanned').textContent='—';
+  document.getElementById('ls-status').textContent='⏳ Starting';document.getElementById('ls-status').style.color='var(--cyan)';
+  document.getElementById('btn-start-extract').disabled=true;
+  document.getElementById('btn-pause-extract').style.display='inline-block';
+  document.getElementById('btn-resume-extract').style.display='none';
+  document.getElementById('btn-stop-extract').style.display='inline-block';
+  _lastLogLen=0;
+  try{
+    const r=await fetch('/api/extract/start',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({dql,start:toISO(s),end:toISO(e),filename,fmt,fields,
+        initial_hours:initHours,max_records:maxRecords,max_depth:maxDepth,probe,scheduled_at})});
+    const d=await r.json();
+    if(!r.ok){addLogLine({type:'log',level:'error',msg:`❌ ${d.detail}`,ts:new Date().toISOString()});
+      document.getElementById('btn-start-extract').disabled=false;
+    document.getElementById('btn-pause-extract').style.display='none';
+    document.getElementById('btn-resume-extract').style.display='none';
+    document.getElementById('btn-stop-extract').style.display='none';return;}
+    currentJobId=d.job_id;
+    addLogLine({type:'log',level:'info',msg:`Job ${d.job_id} started · output: ${d.filename}`,ts:new Date().toISOString()});
+    pollInterval=setInterval(()=>pollLog(currentJobId),5000);
+  }catch(e){
+    addLogLine({type:'log',level:'error',msg:`❌ ${e.message}`,ts:new Date().toISOString()});
+    document.getElementById('btn-start-extract').disabled=false;document.getElementById('btn-stop-extract').style.display='none';
+  }
+}
+
+async function pauseExtraction(){
+  if(!currentJobId)return;
+  await fetch(`/api/extract/job/${currentJobId}/pause`,{method:'POST'});
+  addLogLine({type:'log',level:'warn',msg:'⏸ Paused — window in progress will complete before pausing',ts:new Date().toISOString()});
+  document.getElementById('btn-pause-extract').style.display='none';
+  document.getElementById('btn-resume-extract').style.display='inline-block';
+}
+async function resumeExtraction(){
+  if(!currentJobId)return;
+  await fetch(`/api/extract/job/${currentJobId}/resume`,{method:'POST'});
+  addLogLine({type:'log',level:'info',msg:'▶ Resumed',ts:new Date().toISOString()});
+  document.getElementById('btn-pause-extract').style.display='inline-block';
+  document.getElementById('btn-resume-extract').style.display='none';
+}
+async function pauseJob(jid){await fetch(`/api/extract/job/${jid}/pause`,{method:'POST'});setTimeout(loadJobs,300);}
+async function resumeJob(jid){await fetch(`/api/extract/job/${jid}/resume`,{method:'POST'});setTimeout(loadJobs,300);}
+async function stopCurrentExtraction(){
+  if(!currentJobId)return;
+  await fetch(`/api/extract/job/${currentJobId}/stop`,{method:'POST'});
+  addLogLine({type:'log',level:'warn',msg:'⏹ Stop requested...',ts:new Date().toISOString()});
+}
+
+function toggleLogLock(){
+  logLocked=!logLocked;
+  const btn=document.getElementById('btn-lock-log');
+  btn.textContent=logLocked?'🔒 Locked':'🔓 Auto-scroll';
+  if(!logLocked){const w=document.getElementById('extract-log');w.scrollTop=w.scrollHeight;}
+}
+function clearLog(){document.getElementById('extract-log').innerHTML='';}
+
+// Jobs
+async function loadJobs(){
+  const r=await fetch('/api/extract/jobs'),d=await r.json();
+  const el=document.getElementById('jobs-list');
+  if(!d.jobs?.length){el.innerHTML='<div class="empty-state">No jobs yet</div>';return;}
+  const enriched=await Promise.all(d.jobs.map(async j=>{
+    if(['running','stopping','paused'].includes(j.status)){
+      try{
+        const lr=await fetch(`/api/extract/job/${j.job_id}`),ld=await lr.json();
+        // Sync status from state in case it changed
+        if(ld.status && ld.status!==j.status) j.status=ld.status;
+        if(ld.elapsed_s!=null) j.elapsed_s=ld.elapsed_s;
+        if(ld.live){
+          j.total_records=ld.live.total_records;
+          j.total_api_calls=ld.live.total_api_calls;
+          j.total_splits=ld.live.total_splits;
+          j.scanned_bytes=ld.live.scanned_bytes;
+          j.elapsed_s=ld.live.elapsed_s;
+          j.windows_total=ld.live.windows_total||0;
+          j.windows_done=ld.live.windows_done||0;
+          j.windows_current=ld.live.windows_current||0;
+        }
+      }catch(e){}
+    }return j;
+  }));
+  // Reset jobs select-all
+  document.getElementById('cb-jobs-all').checked=false;
+  document.getElementById('btn-jobs-bulk-delete').style.display='none';
+
+  // Merge live windows progress into job object
+  enriched.forEach(j=>{
+    const lv=j.live||{};
+    j.windows_total  =lv.windows_total  ??j.windows_total  ??0;
+    j.windows_done   =lv.windows_done   ??j.windows_done   ??0;
+    j.windows_current=lv.windows_current??j.windows_current??0;
+  });
+  el.innerHTML=enriched.map(j=>`
+    <div class="job-card" id="jcard-${j.job_id}" data-jid="${j.job_id}">
+      <div class="job-card-header">
+        <input type="checkbox" class="file-cb job-cb" onchange="onJobCheck()" title="Select">
+        <div class="job-id">${j.job_id}</div>
+        <div class="job-status ${j.status}">${j.status.toUpperCase()}</div>
+        <div class="job-dt">${fmtDT(j.started_at)}</div>
+      </div>
+      <div class="job-dql"><span style="color:var(--cyan);margin-right:6px;">${(j.start||j.start_iso||'').slice(0,16).replace('T',' ')} → ${(j.end||j.end_iso||'').slice(0,16).replace('T',' ')}</span>${escHtml(j.dql||'')}</div>
+      <div class="job-stats">${(j.status==='running'&&!j.total_api_calls&&!j.total_records)?
+        '<span style="color:var(--purple);">🔍 profiling...</span>':
+        `Records <span>${fmtNum(j.total_records)}</span> · Calls <span>${fmtNum(j.total_api_calls)}</span> · Splits <span>${fmtNum(j.total_splits)}</span> · Scanned <span>${j.scanned_bytes?fmtBytes(j.scanned_bytes):'—'}</span> · Runtime <span>${j.elapsed_s!=null?j.elapsed_s+'s':'—'}</span>`
+      } · File ${j.filename?`<span class="file-link" onclick="jumpToFile('${j.filename}')" style="color:var(--cyan);cursor:pointer;text-decoration:underline dotted;" title="View in Files">${j.filename}</span>`:'<span>—</span>'}</div>
+      ${j.status==='running'&&j.windows_total>0?(()=>{
+        const vPct=Math.round(((j.windows_done+(j.windows_current>j.windows_done?0.5:0))/j.windows_total)*100);
+        const lPct=Math.round(j.windows_done/j.windows_total*100);
+        return `<div style="margin-top:6px;">
+          <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:3px;font-family:var(--font-mono);">
+            <span>Window ${j.windows_current}/${j.windows_total}</span><span>${lPct}%</span>
+          </div>
+          <div class="job-progress"><div class="job-progress-bar" style="width:${vPct}%"></div></div>
+        </div>`;
+      })():''}
+      <div class="job-verify" id="verify-${j.job_id}" style="display:none;margin-top:6px;font-size:11px;font-family:var(--font-mono);padding:6px 8px;background:var(--bg3);border-radius:var(--radius);border-left:3px solid var(--cyan);"></div>
+      <div class="job-actions">
+        <button class="btn btn-ghost btn-sm" onclick="jumpToExtraction('${j.job_id}')">⚡ Extract</button>
+        <button class="btn btn-ghost btn-sm" onclick="openJobLog('${j.job_id}')" title="View full extraction log">📋 Log</button>
+        ${j.status==='running'?`<button class="btn btn-ghost btn-sm" onclick="pauseJob('${j.job_id}')">⏸ Pause</button>`:''}
+        ${j.status==='paused'?`<button class="btn btn-ghost btn-sm" onclick="resumeJob('${j.job_id}')">▶ Resume</button>`:''}
+        ${['running','paused'].includes(j.status)?`<button class="btn btn-danger btn-sm" onclick="stopJob('${j.job_id}')">■ Stop</button>`:''}
+        ${j.status==='done'?`<button class="btn btn-ghost btn-sm" onclick="verifyJob('${j.job_id}',this)" title="Run count() query to verify completeness">🔍 Verify</button>`:''}
+        ${j.status==='done'||j.status==='error'?`<button class="btn btn-ghost btn-sm" onclick="openTree('${j.job_id}')" title="View split tree">🌳 Tree</button>`:''}
+        <button class="btn btn-ghost btn-sm" onclick="deleteJob('${j.job_id}')">🗑 Delete</button>
+      </div>
+    </div>`).join('');
+  // Restore previously selected checkboxes
+  document.querySelectorAll('.job-cb').forEach(cb=>{
+    const card=cb.closest('.job-card');
+    const jid=card?.dataset.jid;
+    if(jid&&_selectedJobs.has(jid)){cb.checked=true;card.classList.add('selected');}
+  });
+  const _jselCount=document.querySelectorAll('.job-cb:checked').length;
+  const _jbtn=document.getElementById('btn-jobs-bulk-delete');
+  if(_jbtn){_jbtn.style.display=_jselCount>0?'inline-block':'none';_jbtn.textContent=`🗑 Delete selected (${_jselCount})`;}
+  if(enriched.some(j=>['running','stopping','paused'].includes(j.status)))setTimeout(loadJobs,8000);
+}
+async function stopJob(jid){await fetch(`/api/extract/job/${jid}/stop`,{method:'POST'});setTimeout(loadJobs,500);}
+async function deleteJob(jid){await fetch(`/api/extract/job/${jid}`,{method:'DELETE'});loadJobs();}
+
+async function verifyJob(jid, btn){
+  const el=document.getElementById('verify-'+jid);
+  if(!el)return;
+  // Get job details
+  const r=await fetch(`/api/extract/job/${jid}`);
+  const j=await r.json();
+  if(!j.dql||!j.start_iso||!j.end_iso){el.textContent='⚠️ Missing job metadata for verification';el.style.display='block';return;}
+  btn.disabled=true; btn.textContent='🔍 Running...';
+  el.style.display='block';
+  el.innerHTML='<span style="color:var(--muted);">Running count() query against Grail...</span>';
+  try{
+    // Build count query
+    const countDql=j.dql.replace(/\|\s*(summarize|limit|sort|fields)\b[^|]*/gi,'').trim()+'\n| summarize count()';
+    const resp=await fetch('/api/query/run',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({dql:countDql,start:j.start_iso,end:j.end_iso,max_records:1})
+    });
+    const res=await resp.json();
+    if(res.error){el.innerHTML=`<span style="color:var(--red);">❌ ${escHtml(res.error)}</span>`;btn.disabled=false;btn.textContent='🔍 Verify';return;}
+    const _raw=res.records?.[0]?.['count()']??res.records?.[0]?.count??'?';
+    const grailCount=_raw==='?'?'?':Number(_raw);
+    const extracted=j.total_records||0;
+    const diff=typeof grailCount==='number'?grailCount-extracted:null;
+    const pct=diff!==null&&extracted>0?((diff/extracted)*100).toFixed(1):null;
+    const isGreen=diff!==null&&Math.abs(diff)<=extracted*0.01;
+    const isYellow=diff!==null&&!isGreen&&Math.abs(diff)<extracted*0.1;
+    const isRed=diff!==null&&!isGreen&&!isYellow;
+    const dotClass=diff!==null?(isGreen?'green':isYellow?'yellow':'red'):'';
+    const color=diff===null?'var(--muted)':isGreen?'var(--green)':isYellow?'var(--yellow)':'var(--red)';
+    const dot=dotClass?`<span class="verify-dot ${dotClass}"></span>`:'';
+    // Change verify button to show result status
+    btn.textContent=isGreen?'✅ Verified':isYellow?'⚠️ Verify':isRed?'❌ Verify':'🔍 Verify';
+    btn.style.color=isGreen?'var(--green)':isYellow?'var(--yellow)':isRed?'var(--red)':'';
+    btn.disabled=false;
+    el.style.borderLeftColor=isGreen?'var(--green)':isYellow?'var(--yellow)':isRed?'var(--red)':'var(--cyan)';
+    el.innerHTML=
+      `<span style="display:flex;align-items:center;">${dot}`+
+      `<span style="color:var(--green);">Extracted: ${fmtNum(extracted)}</span>&nbsp;·&nbsp;`+
+      `<span style="color:var(--cyan);">Grail count: ${typeof grailCount==='number'?fmtNum(grailCount):grailCount}</span>`+
+      (diff!==null?`&nbsp;·&nbsp;<span style="color:${color};">Delta: ${diff>=0?'+':''}${fmtNum(diff)} (${pct}%)</span>`:'')+'</span>';
+  }catch(e){
+    el.innerHTML=`<span style="color:var(--red);">❌ ${escHtml(String(e))}</span>`;
+    btn.textContent='🔍 Verify';btn.disabled=false;
+  }
+}
+
+async function jumpToExtraction(jid){
+  // 1. Kill everything first — no races possible after this
+  clearInterval(pollInterval); pollInterval=null;
+  currentJobId=null;
+  window._jumpingToExtraction=true;
+
+  try{
+    // 2. Fetch job data
+    const r=await fetch(`/api/extract/job/${jid}`);
+    const sd=await r.json();
+
+    // 3. Navigate to extract panel (reset is suppressed by flag)
+    document.querySelector('[data-panel="extract"]').click();
+
+    // 4. Restore form fields
+    if(sd.dql) document.getElementById('e-dql').value=sd.dql;
+    if(sd.start){const d=new Date(sd.start);document.getElementById('e-start').value=d.toISOString().slice(0,16);}
+    if(sd.end){const d=new Date(sd.end);document.getElementById('e-end').value=d.toISOString().slice(0,16);}
+    if(sd.initial_hours) document.getElementById('e-window').value=sd.initial_hours;
+    if(sd.max_records)   document.getElementById('e-max-records').value=sd.max_records;
+    if(sd.max_depth)     document.getElementById('e-max-depth').value=sd.max_depth;
+    if(sd.probe!=null)   document.getElementById('e-probe').checked=!!sd.probe;
+    if(sd.fmt)           document.getElementById('e-fmt').value=sd.fmt;
+    if(sd.filename){
+      const jidPre=(sd.job_id||'').slice(0,8)+'_';
+      document.getElementById('e-filename').value=
+        sd.filename.startsWith(jidPre)?sd.filename.slice(jidPre.length):sd.filename;
+    }
+
+    // 5. Show live summary
+    document.getElementById('live-summary').style.display='block';
+    const stats=sd.live||sd;
+    updateLS({
+      total_records:   stats.total_records||0,
+      total_api_calls: stats.total_api_calls||0,
+      total_splits:    stats.total_splits||0,
+      scanned_bytes:   stats.scanned_bytes||0,
+      elapsed_s:       stats.elapsed_s,
+      errors:          stats.errors||0,
+      windows_total:   sd.live?.windows_total||stats.windows_total||0,
+      windows_done:    sd.live?.windows_done||stats.windows_done||0,
+      windows_current: sd.live?.windows_current||stats.windows_current||0,
+    }, sd.status||'done');
+
+    // 6. Show tree button for completed jobs
+    const treeBtn=document.getElementById('btn-tree-extract');
+    if(treeBtn) treeBtn.style.display=(sd.status==='done'||sd.status==='error')?'inline-block':'none';
+
+    // 7. Load log — this is the ONLY place the log gets populated
+    const lr=await fetch(`/api/extract/job/${jid}/log?tail=500`);
+    const ld=await lr.json();
+    const logEl=document.getElementById('extract-log');
+    logEl.innerHTML='';
+    _lastLogLen=0;
+    (ld.entries||[]).forEach(addLogLine);
+    _lastLogLen=(ld.entries||[]).length;
+
+    // 8. Set currentJobId NOW — after log is loaded
+    currentJobId=jid;
+
+    // 9. Start polling ONLY if still running (never for done jobs)
+    if(sd.status==='running'){
+      pollInterval=setInterval(()=>pollLog(currentJobId),5000);
+    }
+
+  }catch(e){console.error('jumpToExtraction',e);}
+  finally{
+    window._jumpingToExtraction=false;
+  }
+}
+
+// Jump to Files tab and highlight a specific file
+async function jumpToFile(filename){
+  document.querySelector('[data-panel="files"]').click();
+  await new Promise(r=>setTimeout(r,200)); // wait for panel to render
+  // Find the card with matching filename and scroll to it
+  const cards=document.querySelectorAll('.file-card');
+  for(const card of cards){
+    if(card.dataset.filename===filename){
+      card.scrollIntoView({behavior:'smooth',block:'center'});
+      card.style.outline='2px solid var(--cyan)';
+      card.style.transition='outline 0.3s';
+      // Check the checkbox for this file
+      const cb=card.querySelector('.file-cb');
+      if(cb){cb.checked=true;onFileCheck();}
+      setTimeout(()=>{card.style.outline='';},2500);
+      return;
+    }
+  }
+}
+
+// Files
+async function loadFiles(){
+  const r=await fetch('/api/files'),d=await r.json();
+  const files=d.files||[];
+  const el=document.getElementById('files-list');
+  if(!files.length){el.innerHTML='<div class="empty-state">No files yet</div>';return;}
+  document.getElementById('cb-select-all').checked=false;
+  document.getElementById('btn-bulk-delete').style.display='none';
+
+  function recHtml(f,i){
+    const unit=f.filename.endsWith('.csv')||f.filename.endsWith('.txt')?'lines':'recs';
+    if(f.record_state==='extracting')
+      return `<span class="flash-extract">⏳ extracting…</span>`;
+    if(f.record_state==='counting')
+      return `<span class="flash-count">counting…</span>`;
+    return `${fmtNum(f.records)} ${unit}`;
+  }
+
+  // Use index-based onclick to avoid escaping issues with filenames
+  window._fileList=files;
+
+  el.innerHTML=files.map((f,i)=>`
+    <div class="file-card" id="fcard-${i}" data-filename="${escHtml(f.filename)}">
+      <div class="file-row">
+        <input type="checkbox" class="file-cb" onchange="onFileCheck()" title="Select">
+        <div class="file-name">${escHtml(f.filename)}</div>
+        <div class="file-meta" id="frec-${i}">${recHtml(f,i)}</div>
+        <div class="file-meta">${f.size_mb} MB</div>
+        <div class="file-meta">${fmtDT(f.modified)}</div>
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          <button class="btn btn-ghost btn-sm" onclick="togglePreview(${i},window._fileList[${i}].filename)">👁 Preview</button>
+          <a href="/api/files/${encodeURIComponent(f.filename)}/download"><button class="btn btn-ghost btn-sm">↓ Download</button></a>
+          <button class="btn btn-danger btn-sm" onclick="deleteFile(window._fileList[${i}].filename)">🗑</button>
+        </div>
+      </div>
+      <div class="file-preview-area" id="fprev-${i}"></div>
+    </div>`).join('');
+
+  // Restore selections
+  document.querySelectorAll('.file-cb').forEach(cb=>{
+    const card=cb.closest('.file-card');
+    const fn=card?.dataset.filename;
+    if(fn&&_selectedFiles.has(fn)){cb.checked=true;card.classList.add('selected');}
+  });
+  const _fselCount=document.querySelectorAll('.file-cb:checked').length;
+  const _fbtn=document.getElementById('btn-bulk-delete');
+  if(_fbtn&&_fselCount>0){_fbtn.style.display='inline-block';_fbtn.textContent=`🗑 Delete selected (${_fselCount})`;}
+
+  // Stop any existing poller
+  if(_fileCountPoller){clearInterval(_fileCountPoller);_fileCountPoller=null;}
+
+  // Trigger background count — ONE at a time to avoid overwhelming server
+  const needCount=files.filter(f=>f.record_state==='counting');
+  if(needCount.length>0){
+    // Count sequentially: start first one, poller will trigger next
+    fetch(`/api/files/${encodeURIComponent(needCount[0].filename)}/count`,{method:'POST'}).catch(()=>{});
+  }
+
+  // Poll to update counts in-place — max 40 iterations (2 min)
+  const hasLive=needCount.length>0||files.some(f=>f.record_state==='extracting');
+  if(hasLive){
+    let _pollCount=0;
+    _fileCountPoller=setInterval(async()=>{
+      _pollCount++;
+      if(_pollCount>40){clearInterval(_fileCountPoller);_fileCountPoller=null;return;}
+      try{
+        const r2=await fetch('/api/files'),d2=await r2.json();
+        const fs2=d2.files||[];
+        let allDone=true;
+        files.forEach((f,i)=>{
+          if(f.record_state==='known')return; // already resolved
+          const f2=fs2.find(x=>x.filename===f.filename);
+          if(!f2)return;
+          if(f2.record_state==='counting'||f2.record_state==='extracting'){allDone=false;return;}
+          // Update in-place
+          const cell=document.getElementById(`frec-${i}`);
+          if(cell){
+            const unit=f.filename.endsWith('.csv')||f.filename.endsWith('.txt')?'lines':'recs';
+            cell.textContent=`${fmtNum(f2.records)} ${unit}`;
+          }
+          f.record_state='known';f.records=f2.records;
+          // Trigger count for next uncounted file (sequential)
+          const nextUncounted=files.find(ff=>ff.record_state==='counting');
+          if(nextUncounted){
+            fetch(`/api/files/${encodeURIComponent(nextUncounted.filename)}/count`,{method:'POST'}).catch(()=>{});
+          }
+        });
+        if(allDone){clearInterval(_fileCountPoller);_fileCountPoller=null;}
+      }catch(e){/* ignore poll errors */}
+    },3000);
+  }
+}
+
+async function togglePreview(i,filename){
+  const prev=document.getElementById(`fprev-${i}`);
+  if(prev.classList.contains('open')){prev.classList.remove('open');return;}
+  prev.innerHTML='<div style="color:var(--muted);padding:8px;font-size:11px;">Loading...</div>';
+  prev.classList.add('open');
+  try{
+    const r=await fetch(`/api/files/${encodeURIComponent(filename)}/preview?n=10`),d=await r.json();
+    let jobHtml='';
+    try{
+      const jr=await fetch('/api/extract/jobs'),jd=await jr.json();
+      const job=(jd.jobs||[]).find(j=>j.filename===filename);
+      if(job)jobHtml=`<div style="margin-bottom:8px;font-size:10px;color:var(--muted);">
+        Job: <span class="preview-job-link" onclick="jumpToExtraction('${job.job_id}')" title="View extraction log">${job.job_id}</span>
+        · ${fmtDT(job.started_at)} · DQL: <span style="font-family:var(--font-mono);font-size:9px;word-break:break-all;">${escHtml(job.dql||'')}</span>
+      </div>`;
+    }catch(e){}
+    if(!d.records?.length){prev.innerHTML=jobHtml+'<div style="color:var(--muted);font-size:11px;">Empty file</div>';return;}
+    const rows=d.records.map((rec,i)=>{
+      const summary=typeof rec==='object'
+        ?(rec.line!==undefined
+          ? escHtml(String(rec.line).slice(0,200))
+          : Object.entries(rec).slice(0,4).map(([k,v])=>`<span style="color:var(--muted);">${k}:</span> ${escHtml(String(v??'').slice(0,60))}`).join(' · '))
+        :escHtml(String(rec).slice(0,200));
+      return`<div style="padding:3px 0;border-bottom:1px solid var(--border);font-size:10px;">${i+1}. ${summary}</div>`;
+    }).join('');
+    prev.innerHTML=jobHtml+`<div class="preview-records" style="font-family:var(--font-mono);">${rows}</div><div style="font-size:9px;color:var(--muted);margin-top:6px;">First ${d.records.length} records</div>`;
+  }catch(e){prev.innerHTML=`<div style="color:var(--red);font-size:11px;">Error: ${e.message}</div>`;}
+}
+
+function onJobCheck(){
+  const cbs=document.querySelectorAll('.job-cb');
+  const checked=document.querySelectorAll('.job-cb:checked');
+  cbs.forEach(cb=>{
+    const card=cb.closest('.job-card');
+    const jid=card?.dataset.jid;
+    if(card)card.classList.toggle('selected',cb.checked);
+    if(jid){if(cb.checked)_selectedJobs.add(jid);else _selectedJobs.delete(jid);}
+  });
+  const btn=document.getElementById('btn-jobs-bulk-delete');
+  btn.style.display=checked.length>0?'inline-block':'none';
+  btn.textContent=`🗑 Delete selected (${checked.length})`;
+  const all=document.getElementById('cb-jobs-all');
+  all.indeterminate=checked.length>0&&checked.length<cbs.length;
+  all.checked=checked.length===cbs.length&&cbs.length>0;
+}
+function toggleSelectAllJobs(cb){
+  document.querySelectorAll('.job-cb').forEach(c=>{
+    c.checked=cb.checked;
+    const card=c.closest('.job-card');
+    if(card)card.classList.toggle('selected',cb.checked);
+  });
+  const count=document.querySelectorAll('.job-cb:checked').length;
+  const btn=document.getElementById('btn-jobs-bulk-delete');
+  btn.style.display=count>0?'inline-block':'none';
+  btn.textContent=`🗑 Delete selected (${count})`;
+}
+async function bulkDeleteJobs(){
+  const selected=[...document.querySelectorAll('.job-card.selected')]
+    .map(card=>card.dataset.jid).filter(Boolean);
+  if(!selected.length)return;
+  if(!confirm(`Delete ${selected.length} job(s)?`))return;
+  await Promise.all(selected.map(jid=>
+    fetch(`/api/extract/job/${jid}`,{method:'DELETE'})
+  ));
+  _selectedJobs.clear();
+  loadJobs();
+}
+
+function onHistCheck(){
+  const cbs=document.querySelectorAll('.hist-cb');
+  const checked=document.querySelectorAll('.hist-cb:checked');
+  cbs.forEach(cb=>{
+    const card=cb.closest('.history-card');
+    if(card)card.classList.toggle('selected',cb.checked);
+  });
+  const btn=document.getElementById('btn-hist-bulk-delete');
+  btn.style.display=checked.length>0?'inline-block':'none';
+  btn.textContent=`🗑 Delete selected (${checked.length})`;
+  const all=document.getElementById('cb-hist-all');
+  all.indeterminate=checked.length>0&&checked.length<cbs.length;
+  all.checked=checked.length===cbs.length&&cbs.length>0;
+}
+function toggleSelectAllHist(cb){
+  document.querySelectorAll('.hist-cb').forEach(c=>{
+    c.checked=cb.checked;
+    const card=c.closest('.history-card');
+    if(card)card.classList.toggle('selected',cb.checked);
+  });
+  const count=document.querySelectorAll('.hist-cb:checked').length;
+  const btn=document.getElementById('btn-hist-bulk-delete');
+  btn.style.display=count>0?'inline-block':'none';
+  btn.textContent=`🗑 Delete selected (${count})`;
+}
+async function bulkDeleteHist(){
+  const selected=[...document.querySelectorAll('.history-card.selected')]
+    .map(card=>parseInt(card.dataset.idx)).filter(n=>!isNaN(n));
+  if(!selected.length)return;
+  if(!confirm(`Delete ${selected.length} history entry/entries?`))return;
+  // Remove from local array (descending to preserve indices)
+  const indices=selected.sort((a,b)=>b-a);
+  indices.forEach(i=>gkHistory.splice(i,1));
+  // Rebuild server history
+  try{
+    await fetch('/api/history',{method:'DELETE'});
+    // Re-save remaining entries in reverse order (oldest first)
+    for(let i=gkHistory.length-1;i>=0;i--){
+      await fetch('/api/history',{method:'POST',
+        headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(gkHistory[i])});
+    }
+  }catch(e){}
+  renderHistory();
+}
+
+function onFileCheck(){
+  const cbs=document.querySelectorAll('.file-cb');
+  const checked=document.querySelectorAll('.file-cb:checked');
+  cbs.forEach(cb=>{
+    const card=cb.closest('.file-card');
+    const fn=card?.dataset.filename;
+    if(card)card.classList.toggle('selected',cb.checked);
+    if(fn){if(cb.checked)_selectedFiles.add(fn);else _selectedFiles.delete(fn);}
+  });
+  // Show/hide bulk delete button
+  const btn=document.getElementById('btn-bulk-delete');
+  btn.style.display=checked.length>0?'inline-block':'none';
+  btn.textContent=`🗑 Delete selected (${checked.length})`;
+  // Update select-all state
+  const all=document.getElementById('cb-select-all');
+  all.indeterminate=checked.length>0&&checked.length<cbs.length;
+  all.checked=checked.length===cbs.length&&cbs.length>0;
+}
+
+function toggleSelectAll(cb){
+  document.querySelectorAll('.file-cb').forEach(c=>{
+    c.checked=cb.checked;
+    const card=c.closest('.file-card');
+    if(card)card.classList.toggle('selected',cb.checked);
+  });
+  const count=document.querySelectorAll('.file-cb:checked').length;
+  const btn=document.getElementById('btn-bulk-delete');
+  btn.style.display=count>0?'inline-block':'none';
+  btn.textContent=`🗑 Delete selected (${count})`;
+}
+
+async function bulkDelete(){
+  const selected=[...document.querySelectorAll('.file-card.selected')]
+    .map(card=>card.dataset.filename).filter(Boolean);
+  if(!selected.length)return;
+  if(!confirm(`Delete ${selected.length} file(s)?`))return;
+  await Promise.all(selected.map(fn=>
+    fetch(`/api/files/${encodeURIComponent(fn)}`,{method:'DELETE'})
+  ));
+  _selectedFiles.clear();
+  loadFiles();
+}
+
+async function deleteFile(filename){
+  if(!confirm(`Delete ${filename}?`))return;
+  await fetch(`/api/files/${encodeURIComponent(filename)}`,{method:'DELETE'});loadFiles();
+}
+
+// History
+async function saveHistory(entry){
+  gkHistory.unshift(entry);
+  if(gkHistory.length>200)gkHistory=gkHistory.slice(0,200);
+  try{await fetch('/api/history',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(entry)});}catch(e){}
+}
+async function renderHistory(){
+  const el=document.getElementById('history-list');
+  // Load from server if in-memory is empty
+  if(!gkHistory.length){
+    try{
+      const r=await fetch('/api/history'),d=await r.json();
+      gkHistory=(d.entries||[]);
+    }catch(e){}
+  }
+  if(!gkHistory.length){el.innerHTML='<div class="empty-state">No history yet. Run a query or extraction.</div>';return;}
+  el.innerHTML=gkHistory.map((h,i)=>{
+    const isQ=h.type==='query';
+    const meta=isQ
+      ?`Records <span>${fmtNum(h.records)}</span> · ${h.elapsed_ms}ms${h.truncated?' · <span style="color:var(--orange)">TRUNCATED</span>':''}`
+      :`Records <span>${fmtNum(h.records)}</span> · Calls <span>${fmtNum(h.calls)}</span> · Splits <span>${fmtNum(h.splits)}</span> · <span>${h.filename||'—'}</span>`;
+    return`<div class="history-card" data-idx="${i}">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;flex-wrap:wrap;">
+        <input type="checkbox" class="file-cb hist-cb" onchange="onHistCheck()" title="Select">
+        <div class="htype ${h.type}">${h.type}</div>
+        <div style="font-size:10px;color:var(--muted);">${fmtDT(h.ts)}</div>
+        <div style="margin-left:auto;display:flex;gap:6px;">
+          ${isQ?`<button class="btn btn-ghost btn-sm" onclick="replayQuery(${i})">▶ Repeat</button>`:''}
+          ${!isQ?`<button class="btn btn-ghost btn-sm" onclick="replayExtract(${i})">▶ Repeat</button>`:''}
+        </div>
+      </div>
+      <div class="hdql">${escHtml(h.dql||'')}</div>
+      <div class="hmeta">${meta}</div>
+    </div>`;
+  }).join('');
+}
+function replayQuery(i){
+  const h=gkHistory[i];document.querySelector('[data-panel="query"]').click();
+  setTimeout(()=>{document.getElementById('q-dql').value=h.dql||'';
+    if(h.start)document.getElementById('q-start').value=h.start.slice?.(0,16)||toLocal(h.start);
+    if(h.end)document.getElementById('q-end').value=h.end.slice?.(0,16)||toLocal(h.end);},50);
+}
+function replayExtract(i){
+  const h=gkHistory[i];document.querySelector('[data-panel="extract"]').click();
+  setTimeout(()=>{document.getElementById('e-dql').value=h.dql||'';
+    if(h.start)document.getElementById('e-start').value=h.start.slice?.(0,16)||toLocal(h.start);
+    if(h.end)document.getElementById('e-end').value=h.end.slice?.(0,16)||toLocal(h.end);},50);
+}
+async function clearHistory(){
+  if(!confirm('Clear all history?'))return;
+  gkHistory=[];
+  try{await fetch('/api/history',{method:'DELETE'});}catch(e){}
+  renderHistory();
+}
+
+// Clock
+function toggleDql(id){
+  const el=document.getElementById(id);
+  if(!el)return;
+  const isExpanded = el.dataset.expanded==='1';
+  if(isExpanded){
+    el.dataset.expanded='0';
+    el.style.height='';
+    el.rows=3;
+    el.style.minHeight='';
+    // find sibling label span and update text
+    const lbl=el.previousElementSibling?.querySelector('span');
+    if(lbl)lbl.textContent='⤢ expand';
+  } else {
+    el.dataset.expanded='1';
+    el.rows=1;
+    el.style.height='auto';
+    el.style.minHeight='220px';
+    el.style.height=Math.max(220, el.scrollHeight)+'px';
+    const lbl=el.previousElementSibling?.querySelector('span');
+    if(lbl)lbl.textContent='⤡ collapse';
+  }
+}
+function updateClock(){document.getElementById('sb-time').textContent=new Date().toISOString().replace('T',' ').slice(0,19)+' UTC';}
+setInterval(updateClock,1000);updateClock();
+loadSettings();
+
+// ── Job Log Modal ─────────────────────────────────────────────────────────
+async function openJobLog(jid){
+  const modal=document.getElementById('log-modal');
+  const body=document.getElementById('log-modal-body');
+  modal.classList.add('open');
+  document.getElementById('log-modal-title').textContent=`📋 Log · ${jid}`;
+  document.getElementById('log-modal-meta').textContent='Loading...';
+  body.innerHTML='<div style="color:var(--muted);padding:20px;">Loading log...</div>';
+
+  try{
+    // Load job state + log in parallel
+    const [sr, lr] = await Promise.all([
+      fetch(`/api/extract/job/${jid}`),
+      fetch(`/api/extract/job/${jid}/log?tail=9999`)
+    ]);
+    const sd=await sr.json(), ld=await lr.json();
+    const entries=ld.entries||[];
+
+    // Stats bar
+    const stats=sd.live||sd;
+    document.getElementById('log-stat-records').textContent=`Records: ${fmtNum(stats.total_records||0)}`;
+    document.getElementById('log-stat-calls').textContent=`Calls: ${fmtNum(stats.total_api_calls||0)}`;
+    document.getElementById('log-stat-splits').textContent=`Splits: ${fmtNum(stats.total_splits||0)}`;
+    document.getElementById('log-stat-scanned').textContent=`Scanned: ${fmtBytes(stats.scanned_bytes||0)}`;
+    document.getElementById('log-stat-runtime').textContent=`Runtime: ${stats.elapsed_s!=null?stats.elapsed_s+'s':'—'}`;
+    document.getElementById('log-stat-errors').textContent=`Errors: ${stats.errors||0}`;
+
+    // Meta line
+    const dql=(sd.dql||'').split('\n').join(' ');
+    const tStart=(sd.start||'').slice(0,16).replace('T',' ');
+    const tEnd=(sd.end||'').slice(0,16).replace('T',' ');
+    document.getElementById('log-modal-meta').textContent=
+      `· ${tStart} → ${tEnd}  ·  ${dql.length>80?dql.slice(0,80)+'…':dql}`;
+
+    // Render log entries
+    if(!entries.length){
+      body.innerHTML='<div style="color:var(--muted);padding:20px;">No log entries</div>';
+      return;
+    }
+
+    // Use the same formatLogMsg as the extraction page for identical rendering
+    body.innerHTML=entries.map(e=>{
+      const html=formatLogMsg(e.ts||'',e.msg||'',e.level||'info');
+      return `<div class="log-line">${html}</div>`;
+    }).join('');
+
+    // Scroll to bottom
+    body.scrollTop=body.scrollHeight;
+
+  }catch(err){
+    document.getElementById('log-modal-meta').textContent='Error loading log';
+    body.innerHTML=`<div style="color:var(--red);padding:20px;">Error: ${err.message}</div>`;
+  }
+}
+
+function closeJobLog(){
+  document.getElementById('log-modal').classList.remove('open');
+}
+
+// Close log modal on Escape
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('log-modal').classList.contains('open')){
+    closeJobLog();
+  }
+});
+
+// ── Split Tree Visualization ────────────────────────────────────────────────
+let _treeData = null;
+let _treeTransform = {x:0, y:0, scale:1};
+
+// Window (depth=0) nodes get distinct window colors; deeper nodes use depth colors
+const WINDOW_COLORS = ['#58a6ff','#39d0d8','#bc8cff','#ff7b72','#ffa657','#79c0ff','#56d364'];
+const DEPTH_COLORS  = ['#d29922','#e3b341','#f85149','#8b949e','#3fb950','#d29922','#e3b341'];
+const CR = 38, H_GAP = 50, V_GAP = 100, DQL_H = 80;
+
+async function openTree(jid){
+  if(!jid) return;
+  const modal = document.getElementById('tree-modal');
+  modal.classList.add('open');
+  document.getElementById('tree-dql').textContent = 'Loading...';
+  try{
+    const r = await fetch(`/api/extract/job/${jid}/tree`);
+    _treeData = await r.json();
+    if(_treeData.error){document.getElementById('tree-dql').textContent=_treeData.error;return;}
+    document.getElementById('tree-title').textContent = `🌳 Split Tree · ${jid}`;
+    document.getElementById('tree-dql').textContent = (_treeData.dql||'').replace(/\n/g,' ');
+    _renderTree();
+    _setupTreeInteraction();
+  }catch(e){document.getElementById('tree-dql').textContent='Error: '+e;}
+}
+
+function closeTree(){document.getElementById('tree-modal').classList.remove('open');_treeData=null;}
+
+function _nodeColor(n, windowIdx){
+  if(n.depth===0) return WINDOW_COLORS[windowIdx % WINDOW_COLORS.length];
+  return DEPTH_COLORS[Math.min(n.depth-1, DEPTH_COLORS.length-1)];
+}
+
+function _renderTree(){
+  if(!_treeData||!_treeData.nodes) return;
+  const nodes = _treeData.nodes;
+  const nodeMap = {};
+  nodes.forEach(n=>nodeMap[n.id]=n);
+
+  // Assign window index to each node (which initial window does it belong to)
+  const roots = (_treeData.roots||[]);
+  function assignWindow(nid, wIdx){
+    const n=nodeMap[nid]; if(!n) return;
+    n._wIdx = wIdx;
+    n.children.forEach(cid=>assignWindow(cid, wIdx));
+  }
+  roots.forEach((rid,i)=>assignWindow(rid,i));
+
+  // Layout: place circles with center coords
+  const CELL = CR*2 + H_GAP;
+  function layoutNode(nid, depth, xOffset){
+    const n=nodeMap[nid]; if(!n) return xOffset;
+    const y = DQL_H + 20 + depth*(CR*2+V_GAP) + CR;
+    if(n.children.length===0){
+      n._cx=xOffset+CR; n._cy=y; return xOffset+CELL;
+    }
+    let cx=xOffset;
+    const childCXs=[];
+    n.children.forEach(cid=>{
+      const sx=cx; cx=layoutNode(cid,depth+1,cx);
+      childCXs.push(sx+(cx-sx)/2);
+    });
+    n._cx = (childCXs[0]+childCXs[childCXs.length-1])/2;
+    n._cy = y;
+    return cx;
+  }
+
+  let xCursor=20;
+  roots.forEach(rid=>{
+    xCursor=layoutNode(rid,0,xCursor);
+    xCursor+=H_GAP*2; // gap between initial windows
+  });
+
+  // Canvas bounds
+  let maxX=0, maxY=0;
+  nodes.forEach(n=>{
+    if(n._cx!=null){
+      maxX=Math.max(maxX, n._cx+CR+10);
+      maxY=Math.max(maxY, n._cy+CR+36); // space for labels below
+    }
+  });
+  const W=Math.max(maxX+40, 500), H=maxY+20;
+
+  // Stats bar
+  const leaves=nodes.filter(n=>n.children.length===0);
+  const totalRecs=leaves.filter(n=>n.outcome==='written').reduce((s,n)=>s+n.records,0);
+  const totalMB=nodes.reduce((s,n)=>s+n.scanned_mb,0);
+  document.getElementById('tree-stat-nodes').textContent=`Nodes: ${nodes.length}`;
+  document.getElementById('tree-stat-splits').textContent=`Splits: ${nodes.filter(n=>n.outcome==='split').length}`;
+  document.getElementById('tree-stat-leaves').textContent=`Leaves: ${leaves.length}`;
+  document.getElementById('tree-stat-records').textContent=`Records: ${fmtNum(totalRecs)}`;
+  document.getElementById('tree-stat-scanned').textContent=`Scanned: ${fmtNum(totalMB)} MB`;
+
+  const svg=document.getElementById('tree-svg');
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  let s=`<g id="tree-g">`;
+
+  // DQL box at top with timeframe
+  const dql=(_treeData.dql||'').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const tStart=(_treeData.start||'').replace('T',' ').slice(0,16);
+  const tEnd=(_treeData.end||'').replace('T',' ').slice(0,16);
+  const dqlShort=dql.length>90?dql.slice(0,90)+'…':dql;
+  s+=`<rect x="10" y="8" width="${W-20}" height="${DQL_H-8}" rx="8" fill="#0d1117" stroke="#39d0d8" stroke-width="2"/>`;
+  s+=`<text x="20" y="26" font-size="10" font-family="JetBrains Mono,monospace" fill="#39d0d8" font-weight="700">DQL · Timeframe: ${tStart} → ${tEnd}</text>`;
+  s+=`<text x="20" y="44" font-size="9" font-family="JetBrains Mono,monospace" fill="#8b949e">${dqlShort}</text>`;
+  // Window legend
+  roots.forEach((rid,i)=>{
+    const n=nodeMap[rid];
+    const wColor=WINDOW_COLORS[i%WINDOW_COLORS.length];
+    const wLabel=n?`W${i+1}: ${(n.start||'').slice(5,10)}`:`W${i+1}`;
+    s+=`<rect x="${20+i*90}" y="54" width="82" height="16" rx="4" fill="${wColor}22" stroke="${wColor}" stroke-width="1"/>`;
+    s+=`<text x="${20+i*90+41}" y="66" font-size="8" font-family="JetBrains Mono,monospace" fill="${wColor}" text-anchor="middle" font-weight="700">${wLabel}</text>`;
+  });
+
+  // Connector from DQL box to each root node
+  roots.forEach(rid=>{
+    const n=nodeMap[rid]; if(!n||n._cx==null) return;
+    const topY=DQL_H+20;
+    s+=`<line x1="${n._cx}" y1="${topY}" x2="${n._cx}" y2="${n._cy-CR}" stroke="#30363d" stroke-width="1.5" stroke-dasharray="4,3"/>`;
+  });
+
+  // Edges between nodes
+  nodes.forEach(n=>{
+    n.children.forEach(cid=>{
+      const c=nodeMap[cid]; if(!c||n._cx==null||c._cx==null) return;
+      const x1=n._cx, y1=n._cy+CR;
+      const x2=c._cx, y2=c._cy-CR;
+      const color=_nodeColor(n, n._wIdx||0);
+      const my=(y1+y2)/2;
+      s+=`<path d="M${x1},${y1} C${x1},${my} ${x2},${my} ${x2},${y2}" fill="none" stroke="${color}66" stroke-width="1.5"/>`;
+      // Arrow
+      s+=`<polygon points="${x2},${y2} ${x2-5},${y2-8} ${x2+5},${y2-8}" fill="${color}99"/>`;
+    });
+  });
+
+  // Circles
+  nodes.forEach(n=>{
+    if(n._cx==null) return;
+    const color=_nodeColor(n, n._wIdx||0);
+    const outcome=n.outcome;
+    let stroke=color, fill='#0d1117';
+    if(outcome==='written'){fill=color+'18';}
+    else if(outcome==='empty'){stroke='#8b949e';}
+    else if(outcome==='maxdepth'){stroke='#f85149';fill='rgba(248,81,73,0.08)';}
+    const sw=n.children.length===0?3:1.8;
+    const icon=outcome==='written'?'✅':outcome==='split'?'✂':outcome==='empty'?'○':outcome==='maxdepth'?'⚠':'⏳';
+
+    // Main circle
+    s+=`<circle cx="${n._cx}" cy="${n._cy}" r="${CR}" fill="${fill}" stroke="${stroke}" stroke-width="${sw}"/>`;
+
+    // Badge: W1·D0 for root windows, W1·D1 etc for splits
+    const badgeLabel=`W${(n._wIdx||0)+1}·D${n.depth}`;
+    s+=`<circle cx="${n._cx+CR-10}" cy="${n._cy-CR+10}" r="12" fill="${color}" opacity="0.9"/>`;
+    s+=`<text x="${n._cx+CR-10}" y="${n._cy-CR+10}" font-size="7" font-family="JetBrains Mono,monospace" fill="#000" text-anchor="middle" dominant-baseline="middle" font-weight="700">${badgeLabel}</text>`;
+
+    // Icon + duration inside circle
+    const dur=n.hours<1?`${Math.round(n.hours*60)}m`:`${n.hours.toFixed(n.hours<10?1:0)}h`;
+    s+=`<text x="${n._cx}" y="${n._cy-8}" font-size="13" text-anchor="middle">${icon}</text>`;
+    s+=`<text x="${n._cx}" y="${n._cy+10}" font-size="10" font-family="JetBrains Mono,monospace" fill="${stroke}" text-anchor="middle" font-weight="700">${dur}</text>`;
+
+    // Labels below circle — full date MM-DD HH:MM
+    const ly=n._cy+CR+2;
+    // start: "MM-DD HH:MM", end: "MM-DD HH:MM"
+    const ss=(n.start||'').slice(5,16).replace('T',' ');
+    const ee=(n.end||'').slice(5,16).replace('T',' ');
+    s+=`<text x="${n._cx}" y="${ly+10}" font-size="7.5" font-family="JetBrains Mono,monospace" fill="${color}cc" text-anchor="middle" font-weight="600">${ss}</text>`;
+    s+=`<text x="${n._cx}" y="${ly+20}" font-size="7.5" font-family="JetBrains Mono,monospace" fill="${color}88" text-anchor="middle">→${ee}</text>`;
+    s+=`<text x="${n._cx}" y="${ly+32}" font-size="8" font-family="JetBrains Mono,monospace" fill="#e6edf3" text-anchor="middle">${fmtNum(n.records)} recs</text>`;
+    if(n.scanned_mb>0||n.exec_ms>0)
+      s+=`<text x="${n._cx}" y="${ly+42}" font-size="7" font-family="JetBrains Mono,monospace" fill="#8b949e" text-anchor="middle">${fmtNum(n.scanned_mb)}MB·${n.exec_ms}ms</text>`;
+  });
+
+  s+=`</g>`;
+  svg.innerHTML=s;
+
+  // Store actual data dims for fit
+  svg._dataW = W;
+  svg._dataH = H;
+  treeFit();
+}
+
+function treeFit(){
+  const wrap=document.getElementById('tree-canvas-wrap');
+  const svg=document.getElementById('tree-svg');
+  const g=svg.querySelector('#tree-g'); if(!g) return;
+  const W=svg._dataW||0, H=svg._dataH||0;
+  if(!W||!H) return;
+  // Reset g transform, let viewBox do the fitting
+  g.setAttribute('transform','translate(0,0) scale(1)');
+  // Set viewBox to data bounds — browser scales SVG to fill container
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+  svg.setAttribute('width','100%');
+  svg.setAttribute('height','100%');
+  svg.style.display='block';
+  // Also reset transform state for zoom/pan
+  _treeTransform={x:0,y:0,scale:1};
+}
+
+function treeZoom(factor){
+  const svg=document.getElementById('tree-svg');
+  const g=svg?.querySelector('#tree-g'); if(!g) return;
+  const W=svg._dataW||1, H=svg._dataH||1;
+  // Zoom by adjusting the viewBox (shrink/expand visible area)
+  const vb=svg.getAttribute('viewBox').split(' ').map(Number);
+  const cx=vb[0]+vb[2]/2, cy=vb[1]+vb[3]/2;
+  const nw=vb[2]/factor, nh=vb[3]/factor;
+  // Clamp: don't zoom out beyond full data
+  const fw=Math.min(nw,W*3), fh=Math.min(nh,H*3);
+  const fx=Math.max(-W,cx-fw/2), fy=Math.max(-H,cy-fh/2);
+  svg.setAttribute('viewBox',`${fx} ${fy} ${fw} ${fh}`);
+}
+
+function _setupTreeInteraction(){
+  const wrap=document.getElementById('tree-canvas-wrap');
+  // Remove old listeners
+  const newWrap=wrap.cloneNode(false);
+  while(wrap.firstChild)newWrap.appendChild(wrap.firstChild);
+  wrap.parentNode.replaceChild(newWrap,wrap);
+
+  newWrap.addEventListener('wheel',e=>{
+    e.preventDefault();
+    treeZoom(e.deltaY<0?1.1:0.9);
+  },{passive:false});
+  let drag=null;
+  newWrap.addEventListener('mousedown',e=>{
+    const svg=document.getElementById('tree-svg');
+    const vb=svg?.getAttribute('viewBox')?.split(' ').map(Number)||[0,0,1,1];
+    const rect=newWrap.getBoundingClientRect();
+    // Convert screen coords to SVG data coords
+    drag={sx:e.clientX,sy:e.clientY,vb:[...vb],
+      scaleX:vb[2]/rect.width, scaleY:vb[3]/rect.height};
+    newWrap.classList.add('dragging');
+  });
+  window.addEventListener('mousemove',e=>{
+    if(!drag)return;
+    const svg=document.getElementById('tree-svg'); if(!svg) return;
+    const dx=(drag.sx-e.clientX)*drag.scaleX;
+    const dy=(drag.sy-e.clientY)*drag.scaleY;
+    svg.setAttribute('viewBox',`${drag.vb[0]+dx} ${drag.vb[1]+dy} ${drag.vb[2]} ${drag.vb[3]}`);
+  });
+  window.addEventListener('mouseup',()=>{drag=null;newWrap.classList.remove('dragging');});
+  document.addEventListener('keydown',e=>{if(e.key==='Escape')closeTree();},{once:true});
+}
+</script>
+
+<!-- Job Log Modal -->
+<div id="log-modal">
+  <div id="log-modal-header">
+    <span id="log-modal-title">📋 Job Log</span>
+    <span id="log-modal-meta"></span>
+    <button id="log-modal-close" onclick="closeJobLog()">✕ Close</button>
+  </div>
+  <div id="log-modal-body"></div>
+  <div id="log-modal-stats">
+    <span id="log-stat-records">Records: —</span>
+    <span id="log-stat-calls">Calls: —</span>
+    <span id="log-stat-splits">Splits: —</span>
+    <span id="log-stat-scanned">Scanned: —</span>
+    <span id="log-stat-runtime">Runtime: —</span>
+    <span id="log-stat-errors">Errors: —</span>
+  </div>
+</div>
+
+<!-- Split Tree Modal -->
+<div id="tree-modal">
+  <div id="tree-header">
+    <span id="tree-title">🌳 Split Tree</span>
+    <span id="tree-dql"></span>
+    <div style="display:flex;gap:8px;margin-left:auto;">
+      <button onclick="treeZoom(1.2)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;">+</button>
+      <button onclick="treeZoom(0.8)" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:12px;">−</button>
+      <button onclick="treeFit()" style="background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:3px 8px;border-radius:4px;cursor:pointer;font-size:11px;">Fit</button>
+      <button id="tree-close" onclick="closeTree()">✕ Close</button>
+    </div>
+  </div>
+  <div id="tree-canvas-wrap">
+    <svg id="tree-svg" xmlns="http://www.w3.org/2000/svg"></svg>
+    <div id="tree-hint">Scroll to zoom · Drag to pan</div>
+  </div>
+  <div id="tree-stats-bar">
+    <span id="tree-stat-nodes">Nodes: —</span>
+    <span id="tree-stat-splits">Splits: —</span>
+    <span id="tree-stat-leaves">Leaves: —</span>
+    <span id="tree-stat-records">Total records: —</span>
+    <span id="tree-stat-scanned">Total scanned: —</span>
+  </div>
+</div>
+</body>
+</html>

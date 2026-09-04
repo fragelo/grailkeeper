@@ -1,0 +1,12 @@
+services:
+  grailkeeper:
+    build: .
+    container_name: grailkeeper
+    ports:
+      - "8000:8000"
+    volumes:
+      - grailkeeper-data:/root/.grailkeeper
+    restart: unless-stopped
+
+volumes:
+  grailkeeper-data:

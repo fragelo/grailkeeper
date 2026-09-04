@@ -1,0 +1,2068 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grail Query API — Client Reference · Updated May 2026</title>
+<style>
+  /* Dynatrace Strato Design System — Dark Theme
+     Colors: developer.dynatrace.com/design/design-tokens/Colors/
+     Font:   Noto Sans (closest public match to DT Flow)
+             DM Mono for code (similar to planned DT Flow Mono) */
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:wght@300;400;500;600&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap');
+
+  :root {
+    /* ── Backgrounds (Strato dark) ── */
+    --dt-bg-base:       #19192c;   /* Colors.Background.Base.Default dark */
+    --dt-bg-surface:    #111122;   /* Colors.Background.Surface.Default dark */
+    --dt-bg-neu-sub:    #19192c;   /* Container.Neutral.Subdued dark */
+    --dt-bg-neu-def:    #212135;   /* Container.Neutral.Default dark */
+    --dt-bg-neu-emp:    #292a3e;   /* Container.Neutral.Emphasized dark */
+    --dt-bg-neu-acc:    #3b3b52;   /* Neutral.40 dark */
+
+    /* ── Primary (indigo/periwinkle) ── */
+    --dt-primary:       #adb0ff;   /* Text.Primary.Default dark */
+    --dt-primary-sub:   #999bed;   /* Text.Primary light dark */
+    --dt-primary-bg:    #212138;   /* Container.Primary.Default dark */
+    --dt-primary-emp:   #292944;   /* Container.Primary.Emphasized dark */
+    --dt-border-pri:    #39395d;   /* Border.Primary.Default dark */
+
+    /* ── Success (teal) ── */
+    --dt-success:       #6fc3ba;   /* Text.Success.Default dark */
+    --dt-success-sub:   #5eb1a9;   /* Icon.Success.Default dark */
+    --dt-success-bg:    #1e2234;   /* Container.Success.Default dark */
+    --dt-border-suc:    #2b404c;   /* Border.Success.Default dark */
+
+    /* ── Warning (amber/orange) ── */
+    --dt-warning:       #eea83f;   /* Text.Warning.Default dark */
+    --dt-warning-bg:    #252230;   /* Container.Warning.Default dark */
+    --dt-border-war:    #4e3e39;   /* Border.Warning.Default dark */
+
+    /* ── Critical (red) ── */
+    --dt-critical:      #ff999c;   /* Text.Critical.Default dark */
+    --dt-critical-bg:   #251c2e;   /* Container.Critical.Default dark */
+    --dt-border-cri:    #482332;   /* Border.Critical.Default dark */
+
+    /* ── Neutral text ── */
+    --dt-text-default:  #ebecff;   /* Text.Neutral.Default dark */
+    --dt-text-subdued:  #b1b2d2;   /* Text.Neutral.Subdued dark */
+    --dt-text-muted:    #a0a1c0;   /* Neutral.70 dark */
+    --dt-text-disabled: #4d4e66;   /* Neutral.60 dark */
+
+    /* ── Borders ── */
+    --dt-border-def:    #3b3b52;   /* Border.Neutral.Default dark */
+    --dt-border-emp:    #44445c;   /* Border.Neutral.DefaultHover dark */
+    --dt-border-acc:    #b1b2d2;   /* Border.Neutral.Accent dark */
+
+    /* ── Syntax (from Colors.Syntax dark) ── */
+    --dt-syn-comment:   #b2b3cd;
+    --dt-syn-string:    #80dbca;
+    --dt-syn-variable:  #abb1ed;
+    --dt-syn-number:    #fd8fe1;
+    --dt-syn-punct:     #cfa3f3;
+    --dt-syn-function:  #abb1ed;
+    --dt-syn-bool:      #fe9b7d;
+    --dt-syn-tag:       #ff96a6;
+
+    /* ── Fonts ── */
+    --dt-font-ui:   'Noto Sans', -apple-system, sans-serif;
+    --dt-font-mono: 'DM Mono', 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--dt-bg-base);
+    color: var(--dt-text-subdued);
+    font-family: var(--dt-font-ui);
+    font-size: 13px;
+    line-height: 1.6;
+    min-height: 100vh;
+    font-weight: 400;
+  }
+
+  /* ── HEADER ── */
+  .hdr {
+    background: var(--dt-bg-surface);
+    border-bottom: 1px solid var(--dt-border-def);
+    padding: 40px 60px 36px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hdr::after {
+    content: '';
+    position: absolute;
+    top: 0; right: 0; bottom: 0;
+    width: 280px;
+    background: linear-gradient(135deg,
+      transparent 0%,
+      rgba(173,176,255,0.03) 40%,
+      rgba(111,195,186,0.04) 100%);
+    pointer-events: none;
+  }
+  .hdr-tag {
+    font-family: var(--dt-font-mono);
+    font-size: 11px;
+    letter-spacing: 0.5px;
+    color: var(--dt-primary);
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    opacity: 0.85;
+  }
+  .hdr h1 {
+    font-family: var(--dt-font-ui);
+    font-size: 28px;
+    font-weight: 600;
+    color: var(--dt-text-default);
+    line-height: 1.25;
+    margin-bottom: 10px;
+    letter-spacing: -0.2px;
+  }
+  .hdr h1 strong { color: var(--dt-primary); font-weight: 600; }
+  .hdr-sub {
+    font-size: 13px;
+    color: var(--dt-text-subdued);
+    max-width: 580px;
+    margin-bottom: 24px;
+    font-weight: 300;
+    line-height: 1.65;
+  }
+  .hdr-pills { display: flex; gap: 6px; flex-wrap: wrap; }
+  .pill {
+    font-family: var(--dt-font-mono);
+    font-size: 10px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    border: 1px solid;
+    letter-spacing: 0.3px;
+  }
+  .pill-amber { color: var(--dt-warning);  border-color: var(--dt-border-war);  background: var(--dt-warning-bg); }
+  .pill-green { color: var(--dt-success);  border-color: var(--dt-border-suc);  background: var(--dt-success-bg); }
+  .pill-slate { color: var(--dt-text-muted); border-color: var(--dt-border-def); background: var(--dt-bg-neu-def); }
+  .pill-red   { color: var(--dt-critical); border-color: var(--dt-border-cri);  background: var(--dt-critical-bg); }
+
+  /* ── TABS ── */
+  .tabs-bar {
+    background: var(--dt-bg-surface);
+    border-bottom: 1px solid var(--dt-border-def);
+    padding: 0 60px;
+    display: flex;
+    gap: 0;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .tab-btn {
+    font-family: var(--dt-font-ui);
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--dt-text-muted);
+    background: none;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 12px 16px;
+    cursor: pointer;
+    transition: color 0.15s;
+    white-space: nowrap;
+  }
+  .tab-btn:hover { color: var(--dt-text-default); }
+  .tab-btn.active { color: var(--dt-primary); border-bottom-color: var(--dt-primary); font-weight: 500; }
+
+  /* ── CONTENT ── */
+  .content { padding: 36px 60px; max-width: 1200px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── SECTION ── */
+  .section { margin-bottom: 44px; }
+  .section-title {
+    font-family: var(--dt-font-ui);
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dt-text-default);
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    letter-spacing: -0.1px;
+  }
+  .section-title .num {
+    font-family: var(--dt-font-mono);
+    font-size: 10px;
+    color: var(--dt-primary);
+    background: var(--dt-primary-bg);
+    border: 1px solid var(--dt-border-pri);
+    border-radius: 4px;
+    padding: 2px 7px;
+  }
+  .section-desc {
+    font-size: 13px;
+    color: var(--dt-text-subdued);
+    margin-bottom: 20px;
+    max-width: 680px;
+    font-weight: 300;
+    line-height: 1.65;
+  }
+
+  /* ── FLOW DIAGRAM ── */
+  .flow {
+    background: var(--dt-bg-neu-def);
+    border: 1px solid var(--dt-border-def);
+    border-radius: 6px;
+    padding: 24px;
+    overflow-x: auto;
+  }
+  .flow-title {
+    font-family: var(--dt-font-mono);
+    font-size: 10px;
+    letter-spacing: 1px;
+    color: var(--dt-text-disabled);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--dt-border-def);
+  }
+  .flow-row { display: flex; align-items: flex-start; min-width: 800px; }
+  .flow-node { flex-shrink: 0; text-align: center; }
+  .flow-box {
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-family: var(--dt-font-mono);
+    font-size: 11px;
+    min-width: 110px;
+    display: inline-block;
+    line-height: 1.5;
+  }
+  .flow-box.client   { background: var(--dt-primary-bg);  border: 1px solid var(--dt-border-pri); color: var(--dt-primary); }
+  .flow-box.api      { background: var(--dt-success-bg);  border: 1px solid var(--dt-border-suc); color: var(--dt-success); }
+  .flow-box.grail    { background: var(--dt-bg-neu-emp);  border: 1px solid var(--dt-border-emp); color: var(--dt-text-default); }
+  .flow-box.decision { background: var(--dt-warning-bg);  border: 1px solid var(--dt-border-war); color: var(--dt-warning); }
+  .flow-box.error    { background: var(--dt-critical-bg); border: 1px solid var(--dt-border-cri); color: var(--dt-critical); }
+  .flow-box.success  { background: var(--dt-success-bg);  border: 1px solid var(--dt-border-suc); color: var(--dt-success); }
+  .flow-label { font-size: 10px; color: var(--dt-text-disabled); margin-top: 4px; }
+  .flow-arrow { display: flex; align-items: center; padding: 0 8px; padding-top: 12px; color: var(--dt-text-disabled); font-size: 14px; flex-shrink: 0; }
+  .flow-arrow-label { font-size: 10px; color: var(--dt-text-disabled); text-align: center; }
+  .flow-col { display: flex; flex-direction: column; align-items: center; }
+  .flow-down { color: var(--dt-text-disabled); font-size: 14px; line-height: 1; padding: 3px 0; }
+
+  /* ── CODE BLOCK ── */
+  .code-block {
+    background: var(--dt-bg-surface);
+    border: 1px solid var(--dt-border-def);
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 12px 0;
+  }
+  .code-header {
+    background: var(--dt-bg-neu-def);
+    padding: 8px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--dt-border-def);
+  }
+  .code-lang {
+    font-family: var(--dt-font-mono);
+    font-size: 10px;
+    color: var(--dt-text-muted);
+    letter-spacing: 0.3px;
+  }
+  .code-copy {
+    font-family: var(--dt-font-mono);
+    font-size: 10px;
+    color: var(--dt-text-disabled);
+    background: none;
+    border: 1px solid var(--dt-border-def);
+    border-radius: 4px;
+    padding: 2px 8px;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .code-copy:hover { color: var(--dt-primary); border-color: var(--dt-border-pri); }
+  pre {
+    padding: 16px 18px;
+    overflow-x: auto;
+    font-family: var(--dt-font-mono);
+    font-size: 12px;
+    line-height: 1.75;
+    color: var(--dt-text-subdued);
+  }
+  .kw   { color: var(--dt-syn-punct); }
+  .str  { color: var(--dt-syn-string); }
+  .num  { color: var(--dt-warning); }
+  .cm   { color: var(--dt-text-disabled); font-style: italic; }
+  .fn2  { color: var(--dt-syn-function); }
+  .prop { color: var(--dt-text-default); }
+  .pun  { color: var(--dt-text-disabled); }
+  .err2 { color: var(--dt-critical); }
+  .ok2  { color: var(--dt-success); }
+
+  /* ── GRID ── */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .grid3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* ── CARD ── */
+  .card {
+    background: var(--dt-bg-neu-def);
+    border: 1px solid var(--dt-border-def);
+    border-radius: 6px;
+    padding: 16px;
+  }
+  .card-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--dt-text-default);
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .card-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+  .dot-blue   { background: var(--dt-primary); }
+  .dot-purple { background: var(--dt-primary-sub); }
+  .dot-green  { background: var(--dt-success); }
+  .dot-yellow { background: var(--dt-warning); }
+  .dot-red    { background: var(--dt-critical); }
+  .card p { font-size: 12px; color: var(--dt-text-subdued); margin-bottom: 6px; line-height: 1.6; }
+  .card ul { list-style: none; font-size: 12px; color: var(--dt-text-subdued); }
+  .card ul li { padding: 2px 0 2px 14px; position: relative; line-height: 1.6; }
+  .card ul li::before { content: '–'; position: absolute; left: 0; color: var(--dt-text-disabled); }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th {
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--dt-text-muted);
+    padding: 8px 14px;
+    text-align: left;
+    border-bottom: 1px solid var(--dt-border-emp);
+    background: var(--dt-bg-neu-emp);
+  }
+  td { padding: 10px 14px; border-bottom: 1px solid var(--dt-border-def); color: var(--dt-text-subdued); vertical-align: top; line-height: 1.55; }
+  tr:last-child td { border-bottom: none; }
+  tr:hover td { background: rgba(173,176,255,0.02); }
+  .td-code { font-family: var(--dt-font-mono); font-size: 11px; color: var(--dt-primary); }
+  .td-method { font-family: var(--dt-font-mono); font-size: 10px; padding: 2px 7px; border-radius: 4px; }
+  .post { background: var(--dt-primary-bg);  color: var(--dt-primary);  border: 1px solid var(--dt-border-pri); }
+  .get  { background: var(--dt-success-bg);  color: var(--dt-success);  border: 1px solid var(--dt-border-suc); }
+
+  /* ── STATUS CODES ── */
+  .status-grid { display: grid; gap: 10px; }
+  .status-item {
+    background: var(--dt-bg-neu-def);
+    border: 1px solid var(--dt-border-def);
+    border-radius: 6px;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 54px 1fr;
+    gap: 16px;
+    align-items: start;
+  }
+  .status-code { font-family: var(--dt-font-mono); font-size: 22px; font-weight: 300; text-align: center; padding-top: 1px; }
+  .s200 { color: var(--dt-success); }
+  .s202 { color: var(--dt-primary); }
+  .s400 { color: var(--dt-warning); }
+  .s403 { color: var(--dt-warning); }
+  .s429 { color: var(--dt-critical); }
+  .s500 { color: var(--dt-critical); }
+  .s503 { color: var(--dt-critical); }
+  .status-info h4 { font-size: 13px; font-weight: 500; color: var(--dt-text-default); margin-bottom: 4px; }
+  .status-info p { font-size: 12px; color: var(--dt-text-subdued); margin-bottom: 8px; line-height: 1.6; }
+  .status-action {
+    font-family: var(--dt-font-mono);
+    font-size: 10px;
+    color: var(--dt-text-subdued);
+    background: var(--dt-bg-neu-emp);
+    border: 1px solid var(--dt-border-def);
+    border-left: 2px solid var(--dt-primary);
+    border-radius: 0 4px 4px 0;
+    padding: 5px 10px;
+    display: inline-block;
+    margin-bottom: 6px;
+  }
+
+  /* ── PARAM ROW ── */
+  .param-row {
+    background: var(--dt-bg-neu-def);
+    border: 1px solid var(--dt-border-def);
+    border-radius: 6px;
+    padding: 12px 16px;
+    margin-bottom: 6px;
+    display: grid;
+    grid-template-columns: 220px 90px 1fr;
+    gap: 14px;
+    align-items: start;
+  }
+  .param-name { font-family: var(--dt-font-mono); font-size: 11px; color: var(--dt-primary); }
+  .param-type { font-family: var(--dt-font-mono); font-size: 10px; color: var(--dt-text-disabled); padding-top: 2px; }
+  .param-desc { font-size: 12px; color: var(--dt-text-subdued); line-height: 1.6; }
+  .param-default { color: var(--dt-success); font-size: 10px; font-family: var(--dt-font-mono); }
+
+  /* ── BADGE ── */
+  .badge { font-family: var(--dt-font-mono); font-size: 9px; padding: 2px 6px; border-radius: 4px; letter-spacing: 0.3px; display: inline-block; margin-left: 6px; }
+  .badge-req   { background: var(--dt-critical-bg); color: var(--dt-critical); border: 1px solid var(--dt-border-cri); }
+  .badge-opt   { background: var(--dt-bg-neu-emp);  color: var(--dt-text-muted); border: 1px solid var(--dt-border-def); }
+  .badge-limit { background: var(--dt-warning-bg);  color: var(--dt-warning); border: 1px solid var(--dt-border-war); }
+
+  /* ── STRATEGY BLOCKS ── */
+  .strategy {
+    background: var(--dt-success-bg);
+    border: 1px solid var(--dt-border-suc);
+    border-radius: 6px;
+    padding: 14px 16px;
+    margin-bottom: 10px;
+  }
+  .strategy h4 { font-size: 13px; font-weight: 500; color: var(--dt-success); margin-bottom: 5px; }
+  .strategy p  { font-size: 12px; color: var(--dt-text-subdued); line-height: 1.6; }
+  .strategy.warn { background: var(--dt-warning-bg); border-color: var(--dt-border-war); }
+  .strategy.warn h4 { color: var(--dt-warning); }
+  .strategy.err  { background: var(--dt-critical-bg); border-color: var(--dt-border-cri); }
+  .strategy.err h4 { color: var(--dt-critical); }
+  .strategy.ok   { background: var(--dt-success-bg); border-color: var(--dt-border-suc); }
+
+  /* ── LIMIT BOX ── */
+  .limit-box {
+    background: var(--dt-warning-bg);
+    border: 1px solid var(--dt-border-war);
+    border-left: 3px solid var(--dt-warning);
+    border-radius: 0 6px 6px 0;
+    padding: 14px 16px;
+    margin: 12px 0;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .limit-icon { font-size: 16px; flex-shrink: 0; padding-top: 1px; }
+  .limit-text h4 { font-size: 13px; font-weight: 500; color: var(--dt-warning); margin-bottom: 4px; }
+  .limit-text p  { font-size: 12px; color: var(--dt-text-subdued); line-height: 1.6; }
+
+  /* ── INLINE CODE ── */
+  code {
+    font-family: var(--dt-font-mono);
+    font-size: 11px;
+    background: var(--dt-primary-bg);
+    color: var(--dt-primary);
+    padding: 1px 5px;
+    border-radius: 3px;
+    border: 1px solid var(--dt-border-pri);
+  }
+
+  /* ── JSON SPLIT ── */
+  .json-split { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+  /* ── DIVIDER ── */
+  .divider { border: none; border-top: 1px solid var(--dt-border-def); margin: 28px 0; }
+
+  /* ── SCROLL ── */
+  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--dt-border-emp); border-radius: 2px; }
+
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px){
+    .hdr { padding: 28px 24px; }
+    .content { padding: 24px; }
+    .tabs-bar { padding: 0 24px; }
+    .grid2, .grid3, .json-split { grid-template-columns: 1fr; }
+    .param-row { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="hdr">
+  <div class="hdr-tag">Dynatrace Platform Services / Grail / Query API</div>
+  <h1>Grail Query API — <strong>Client Reference</strong></h1>
+  <p class="hdr-sub">Complete guide to building a production-grade client for querying log data from Dynatrace Grail — async execution, polling, pagination, limits and exception handling.</p>
+  <div class="hdr-pills">
+    <span class="pill pill-amber">REST API</span>
+    <span class="pill pill-slate">Async / Polling</span>
+    <span class="pill pill-green">DQL</span>
+    <span class="pill pill-slate">Large-Scale Extraction</span>
+  </div>
+</div>
+
+<!-- TABS -->
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('flow')">① API Flow</button>
+  <button class="tab-btn" onclick="switchTab('request')">② Request Schema</button>
+  <button class="tab-btn" onclick="switchTab('response')">③ Response Schema</button>
+  <button class="tab-btn" onclick="switchTab('exceptions')">④ Exceptions</button>
+  <button class="tab-btn" onclick="switchTab('client')">⑤ Client Logic</button>
+  <button class="tab-btn" onclick="switchTab('limits')">⑥ Limits & Constraints</button>
+  <button class="tab-btn" onclick="switchTab('grailkeeper', event)">⑦ Grailkeeper</button>
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 1 — API FLOW
+════════════════════════════════════════ -->
+<div class="content">
+<div id="tab-flow" class="tab-panel active">
+
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> Grail Query API — Execution Model</div>
+    <p class="section-desc">The Grail Query API is fully asynchronous. Every query follows a Start → Poll → Result pattern. The API may return immediately with a result (HTTP 200) or return a token for polling (HTTP 202) depending on query complexity and the <code>requestTimeoutMilliseconds</code> setting.</p>
+
+    <div class="flow">
+      <div class="flow-title">HAPPY PATH — Query Lifecycle</div>
+      <div class="flow-row">
+        <div class="flow-node">
+          <div class="flow-box client">CLIENT</div>
+          <div class="flow-label">Your application</div>
+        </div>
+        <div class="flow-col">
+          <div class="flow-arrow">→</div>
+          <div class="flow-arrow-label">POST /query:execute</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-box api">GRAIL API</div>
+          <div class="flow-label">/query:execute</div>
+        </div>
+        <div class="flow-col">
+          <div class="flow-arrow">→</div>
+          <div class="flow-arrow-label">Submit DQL query</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-box grail">GRAIL ENGINE</div>
+          <div class="flow-label">Async execution</div>
+        </div>
+        <div class="flow-col">
+          <div class="flow-arrow">→</div>
+          <div class="flow-arrow-label">HTTP 200 or 202</div>
+        </div>
+        <div class="flow-node">
+          <div class="flow-box decision">200 vs 202?</div>
+          <div class="flow-label">Check response</div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;display:flex;gap:32px;flex-wrap:wrap;">
+        <div style="flex:1;min-width:300px;">
+          <div style="font-family:var(--fn);font-size:10px;color:var(--ac3);letter-spacing:1px;margin-bottom:12px;">PATH A — IMMEDIATE (HTTP 200)</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div class="flow-box success" style="width:200px;">progress: 100<br>state: SUCCEEDED</div>
+            <div class="flow-down">↓</div>
+            <div class="flow-box success" style="width:200px;">✓ Read records[ ]<br>Parse result directly</div>
+            <div class="flow-label">No polling needed</div>
+          </div>
+        </div>
+        <div style="flex:1;min-width:300px;">
+          <div style="font-family:var(--fn);font-size:10px;color:var(--ac);letter-spacing:1px;margin-bottom:12px;">PATH B — ASYNC (HTTP 202)</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
+            <div class="flow-box api" style="width:240px;">requestToken: "D8DZEs1..."<br>state: RUNNING<br>ttlSeconds: 398</div>
+            <div class="flow-down">↓</div>
+            <div class="flow-box decision" style="width:240px;">GET /query:poll?requestToken=...</div>
+            <div class="flow-down">↓</div>
+            <div class="flow-box decision" style="width:240px;">progress &lt; 100?<br>state == RUNNING?</div>
+            <div class="flow-down">↓ wait &lt;60s ↑ retry</div>
+            <div class="flow-box success" style="width:240px;">progress: 100<br>state: SUCCEEDED<br>→ records[ ]</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">02</span> All Endpoints at a Glance</div>
+    <div class="card">
+      <table>
+        <thead>
+          <tr>
+            <th>Method</th>
+            <th>Endpoint</th>
+            <th>Purpose</th>
+            <th>Auth Required</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><span class="td-method post">POST</span></td>
+            <td class="td-code">/query:execute</td>
+            <td>Start a DQL query. May return result immediately (200) or async token (202)</td>
+            <td class="td-code">storage:logs:read + storage:buckets:read</td>
+          </tr>
+          <tr>
+            <td><span class="td-method get">GET</span></td>
+            <td class="td-code">/query:poll</td>
+            <td>Poll for query status and final result using requestToken</td>
+            <td class="td-code">Same user that started query</td>
+          </tr>
+          <tr>
+            <td><span class="td-method post">POST</span></td>
+            <td class="td-code">/query:cancel</td>
+            <td>Cancel running query or retrieve result if already finished</td>
+            <td class="td-code">Same user that started query</td>
+          </tr>
+          <tr>
+            <td><span class="td-method post">POST</span></td>
+            <td class="td-code">/query:verify</td>
+            <td>Validate DQL syntax without executing. Returns error details if invalid</td>
+            <td class="td-code">storage:logs:read</td>
+          </tr>
+          <tr>
+            <td><span class="td-method post">POST</span></td>
+            <td class="td-code">/query:autocomplete</td>
+            <td>Get DQL autocomplete suggestions at cursor position</td>
+            <td class="td-code">storage:buckets:read + table</td>
+          </tr>
+          <tr>
+            <td><span class="td-method post">POST</span></td>
+            <td class="td-code">/query:parse</td>
+            <td>Parse DQL into AST tree for tooling and hover effects</td>
+            <td class="td-code">storage:logs:read</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">03</span> Query State Machine — Full Diagram</div>
+    <p class="section-desc">Every Grail query moves through a defined set of states. Understanding all transitions — including error paths — is essential for building a robust client that handles every case correctly.</p>
+
+    <div class="flow" style="padding:28px 32px;">
+      <div class="flow-title">GRAIL QUERY STATE MACHINE — ALL TRANSITIONS</div>
+
+      <!-- Row 1: Entry point -->
+      <div style="display:flex;justify-content:center;margin-bottom:8px;">
+        <div style="text-align:center;">
+          <div class="flow-box client" style="min-width:180px;">CLIENT<br><span style="font-size:9px;opacity:0.7;">POST /query:execute</span></div>
+          <div class="flow-down">↓ HTTP request sent</div>
+        </div>
+      </div>
+
+      <!-- Row 2: API decision -->
+      <div style="display:flex;justify-content:center;margin-bottom:8px;">
+        <div style="text-align:center;">
+          <div class="flow-box api" style="min-width:220px;">GRAIL API<br><span style="font-size:9px;opacity:0.7;">validates request + queues execution</span></div>
+          <div class="flow-down">↓</div>
+        </div>
+      </div>
+
+      <!-- Row 3: HTTP response split -->
+      <div style="display:flex;justify-content:center;margin-bottom:4px;">
+        <div class="flow-box decision" style="min-width:320px;text-align:center;">HTTP STATUS CODE?<br><span style="font-size:9px;">determines next step</span></div>
+      </div>
+
+      <!-- Branches -->
+      <div style="display:flex;gap:16px;justify-content:center;margin-top:12px;flex-wrap:wrap;">
+
+        <!-- 400/403 branch -->
+        <div style="flex:0 0 auto;text-align:center;min-width:140px;">
+          <div style="font-family:var(--fn);font-size:9px;color:var(--warn);margin-bottom:4px;">400 / 403</div>
+          <div class="flow-box error" style="min-width:140px;">REJECTED<br><span style="font-size:9px;">DQL error / no permission</span></div>
+          <div class="flow-down">↓</div>
+          <div class="flow-box error" style="min-width:140px;background:rgba(255,77,109,0.2);">TERMINAL<br><span style="font-size:9px;">no retry — fix query/token</span></div>
+        </div>
+
+        <!-- 429/503 branch -->
+        <div style="flex:0 0 auto;text-align:center;min-width:140px;">
+          <div style="font-family:var(--fn);font-size:9px;color:var(--err);margin-bottom:4px;">429 / 503</div>
+          <div class="flow-box error" style="min-width:140px;">THROTTLED<br><span style="font-size:9px;">rate limit / busy scheduler</span></div>
+          <div class="flow-down">↓</div>
+          <div class="flow-box decision" style="min-width:140px;">WAIT<br><span style="font-size:9px;">Retry-After / backoff</span></div>
+          <div class="flow-down">↓ retry</div>
+          <div style="font-family:var(--fn);font-size:9px;color:var(--tm);text-align:center;">→ back to POST /query:execute</div>
+        </div>
+
+        <!-- 200 immediate branch -->
+        <div style="flex:0 0 auto;text-align:center;min-width:160px;">
+          <div style="font-family:var(--fn);font-size:9px;color:var(--ac3);margin-bottom:4px;">200 OK (immediate)</div>
+          <div class="flow-box success" style="min-width:160px;">SUCCEEDED<br><span style="font-size:9px;">progress: 100</span></div>
+          <div class="flow-down">↓</div>
+          <div class="flow-box success" style="min-width:160px;background:rgba(0,229,160,0.2);">READ RECORDS[ ]<br><span style="font-size:9px;">check for RESULT_TRUNCATED</span></div>
+          <div class="flow-down">↓</div>
+          <div class="flow-box decision" style="min-width:160px;">truncated?<br><span style="font-size:9px;">len(records) &gt;= maxResultRecords</span></div>
+          <div style="display:flex;gap:8px;justify-content:center;margin-top:4px;">
+            <div style="text-align:center;">
+              <div style="font-family:var(--fn);font-size:9px;color:var(--ac3);">no ↓</div>
+              <div class="flow-box success" style="min-width:70px;font-size:10px;">DONE ✓</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--fn);font-size:9px;color:var(--warn);">yes ↓</div>
+              <div class="flow-box decision" style="min-width:70px;font-size:10px;">SPLIT<br>window</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 202 async branch -->
+        <div style="flex:0 0 auto;text-align:center;min-width:180px;">
+          <div style="font-family:var(--fn);font-size:9px;color:var(--ac);margin-bottom:4px;">202 Accepted (async)</div>
+          <div class="flow-box api" style="min-width:180px;">RUNNING<br><span style="font-size:9px;">requestToken + ttlSeconds</span></div>
+          <div class="flow-down">↓ poll every 5–30s</div>
+          <div class="flow-box api" style="min-width:180px;">GET /query:poll<br><span style="font-size:9px;">?requestToken=...</span></div>
+          <div class="flow-down">↓</div>
+          <div class="flow-box decision" style="min-width:180px;">state == ?<br><span style="font-size:9px;">progress &lt; 100 → keep polling</span></div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:4px;flex-wrap:wrap;">
+            <div style="text-align:center;">
+              <div style="font-family:var(--fn);font-size:9px;color:var(--ac3);">SUCCEEDED ↓</div>
+              <div class="flow-box success" style="min-width:80px;font-size:10px;">READ<br>RECORDS[ ]</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--fn);font-size:9px;color:var(--err);">FAILED ↓</div>
+              <div class="flow-box error" style="min-width:80px;font-size:10px;">LOG<br>ERROR</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--fn);font-size:9px;color:var(--warn);">TTL expired ↓</div>
+              <div class="flow-box error" style="min-width:80px;font-size:10px;">LOST<br>retry</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 500 branch -->
+        <div style="flex:0 0 auto;text-align:center;min-width:140px;">
+          <div style="font-family:var(--fn);font-size:9px;color:var(--err);margin-bottom:4px;">500</div>
+          <div class="flow-box error" style="min-width:140px;">SERVER ERROR<br><span style="font-size:9px;">EXECUTION_FAILURE</span></div>
+          <div class="flow-down">↓</div>
+          <div class="flow-box decision" style="min-width:140px;">retry once<br><span style="font-size:9px;">after 5s</span></div>
+          <div style="display:flex;gap:6px;justify-content:center;margin-top:4px;">
+            <div style="text-align:center;">
+              <div style="font-family:var(--fn);font-size:9px;color:var(--ac3);">ok ↓</div>
+              <div class="flow-box success" style="min-width:60px;font-size:10px;">proceed</div>
+            </div>
+            <div style="text-align:center;">
+              <div style="font-family:var(--fn);font-size:9px;color:var(--err);">fail ↓</div>
+              <div class="flow-box error" style="min-width:60px;font-size:10px;">raise +<br>queryId</div>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- branches -->
+
+      <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);font-family:var(--fn);font-size:9px;color:var(--tm);display:flex;gap:24px;flex-wrap:wrap;">
+        <span>⬛ CLIENT action</span>
+        <span style="color:var(--ac);">⬛ API / async state</span>
+        <span style="color:var(--ac3);">⬛ success path</span>
+        <span style="color:var(--ac4);">⬛ decision point</span>
+        <span style="color:var(--err);">⬛ error / terminal</span>
+        <span>TTL = 60s after completion — poll before it expires</span>
+      </div>
+    </div>
+
+    <!-- State cards -->
+    <div class="grid3" style="margin-top:16px;">
+      <div class="card">
+        <div class="card-title"><span class="card-dot dot-blue"></span>RUNNING</div>
+        <p>Actively executing. Poll every 5–30s. progress: 0–99.</p>
+        <ul>
+          <li>Returned via HTTP 202 initially</li>
+          <li>Poll with requestToken from 202</li>
+          <li>Result available for 60s after completion</li>
+          <li>Do NOT poll faster than every 5s</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot dot-green"></span>SUCCEEDED</div>
+        <p>Completed. result.records[] populated. progress: 100.</p>
+        <ul>
+          <li>Check len(records) vs maxResultRecords</li>
+          <li>Check for RESULT_TRUNCATED in error details</li>
+          <li>Parse types[] for field type mapping</li>
+          <li>Extract queryId from metadata for logging</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot dot-red"></span>FAILED</div>
+        <p>Error during execution. No result returned.</p>
+        <ul>
+          <li>Parse error.details.errorType to classify</li>
+          <li>Log error.details.queryId for support</li>
+          <li>EXECUTION_FAILURE → retry once</li>
+          <li>BUSY_SCHEDULER → backoff + retry</li>
+          <li>Others → fix query/permissions, no retry</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 2 — REQUEST SCHEMA
+════════════════════════════════════════ -->
+<div id="tab-request" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> POST /query:execute — Request Body</div>
+    <p class="section-desc">All parameters are passed as JSON in the POST body. The <code>query</code> field is the only logically required field. All others have sensible defaults.</p>
+
+    <div class="json-split">
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">JSON — Full Request Example</span>
+            <button class="code-copy" onclick="copyCode(this)">copy</button>
+          </div>
+          <pre>{
+  <span class="prop">"query"</span>: <span class="str">"fetch logs, scanLimitGBytes:-1,
+    bucket:{\"cdr-map\"}
+    | filter imsi == \"222776780595499\"
+    | fields timestamp, content, imsi
+    | limit 50000"</span>,
+
+  <span class="cm">// Timeframe (override DQL from/to)</span>
+  <span class="prop">"defaultTimeframeStart"</span>: <span class="str">"2026-04-07T20:13:57Z"</span>,
+  <span class="prop">"defaultTimeframeEnd"</span>:   <span class="str">"2026-04-08T20:13:57Z"</span>,
+
+  <span class="cm">// Result size limits</span>
+  <span class="prop">"maxResultRecords"</span>: <span class="num">50000</span>,
+  <span class="prop">"maxResultBytes"</span>:   <span class="num">52428800</span>,  <span class="cm">// 50MB</span>
+
+  <span class="cm">// Scan limits</span>
+  <span class="prop">"defaultScanLimitGbytes"</span>: <span class="num">-1</span>,      <span class="cm">// unlimited</span>
+
+  <span class="cm">// Timing</span>
+  <span class="prop">"fetchTimeoutSeconds"</span>:         <span class="num">60</span>,
+  <span class="prop">"requestTimeoutMilliseconds"</span>:  <span class="num">5000</span>,
+
+  <span class="cm">// Sampling</span>
+  <span class="prop">"defaultSamplingRatio"</span>: <span class="num">1</span>,       <span class="cm">// 1 = no sampling</span>
+
+  <span class="cm">// Optional</span>
+  <span class="prop">"enablePreview"</span>: <span class="kw">false</span>,
+  <span class="prop">"includeTypes"</span>:  <span class="kw">true</span>,
+  <span class="prop">"locale"</span>: <span class="str">"en_US"</span>,
+  <span class="prop">"timezone"</span>: <span class="str">"UTC"</span>
+}</pre>
+        </div>
+      </div>
+      <div>
+        <div class="param-row">
+          <div><div class="param-name">query</div><div class="param-type">string($maxLength:1000000) <span class="badge badge-req">REQUIRED</span></div></div>
+          <div class="param-type">string</div>
+          <div class="param-desc">The full DQL query string. Max 1,000,000 chars. Timeframe in DQL takes precedence over <code>defaultTimeframeStart/End</code>. Always add <code>bucket:{}</code> for performance.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">maxResultRecords</div><div class="param-type">int64 · default: 1000 · min: 0 <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">integer</div>
+          <div class="param-desc">Max records returned. Default: <span class="param-default">1000</span>. No explicit upper bound but other limits apply. If exceeded, a warning is included in the response. <strong>Note:</strong> API is not designed for large-scale export — use windowed extraction.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">maxResultBytes</div><div class="param-type">int64 · min: 0 <span class="badge badge-limit">⚠ avoid for extraction</span></div></div>
+          <div class="param-type">integer</div>
+          <div class="param-desc">Max bytes for serialized result. Soft limit — final record that pushes over is still included. No default, no explicit upper bound. <strong>Warning:</strong> forces full dataset scan before truncating. Prefer <code>maxResultRecords</code>. API not designed for large-scale export.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">defaultScanLimitGbytes</div><div class="param-type">int32 · example: 100 · min: -1 <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">integer</div>
+          <div class="param-desc">Max GB to scan. Default configured at application level. Set <code>-1</code> for unlimited. Can be overridden in DQL. Note: even with no limit, <code>maxResultRecords</code>, <code>maxResultBytes</code>, and timeouts still apply.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">requestTimeoutMilliseconds</div><div class="param-type">int64 · max: 60000 · min: 0 <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">integer</div>
+          <div class="param-desc">Max wait time before returning. If query finishes within this window → result returned (200). Otherwise → <code>requestToken</code> returned for polling (202). Max: <span class="param-default">60,000ms</span>. Excludes network transit time.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">fetchTimeoutSeconds</div><div class="param-type">int32 · example: 60 · min: 0 <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">integer</div>
+          <div class="param-desc">Soft time limit for fetching data. Further processing can happen after fetching. No explicit upper bound in API but application-level max applies. For large scans raise to 600s. Other limits (<code>maxResultRecords</code>) may still trigger.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">defaultSamplingRatio</div><div class="param-type">double · example: 1 · min: 1 <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">number</div>
+          <div class="param-desc">Default sampling ratio. By default no sampling is applied (1 = 100%). No upper limit but normalized to power of 10 ≤ 100,000. Use for dashboards/exploration only — never for extraction requiring completeness.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">defaultTimeframeStart / End</div><div class="param-type">string (ISO-8601 / RFC3339) <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">string</div>
+          <div class="param-desc">Query timeframe. Both must be set or both are ignored. Timeframe in DQL query string takes precedence. Example: <code>2026-04-07T20:13:57Z</code></div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">enablePreview</div><div class="param-type">boolean · default: false <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">boolean</div>
+          <div class="param-desc">If true, polling responses include intermediate preview results. Previews are always whole — never delta. If preview is available within <code>requestTimeoutMilliseconds</code>, returned in initial response.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">includeTypes</div><div class="param-type">boolean · default: true <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">boolean</div>
+          <div class="param-desc">Include field type information (<code>types[]</code>) in result. Default true. Set false to reduce response size when type info is not needed.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">includeContributions</div><div class="param-type">boolean · default: false <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">boolean</div>
+          <div class="param-desc">Include bucket contribution info in response metadata. When true, shows how each bucket contributed to the result — useful for debugging access and scan patterns.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">enforceQueryConsumptionLimit</div><div class="param-type">boolean <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">boolean</div>
+          <div class="param-desc">Enforce tenant-level query consumption limits. If true, query will fail if it would exceed the configured DDU consumption quota.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">filterSegments</div><div class="param-type">FilterSegments[] <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">array</div>
+          <div class="param-desc">Collection of filter segments for query-time data segmentation. Each segment has an <code>id</code> (string, required) and optional <code>variables[]</code> (name + values). Multiple segments combined with AND. Variables replace placeholders in segment definitions.</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">timezone</div><div class="param-type">string · example: UTC <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">string</div>
+          <div class="param-desc">Query timezone. Defaults to UTC. Accepts IANA TZDB canonical names (<code>Europe/Rome</code>), abbreviated (<code>CET</code>), or UTC offset (<code>+01:00</code>).</div>
+        </div>
+        <div class="param-row">
+          <div><div class="param-name">locale</div><div class="param-type">string · example: en_US <span class="badge badge-opt">optional</span></div></div>
+          <div class="param-type">string</div>
+          <div class="param-desc">Query locale. ISO-639 language code + optional ISO-3166 country code. Examples: <code>en</code>, <code>en_US</code>, <code>it_IT</code>. If omitted, language/country neutral locale is used.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">02</span> DQL Query Best Practices</div>
+    <div class="grid2">
+      <div>
+        <div class="strategy ok">
+          <h4>✓ Always specify bucket</h4>
+          <p><code>fetch logs, bucket:{"cdr-map"}</code> — reduces scan from TB to GB. A bucket filter on the fetch command is processed before any table scan, dramatically reducing both scan time and DDU cost.</p>
+        </div>
+        <div class="strategy ok">
+          <h4>✓ Use filter for indexed fields</h4>
+          <p><code>| filter imsi == "123..."</code> — Grail stops early when an indexed field matches. Compare to <code>| search imsi ~ "123..."</code> which does a full text scan of all record content.</p>
+        </div>
+        <div class="strategy ok">
+          <h4>✓ Select only needed fields</h4>
+          <p><code>| fields timestamp, content, imsi</code> — reduces response size and transfer time significantly. Avoid returning all 40+ fields if you only need 3.</p>
+        </div>
+      </div>
+      <div>
+        <div class="strategy warn">
+          <h4>⚠ Avoid maxResultBytes for extraction</h4>
+          <p>Setting <code>maxResultBytes</code> forces Grail to scan the entire dataset to measure bytes before truncating. For extraction use cases, rely only on <code>maxResultRecords</code> to allow early stopping.</p>
+        </div>
+        <div class="strategy warn">
+          <h4>⚠ | limit N in extraction DQL</h4>
+          <p>Adding <code>| limit 50000</code> in the DQL allows Grail to stop early once enough records are found — same mechanism the UI uses. This makes extraction as fast as interactive queries. Risk: if actual records exceed limit, data is incomplete.</p>
+        </div>
+        <div class="strategy err">
+          <h4>✗ No scanLimitGbytes without -1</h4>
+          <p>Default <code>defaultScanLimitGbytes: 100</code> will truncate scans on large tenants (4.8TB/day). Always set <code>-1</code> for production extraction to guarantee completeness.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 3 — RESPONSE SCHEMA
+════════════════════════════════════════ -->
+<div id="tab-response" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> Response Structure</div>
+    <p class="section-desc">The API returns the same JSON shape for both immediate (200) and polled results. The <code>state</code> and <code>progress</code> fields tell you if the result is complete.</p>
+
+    <div class="json-split">
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">HTTP 200 — Immediate Result (SUCCEEDED)</span>
+          </div>
+          <pre>{
+  <span class="prop">"progress"</span>: <span class="num">100</span>,            <span class="cm">// 0-100</span>
+  <span class="prop">"state"</span>: <span class="str">"SUCCEEDED"</span>,       <span class="cm">// RUNNING|SUCCEEDED|FAILED</span>
+
+  <span class="prop">"result"</span>: {
+    <span class="prop">"metadata"</span>: {
+      <span class="prop">"grail"</span>: {            <span class="cm">// always present</span>
+        <span class="prop">"queryId"</span>: <span class="str">"92918dae-..."</span>,
+        <span class="prop">"executionTimeMilliseconds"</span>: <span class="num">18</span>,
+        <span class="prop">"dqlVersion"</span>: <span class="str">"V1_0"</span>,
+        <span class="prop">"analysisTimeframe"</span>: {
+          <span class="prop">"start"</span>: <span class="str">"2026-04-07T20:13:57Z"</span>,
+          <span class="prop">"end"</span>:   <span class="str">"2026-04-08T20:13:57Z"</span>
+        },
+        <span class="prop">"query"</span>: <span class="str">"fetch logs ..."</span>,
+        <span class="prop">"timezone"</span>: <span class="str">"Z"</span>,
+        <span class="prop">"locale"</span>: <span class="str">""</span>
+      }
+    },
+
+    <span class="prop">"records"</span>: [           <span class="cm">// array of result rows</span>
+      {
+        <span class="prop">"timestamp"</span>: <span class="str">"2026-04-07T20:00:01.231Z"</span>,
+        <span class="prop">"content"</span>: <span class="str">"1775678...,HLR-NOKIA,..."</span>,
+        <span class="prop">"imsi"</span>: <span class="str">"222776780595499"</span>
+      }
+      <span class="cm">// ... more records</span>
+    ],
+
+    <span class="prop">"types"</span>: [             <span class="cm">// field type mappings</span>
+      {
+        <span class="prop">"indexRange"</span>: [<span class="num">0</span>, <span class="num">3</span>],  <span class="cm">// applies to records 0-3</span>
+        <span class="prop">"mappings"</span>: {
+          <span class="prop">"timestamp"</span>: { <span class="prop">"type"</span>: <span class="str">"timestamp"</span> },
+          <span class="prop">"content"</span>:   { <span class="prop">"type"</span>: <span class="str">"string"</span> },
+          <span class="prop">"imsi"</span>:      { <span class="prop">"type"</span>: <span class="str">"string"</span> }
+        }
+      }
+    ]
+  }
+}</pre>
+        </div>
+      </div>
+      <div>
+        <div class="code-block">
+          <div class="code-header">
+            <span class="code-lang">HTTP 202 — Async Token (RUNNING)</span>
+          </div>
+          <pre>{
+  <span class="prop">"requestToken"</span>: <span class="str">"D8DZEs1US6ur/fRedQpfDA=="</span>,
+  <span class="prop">"state"</span>: <span class="str">"RUNNING"</span>,
+  <span class="prop">"ttlSeconds"</span>: <span class="num">398</span>  <span class="cm">// poll before this expires!</span>
+}</pre>
+        </div>
+
+        <div class="limit-box" style="margin-top:16px;">
+          <div class="limit-icon">⏱</div>
+          <div class="limit-text">
+            <h4>TTL Critical — Poll within 60 seconds</h4>
+            <p>The final result is guaranteed for only <strong>1 minute</strong> after query completion. If you miss the polling window, the result is lost. Use a polling interval of 5–30 seconds.</p>
+          </div>
+        </div>
+
+        <div class="card" style="margin-top:16px;">
+          <div class="card-title"><span class="card-dot dot-blue"></span>types[ ] — Field Type Buckets</div>
+          <p>The <code>types</code> array maps field names to their types using index ranges. A single query can return records with different schemas if data was ingested with varying structures (called a "collision").</p>
+          <ul>
+            <li><code>indexRange: [0, 99]</code> → records 0 through 99 use this type mapping</li>
+            <li><code>indexRange: [100, 199]</code> → records 100–199 may have different field types</li>
+            <li>Always look up type by finding the bucket where <code>start ≤ record_index ≤ end</code></li>
+          </ul>
+        </div>
+
+        <div class="code-block" style="margin-top:16px;">
+          <div class="code-header">
+            <span class="code-lang">Poll Request</span>
+          </div>
+          <pre>GET /query:poll?requestToken=D8DZEs1US6ur%2FfRedQpfDA%3D%3D
+
+<span class="cm">// Response while running:</span>
+{
+  <span class="prop">"progress"</span>: <span class="num">45</span>,
+  <span class="prop">"state"</span>: <span class="str">"RUNNING"</span>
+}
+
+<span class="cm">// Response when done:</span>
+{
+  <span class="prop">"progress"</span>: <span class="num">100</span>,
+  <span class="prop">"state"</span>: <span class="str">"SUCCEEDED"</span>,
+  <span class="prop">"result"</span>: { <span class="cm">/* full result */</span> }
+}</pre>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 4 — EXCEPTIONS
+════════════════════════════════════════ -->
+<div id="tab-exceptions" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> HTTP Status Codes & Client Action</div>
+    <p class="section-desc">The Grail API uses standard HTTP status codes. Each error includes a structured JSON body with <code>error.details</code> containing <code>errorType</code>, <code>exceptionType</code>, and the original <code>queryString</code>.</p>
+
+    <div class="status-grid">
+
+      <div class="status-item">
+        <div class="status-code s200">200</div>
+        <div class="status-info">
+          <h4>OK — Result Available Immediately</h4>
+          <p>Query completed within <code>requestTimeoutMilliseconds</code>. The full result is in the body. <code>progress</code> will be 100 and <code>state</code> will be SUCCEEDED.</p>
+          <div class="status-action">→ Parse result.records[] directly. No polling needed.</div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code s202">202</div>
+        <div class="status-info">
+          <h4>Accepted — Query Running Asynchronously</h4>
+          <p>Query was accepted but not yet complete. Response contains <code>requestToken</code> and <code>ttlSeconds</code>. Poll <code>/query:poll</code> until state is SUCCEEDED.</p>
+          <div class="status-action">→ Store requestToken. Begin polling every 5–30 seconds. Stop polling before ttlSeconds expires.</div>
+          <div class="code-block" style="margin-top:8px;">
+            <pre>{ <span class="prop">"requestToken"</span>: <span class="str">"D8DZEs1..."</span>, <span class="prop">"state"</span>: <span class="str">"RUNNING"</span>, <span class="prop">"ttlSeconds"</span>: <span class="num">398</span> }</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code s400">400</div>
+        <div class="status-info">
+          <h4>Bad Request — DQL Syntax Error or Invalid Parameters</h4>
+          <p>The query string is malformed or an unsupported record type was specified. The <code>details.syntaxErrorPosition</code> field pinpoints the exact column and line of the error.</p>
+          <div class="status-action">→ Do NOT retry. Fix the DQL query. Use /query:verify to validate before executing.</div>
+          <div class="code-block" style="margin-top:8px;">
+            <pre>{
+  <span class="prop">"error"</span>: {
+    <span class="prop">"code"</span>: <span class="num">400</span>,
+    <span class="prop">"message"</span>: <span class="str">"UNKNOWN_RECORD_TYPE"</span>,
+    <span class="prop">"details"</span>: {
+      <span class="prop">"arguments"</span>: [<span class="str">"sandwich"</span>],
+      <span class="prop">"errorMessage"</span>: <span class="str">"Unknown record type: sandwich."</span>,
+      <span class="prop">"errorMessageFormat"</span>: <span class="str">"Unknown record type: %s."</span>,
+      <span class="prop">"errorMessageFormatSpecifierTypes"</span>: [<span class="str">"RESULT_TYPE"</span>],
+      <span class="prop">"errorType"</span>: <span class="str">"UNKNOWN_RECORD_TYPE"</span>,
+      <span class="prop">"exceptionType"</span>: <span class="str">"DQL-RESULT_TYPE"</span>,
+      <span class="prop">"queryString"</span>: <span class="err2">"fetch sandwich"</span>,
+      <span class="prop">"queryId"</span>: <span class="str">"3fa85f64-5717-4562-b3fc-2c963f66afa6"</span>,
+      <span class="prop">"syntaxErrorPosition"</span>: {
+        <span class="prop">"start"</span>: { <span class="prop">"line"</span>: <span class="num">1</span>, <span class="prop">"column"</span>: <span class="num">7</span>, <span class="prop">"index"</span>: <span class="num">6</span> },
+        <span class="prop">"end"</span>:   { <span class="prop">"line"</span>: <span class="num">1</span>, <span class="prop">"column"</span>: <span class="num">15</span>, <span class="prop">"index"</span>: <span class="num">14</span> }
+      },
+      <span class="prop">"constraintViolations"</span>: [],   <span class="cm">// parameter validation errors</span>
+      <span class="prop">"missingPermissions"</span>: [],      <span class="cm">// IAM permissions missing</span>
+      <span class="prop">"missingScopes"</span>: []            <span class="cm">// OAuth scopes missing</span>
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code s403">403</div>
+        <div class="status-info">
+          <h4>Forbidden — Insufficient IAM Permissions</h4>
+          <p>The token lacks required scopes or IAM policies. Common causes: missing <code>storage:logs:read</code>, <code>storage:buckets:read</code>, or bucket-level conditional access not granted.</p>
+          <div class="status-action">→ Do NOT retry. Check IAM policies. Verify the token has table + bucket permissions for the queried data.</div>
+          <div class="code-block" style="margin-top:8px;">
+            <pre>{
+  <span class="prop">"error"</span>: {
+    <span class="prop">"code"</span>: <span class="num">403</span>,
+    <span class="prop">"message"</span>: <span class="str">"QUERY_PLAN_BUILD_FAILURE"</span>,
+    <span class="prop">"details"</span>: {
+      <span class="prop">"arguments"</span>: [<span class="str">"Accessing table events is not allowed."</span>],
+      <span class="prop">"errorMessage"</span>: <span class="str">"Failed to build query plan: Accessing table events is not allowed."</span>,
+      <span class="prop">"errorMessageFormat"</span>: <span class="str">"Failed to build query plan: %s"</span>,
+      <span class="prop">"errorMessageFormatSpecifierTypes"</span>: [<span class="str">"GENERAL_MESSAGE"</span>],
+      <span class="prop">"errorType"</span>: <span class="str">"QUERY_PLAN_BUILD_FAILURE"</span>,
+      <span class="prop">"exceptionType"</span>: <span class="str">"DQL-EXEC-MAPPING"</span>,
+      <span class="prop">"queryString"</span>: <span class="str">"fetch events"</span>,
+      <span class="prop">"queryId"</span>: <span class="str">"3fa85f64-5717-4562-b3fc-2c963f66afa6"</span>,
+      <span class="prop">"missingPermissions"</span>: [<span class="str">"storage:events:read"</span>],
+      <span class="prop">"missingScopes"</span>: [<span class="str">"storage:events:read"</span>],
+      <span class="prop">"constraintViolations"</span>: [],
+      <span class="prop">"syntaxErrorPosition"</span>: <span class="kw">null</span>
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code s429">429</div>
+        <div class="status-info">
+          <h4>Too Many Requests — Rate Limited</h4>
+          <p>Too many concurrent queries or requests per second. The response includes a <code>Retry-After</code> header indicating seconds to wait before retrying.</p>
+          <div class="status-action">→ Read Retry-After header. Wait that many seconds. Implement exponential backoff. Reduce parallelism.</div>
+          <div class="code-block" style="margin-top:8px;">
+            <pre><span class="cm">// Response Header:</span>
+Retry-After: 30         <span class="cm">// seconds to wait</span>
+
+<span class="cm">// Response Body:</span>
+{
+  <span class="prop">"error"</span>: {
+    <span class="prop">"code"</span>: <span class="num">429</span>,
+    <span class="prop">"message"</span>: <span class="str">"string"</span>,
+    <span class="prop">"retryAfterSeconds"</span>: <span class="num">30</span>,   <span class="cm">// also in body</span>
+    <span class="prop">"details"</span>: {
+      <span class="prop">"errorMessage"</span>: <span class="str">"string"</span>,
+      <span class="prop">"errorType"</span>: <span class="str">"string"</span>,
+      <span class="prop">"exceptionType"</span>: <span class="str">"string"</span>,
+      <span class="prop">"queryId"</span>: <span class="str">"3fa85f64-5717-4562-b3fc-2c963f66afa6"</span>,
+      <span class="prop">"missingPermissions"</span>: [],
+      <span class="prop">"missingScopes"</span>: [],
+      <span class="prop">"constraintViolations"</span>: []
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code s500">500</div>
+        <div class="status-info">
+          <h4>Internal Server Error — Grail Execution Failure</h4>
+          <p>An unexpected error occurred on the Grail side. The <code>errorType</code> will be <code>EXECUTION_FAILURE</code> and <code>exceptionType</code> will be <code>DQL-EXECUTION</code>.</p>
+          <div class="status-action">→ Retry once after 5 seconds. If persistent, contact Dynatrace support with queryId from the response.</div>
+          <div class="code-block" style="margin-top:8px;">
+            <pre>{
+  <span class="prop">"error"</span>: {
+    <span class="prop">"code"</span>: <span class="num">500</span>,
+    <span class="prop">"message"</span>: <span class="str">"EXECUTION_FAILURE"</span>,
+    <span class="prop">"details"</span>: {
+      <span class="prop">"arguments"</span>: [],
+      <span class="prop">"errorMessage"</span>: <span class="err2">"NullPointerException"</span>,
+      <span class="prop">"errorMessageFormat"</span>: <span class="str">""</span>,
+      <span class="prop">"errorMessageFormatSpecifierTypes"</span>: [],
+      <span class="prop">"errorType"</span>: <span class="str">"EXECUTION_FAILURE"</span>,
+      <span class="prop">"exceptionType"</span>: <span class="str">"DQL-EXECUTION"</span>,
+      <span class="prop">"queryString"</span>: <span class="str">""</span>,
+      <span class="prop">"queryId"</span>: <span class="str">"3fa85f64-5717-4562-b3fc-2c963f66afa6"</span>,
+      <span class="prop">"constraintViolations"</span>: [],
+      <span class="prop">"missingPermissions"</span>: [],
+      <span class="prop">"missingScopes"</span>: []
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code s503">503</div>
+        <div class="status-info">
+          <h4>Service Unavailable — Grail Scheduler Busy</h4>
+          <p>The maximum number of concurrent queries has been reached. Grail's scheduler is at capacity. <code>errorType</code> is <code>BUSY_SCHEDULER</code>.</p>
+          <div class="status-action">→ Retry with exponential backoff (10s, 20s, 40s, ...). Reduce number of parallel requests. This is transient.</div>
+          <div class="code-block" style="margin-top:8px;">
+            <pre>{
+  <span class="prop">"error"</span>: {
+    <span class="prop">"code"</span>: <span class="num">503</span>,
+    <span class="prop">"message"</span>: <span class="str">"BUSY_SCHEDULER"</span>,
+    <span class="prop">"details"</span>: {
+      <span class="prop">"arguments"</span>: [],
+      <span class="prop">"errorMessage"</span>: <span class="str">"Maximum number of concurrent queries reached"</span>,
+      <span class="prop">"errorMessageFormat"</span>: <span class="str">"Scheduler is busy"</span>,
+      <span class="prop">"errorMessageFormatSpecifierTypes"</span>: [],
+      <span class="prop">"errorType"</span>: <span class="str">"BUSY_SCHEDULER"</span>,
+      <span class="prop">"exceptionType"</span>: <span class="str">"DQL-EXEC-EXECUTION"</span>,
+      <span class="prop">"queryString"</span>: <span class="str">"fetch logs"</span>,
+      <span class="prop">"queryId"</span>: <span class="str">"3fa85f64-5717-4562-b3fc-2c963f66afa6"</span>,
+      <span class="prop">"constraintViolations"</span>: [],
+      <span class="prop">"missingPermissions"</span>: [],
+      <span class="prop">"missingScopes"</span>: []
+    }
+  }
+}</pre>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">02</span> Result Truncation — Not an HTTP Error</div>
+    <div class="limit-box">
+      <div class="limit-icon">⚠</div>
+      <div class="limit-text">
+        <h4>RESULT_TRUNCATED — Returned with HTTP 200</h4>
+        <p>When a query exceeds <code>maxResultRecords</code> or <code>maxResultBytes</code>, Grail returns HTTP 200 with a partial result and a <code>RESULT_TRUNCATED</code> error in the error details — NOT as an HTTP error code. Your client must explicitly check for this condition to detect incomplete data.</p>
+      </div>
+    </div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Truncation Detection (pseudo-code)</span></div>
+      <pre><span class="cm">// After receiving HTTP 200:</span>
+<span class="kw">if</span> response.status == <span class="num">200</span> AND response.state == <span class="str">"SUCCEEDED"</span>:
+    records = response.result.records         <span class="cm"># partial!</span>
+    is_truncated = (
+        <span class="str">"RESULT_TRUNCATED"</span> <span class="kw">in</span> response.stderr <span class="cm"># dtctl flag</span>
+        <span class="kw">or</span> <span class="fn2">len</span>(records) >= maxResultRecords     <span class="cm"># count hit cap</span>
+        <span class="kw">or</span> response.error.details.errorType == <span class="str">"RESULT_TRUNCATED"</span>
+    )
+    <span class="kw">if</span> is_truncated:
+        <span class="cm"># Split time window in half and re-query each half</span>
+        <span class="fn2">split_and_retry</span>(window_start, window_end)</pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">02b</span> Complete Error Response Schema</div>
+    <p class="section-desc">Every error response from the Grail API shares the same envelope shape. Not all fields are populated for every error — presence depends on error type.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Universal Error Envelope — All Fields</span></div>
+      <pre>{
+  <span class="prop">"error"</span>: {
+    <span class="prop">"code"</span>: <span class="num">400</span>,                   <span class="cm">// HTTP status code</span>
+    <span class="prop">"message"</span>: <span class="str">"UNKNOWN_RECORD_TYPE"</span>,  <span class="cm">// top-level error identifier</span>
+    <span class="prop">"retryAfterSeconds"</span>: <span class="num">0</span>,          <span class="cm">// 429 only — seconds to wait</span>
+
+    <span class="prop">"details"</span>: {
+      <span class="cm">// Core identification</span>
+      <span class="prop">"errorType"</span>: <span class="str">"UNKNOWN_RECORD_TYPE"</span>,   <span class="cm">// machine-readable error class</span>
+      <span class="prop">"exceptionType"</span>: <span class="str">"DQL-RESULT_TYPE"</span>,    <span class="cm">// internal exception category</span>
+      <span class="prop">"errorMessage"</span>: <span class="str">"Human-readable description"</span>,
+      <span class="prop">"errorMessageFormat"</span>: <span class="str">"Unknown record type: %s."</span>,  <span class="cm">// printf template</span>
+      <span class="prop">"errorMessageFormatSpecifierTypes"</span>: [<span class="str">"RESULT_TYPE"</span>],
+
+      <span class="cm">// Arguments substituted into errorMessageFormat</span>
+      <span class="prop">"arguments"</span>: [<span class="str">"sandwich"</span>],
+
+      <span class="cm">// Query context</span>
+      <span class="prop">"queryString"</span>: <span class="str">"fetch sandwich"</span>,           <span class="cm">// original DQL</span>
+      <span class="prop">"queryId"</span>: <span class="str">"3fa85f64-5717-4562-b3fc-..."</span>, <span class="cm">// unique query ID for support</span>
+
+      <span class="cm">// Syntax errors (400 only)</span>
+      <span class="prop">"syntaxErrorPosition"</span>: {
+        <span class="prop">"start"</span>: { <span class="prop">"line"</span>: <span class="num">1</span>, <span class="prop">"column"</span>: <span class="num">7</span>, <span class="prop">"index"</span>: <span class="num">6</span> },
+        <span class="prop">"end"</span>:   { <span class="prop">"line"</span>: <span class="num">1</span>, <span class="prop">"column"</span>: <span class="num">15</span>, <span class="prop">"index"</span>: <span class="num">14</span> }
+      },
+
+      <span class="cm">// Permission errors (403 only)</span>
+      <span class="prop">"missingPermissions"</span>: [<span class="str">"storage:events:read"</span>],  <span class="cm">// IAM actions missing</span>
+      <span class="prop">"missingScopes"</span>: [<span class="str">"storage:events:read"</span>],      <span class="cm">// OAuth scopes missing</span>
+
+      <span class="cm">// Parameter validation errors</span>
+      <span class="prop">"constraintViolations"</span>: [
+        {
+          <span class="prop">"message"</span>: <span class="str">"must be >= 0"</span>,
+          <span class="prop">"parameterDescriptor"</span>: <span class="str">"maxResultRecords"</span>,
+          <span class="prop">"parameterLocation"</span>: <span class="str">"body"</span>
+        }
+      ]
+    }
+  }
+}
+
+<span class="cm">// errorType reference:
+// UNKNOWN_RECORD_TYPE    → bad fetch target (fetch sandwich)
+// QUERY_PLAN_BUILD_FAILURE → permission/auth problem
+// EXECUTION_FAILURE      → Grail internal error (500)
+// BUSY_SCHEDULER         → too many concurrent queries (503)
+// RESULT_TRUNCATED       → result hit maxResultRecords/maxResultBytes cap</span></pre>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">03</span> Exception Decision Tree</div>
+    <div class="flow">
+      <div class="flow-title">CLIENT EXCEPTION HANDLING LOGIC</div>
+      <div style="display:flex;flex-direction:column;align-items:flex-start;gap:8px;font-family:var(--fn);font-size:12px;">
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <div class="flow-box client" style="min-width:160px;">HTTP Response</div>
+          <span style="color:var(--tm);">→ check status code</span>
+        </div>
+        <div style="margin-left:24px;display:flex;flex-direction:column;gap:6px;">
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--ac3);">200</span> <span class="flow-box success" style="min-width:200px;">Parse result · check for RESULT_TRUNCATED · split if needed</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--ac);">202</span> <span class="flow-box api" style="min-width:200px;">Store requestToken · start polling loop · respect ttlSeconds</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--warn);">400</span> <span class="flow-box error" style="min-width:200px;">Log syntaxErrorPosition · raise DQLError · no retry</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:#f97316;">403</span> <span class="flow-box error" style="min-width:200px;">Log missingPermissions/Scopes · raise AuthError · no retry</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--err);">429</span> <span class="flow-box decision" style="min-width:200px;">Read Retry-After header · sleep · exponential backoff · retry</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--err);">500</span> <span class="flow-box decision" style="min-width:200px;">Retry once after 5s · if again fails → raise ServerError + queryId</span></div>
+          <div style="display:flex;gap:8px;align-items:center;"><span style="color:var(--err);">503</span> <span class="flow-box decision" style="min-width:200px;">Exponential backoff (10s→20s→40s) · max 5 retries · reduce parallelism</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- ════════════════════════════════════════
+     TAB 5 — CLIENT PATTERN
+════════════════════════════════════════ -->
+<div id="tab-client" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> Client-Side Pagination Logic</div>
+    <p class="section-desc">The Grail Query API does not stream data — it returns a bounded result per call. A production client must implement windowed pagination: divide the time range into segments, query each segment, detect truncation, and split further if needed. This section shows the complete logic as a block diagram.</p>
+
+    <div class="flow" style="padding:28px 32px;">
+      <div class="flow-title">CLIENT PAGINATION STATE MACHINE — COMPLETE FLOW</div>
+
+      <!-- Step 1 -->
+      <div style="display:flex;align-items:flex-start;gap:0;margin-bottom:2px;">
+        <div style="width:32px;flex-shrink:0;font-family:var(--fn);font-size:10px;color:var(--tm);padding-top:12px;text-align:center;">①</div>
+        <div class="flow-box client" style="flex:1;text-align:left;padding:12px 16px;border-radius:8px;">
+          <strong style="color:var(--white);">CONFIGURE</strong><br>
+          <span style="font-size:10px;">DQL query · start timestamp · end timestamp · max_records_per_window · output path</span>
+        </div>
+      </div>
+      <div style="display:flex;"><div style="width:32px;flex-shrink:0;"></div><div style="padding-left:12px;font-family:var(--fn);font-size:10px;color:var(--tm);">↓</div></div>
+
+      <!-- Step 2: Pre-flight -->
+      <div style="display:flex;align-items:flex-start;gap:0;margin-bottom:2px;">
+        <div style="width:32px;flex-shrink:0;font-family:var(--fn);font-size:10px;color:var(--tm);padding-top:12px;text-align:center;">②</div>
+        <div class="flow-box api" style="flex:1;text-align:left;padding:12px 16px;border-radius:8px;">
+          <strong style="color:var(--white);">PRE-FLIGHT DENSITY QUERY</strong><br>
+          <span style="font-size:10px;">POST /query:execute → DQL + <code style="color:var(--ac3);">| summarize count(), by:bin(timestamp, 1h)</code></span><br>
+          <span style="font-size:10px;color:var(--tm);">Returns: records/hour per interval · avg bytes/record · total expected records</span><br>
+          <span style="font-size:10px;color:var(--tm);">Cost: one lightweight aggregation call (~2–5 seconds)</span>
+        </div>
+      </div>
+      <div style="display:flex;"><div style="width:32px;flex-shrink:0;"></div><div style="padding-left:12px;font-family:var(--fn);font-size:10px;color:var(--tm);">↓ density map built</div></div>
+
+      <!-- Step 3: Schedule -->
+      <div style="display:flex;align-items:flex-start;gap:0;margin-bottom:2px;">
+        <div style="width:32px;flex-shrink:0;font-family:var(--fn);font-size:10px;color:var(--tm);padding-top:12px;text-align:center;">③</div>
+        <div class="flow-box decision" style="flex:1;text-align:left;padding:12px 16px;border-radius:8px;">
+          <strong style="color:var(--white);">BUILD WINDOW SCHEDULE</strong><br>
+          <span style="font-size:10px;">Accumulate adjacent hourly slots until <code>expected_records × safety_factor ≥ cap</code></span><br>
+          <div style="display:flex;gap:24px;margin-top:8px;flex-wrap:wrap;">
+            <div><span style="font-family:var(--fn);font-size:9px;color:var(--ac3);">SPARSE DATA EXAMPLE</span><br><span style="font-size:10px;">40K records / 44h → cap=500K → 1 window covers entire range</span></div>
+            <div><span style="font-family:var(--fn);font-size:9px;color:var(--warn);">DENSE DATA EXAMPLE</span><br><span style="font-size:10px;">4.3B records / day → cap=500K → ~8,600 windows of ~10 seconds each</span></div>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;"><div style="width:32px;flex-shrink:0;"></div><div style="padding-left:12px;font-family:var(--fn);font-size:10px;color:var(--tm);">↓ windows[ ] = [{start, end, expected, cap}, ...]</div></div>
+
+      <!-- Step 4: Window loop -->
+      <div style="display:flex;align-items:flex-start;gap:0;margin-bottom:2px;">
+        <div style="width:32px;flex-shrink:0;font-family:var(--fn);font-size:10px;color:var(--tm);padding-top:12px;text-align:center;">④</div>
+        <div style="flex:1;background:var(--bg3);border:1px solid var(--border2);border-radius:8px;padding:16px;">
+          <div style="font-family:var(--fn);font-size:10px;color:var(--white);font-weight:600;margin-bottom:10px;">WINDOW EXECUTION LOOP — for each window in schedule:</div>
+
+          <!-- 4a: check resume -->
+          <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+            <div style="font-family:var(--fn);font-size:9px;color:var(--tm);width:20px;padding-top:10px;flex-shrink:0;">4a</div>
+            <div class="flow-box decision" style="flex:1;padding:8px 12px;font-size:11px;">
+              <strong>RESUME CHECK</strong> — is this window already in the completed-windows log?<br>
+              <span style="font-size:10px;color:var(--ac3);">YES → skip window, advance cursor</span> &nbsp;|&nbsp; <span style="font-size:10px;color:var(--ac);">NO → proceed to execute</span>
+            </div>
+          </div>
+
+          <!-- 4b: execute -->
+          <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+            <div style="font-family:var(--fn);font-size:9px;color:var(--tm);width:20px;padding-top:10px;flex-shrink:0;">4b</div>
+            <div class="flow-box api" style="flex:1;padding:8px 12px;font-size:11px;">
+              <strong>POST /query:execute</strong><br>
+              <span style="font-size:10px;">from: window.start · to: window.end · maxResultRecords: window.cap · scanLimitGbytes: -1 · fetchTimeoutSeconds: 300</span>
+            </div>
+          </div>
+
+          <!-- 4c: 200 vs 202 -->
+          <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+            <div style="font-family:var(--fn);font-size:9px;color:var(--tm);width:20px;padding-top:10px;flex-shrink:0;">4c</div>
+            <div style="flex:1;display:flex;gap:8px;flex-wrap:wrap;">
+              <div class="flow-box success" style="flex:1;min-width:180px;padding:8px 12px;font-size:10px;">
+                <strong>HTTP 200 SUCCEEDED</strong><br>
+                progress=100 · records[] in body<br>
+                → proceed to truncation check
+              </div>
+              <div class="flow-box api" style="flex:1;min-width:180px;padding:8px 12px;font-size:10px;">
+                <strong>HTTP 202 RUNNING</strong><br>
+                requestToken + ttlSeconds in body<br>
+                → enter polling loop (step 4d)
+              </div>
+              <div class="flow-box error" style="flex:1;min-width:180px;padding:8px 12px;font-size:10px;">
+                <strong>HTTP 4XX / 5XX</strong><br>
+                See exception table<br>
+                → handle per error type
+              </div>
+            </div>
+          </div>
+
+          <!-- 4d: polling -->
+          <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:6px;">
+            <div style="font-family:var(--fn);font-size:9px;color:var(--tm);width:20px;padding-top:10px;flex-shrink:0;">4d</div>
+            <div class="flow-box api" style="flex:1;padding:8px 12px;font-size:11px;">
+              <strong>POLLING LOOP</strong> — GET /query:poll?requestToken=...<br>
+              <span style="font-size:10px;">Repeat every 5–30s · stop if: state=SUCCEEDED · state=FAILED · time ≥ ttlSeconds−10s</span><br>
+              <span style="font-size:10px;color:var(--err);">If TTL expires before SUCCEEDED → result lost → re-run window from scratch</span>
+            </div>
+          </div>
+
+          <!-- 4e: truncation check -->
+          <div style="display:flex;gap:8px;align-items:flex-start;margin-bottom:0;">
+            <div style="font-family:var(--fn);font-size:9px;color:var(--tm);width:20px;padding-top:10px;flex-shrink:0;">4e</div>
+            <div style="flex:1;display:flex;gap:8px;flex-wrap:wrap;">
+              <div class="flow-box decision" style="flex:1;min-width:200px;padding:8px 12px;font-size:10px;">
+                <strong>TRUNCATION CHECK</strong><br>
+                len(records) ≥ max_records_per_window?<br>
+                or RESULT_TRUNCATED in error details?
+              </div>
+              <div style="display:flex;flex-direction:column;gap:6px;flex:1;min-width:200px;">
+                <div class="flow-box error" style="padding:8px 12px;font-size:10px;">
+                  <strong style="color:var(--warn);">YES — TRUNCATED</strong><br>
+                  mid = start + (end−start)/2<br>
+                  recurse: run_window(start, mid)<br>
+                  recurse: run_window(mid, end)<br>
+                  <span style="font-size:9px;color:var(--tm);">max depth: 10 → handles 1024× density spikes</span>
+                </div>
+                <div class="flow-box success" style="padding:8px 12px;font-size:10px;">
+                  <strong>NO — COMPLETE</strong><br>
+                  append records to output file<br>
+                  log window_done(start, end, count)<br>
+                  advance to next window
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div><!-- window loop box -->
+      </div>
+      <div style="display:flex;"><div style="width:32px;flex-shrink:0;"></div><div style="padding-left:12px;font-family:var(--fn);font-size:10px;color:var(--tm);">↓ all windows done</div></div>
+
+      <!-- Step 5: Complete -->
+      <div style="display:flex;align-items:flex-start;gap:0;">
+        <div style="width:32px;flex-shrink:0;font-family:var(--fn);font-size:10px;color:var(--tm);padding-top:12px;text-align:center;">⑤</div>
+        <div class="flow-box success" style="flex:1;text-align:left;padding:12px 16px;border-radius:8px;">
+          <strong style="color:var(--white);">COMPLETE</strong><br>
+          <span style="font-size:10px;">Write summary: total_records · total_windows · total_api_calls · splits · duration_s</span><br>
+          <span style="font-size:10px;">Output: single JSONL file with all records, ordered by window</span>
+        </div>
+      </div>
+
+    </div><!-- flow -->
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">02</span> Truncation — The Core Pagination Mechanism</div>
+    <p class="section-desc">Unlike traditional REST APIs that use page tokens or offsets, Grail uses a truncation signal. When a window returns exactly <code>maxResultRecords</code> records, assume the result is incomplete and split the time window in half. This is the only reliable pagination mechanism.</p>
+
+    <div class="grid2">
+      <div class="flow" style="padding:20px;">
+        <div class="flow-title">AUTO-SPLIT — RECURSIVE HALVING</div>
+        <div style="font-family:var(--fn);font-size:11px;display:flex;flex-direction:column;gap:6px;">
+          <div class="flow-box decision" style="padding:8px;font-size:10px;">Window: Apr 7 00:00 → Apr 8 00:00 (cap: 500K)<br>Result: 500,000 records → TRUNCATED ✗</div>
+          <div style="text-align:center;color:var(--tm);">↓ split at midpoint</div>
+          <div style="display:flex;gap:8px;">
+            <div class="flow-box decision" style="flex:1;padding:8px;font-size:10px;">Apr 7 00:00 → Apr 7 12:00<br>Result: 500K → TRUNCATED ✗</div>
+            <div class="flow-box success" style="flex:1;padding:8px;font-size:10px;">Apr 7 12:00 → Apr 8 00:00<br>Result: 142K → OK ✓</div>
+          </div>
+          <div style="text-align:left;color:var(--tm);padding-left:0;">↓ left side still truncated, split again</div>
+          <div style="display:flex;gap:8px;">
+            <div class="flow-box success" style="flex:1;padding:8px;font-size:10px;">Apr 7 00:00 → Apr 7 06:00<br>Result: 380K → OK ✓</div>
+            <div class="flow-box success" style="flex:1;padding:8px;font-size:10px;">Apr 7 06:00 → Apr 7 12:00<br>Result: 310K → OK ✓</div>
+          </div>
+          <div style="font-family:var(--fn);font-size:9px;color:var(--ac3);margin-top:4px;">Total: 4 API calls · 832K records · 0 data loss</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card" style="margin-bottom:12px;">
+          <div class="card-title"><span class="card-dot dot-yellow"></span>How to Detect Truncation</div>
+          <ul>
+            <li>Primary: <code>len(records) >= maxResultRecords</code></li>
+            <li>Secondary: <code>RESULT_TRUNCATED</code> in error details</li>
+            <li>Both checks needed — API may populate either or both</li>
+            <li>Truncation returns HTTP 200 — not a 4XX error</li>
+            <li>Only the records array is truncated — metadata is always complete</li>
+          </ul>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-dot dot-green"></span>Why Time-Based Windows (not offsets)</div>
+          <ul>
+            <li>Grail has no cursor/offset/page-token mechanism</li>
+            <li>Each window is an independent query with a time range</li>
+            <li>Windows are non-overlapping → no duplicates in output</li>
+            <li>Each window is independently resumable</li>
+            <li>Parallel execution of multiple windows is safe</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">03</span> Resume Pattern — Persistence Across Restarts</div>
+    <p class="section-desc">For large extractions spanning hours or days, the client must survive process restarts, network errors, and container reboots without losing progress or creating duplicates.</p>
+
+    <div class="flow" style="padding:24px;">
+      <div class="flow-title">JOB STATE FILES — WHAT TO PERSIST</div>
+      <div class="grid3" style="gap:12px;">
+        <div class="card">
+          <div class="card-title"><span class="card-dot dot-blue"></span>state.json</div>
+          <p>Current job status snapshot. Written atomically (temp file → rename) after every window. Used by UI/monitoring to show progress.</p>
+          <div class="code-block" style="margin-top:8px;">
+            <pre style="font-size:10px;padding:10px;">{
+  <span class="prop">"status"</span>: <span class="str">"running"</span>,
+  <span class="prop">"windows_done"</span>: <span class="num">12</span>,
+  <span class="prop">"total_windows"</span>: <span class="num">48</span>,
+  <span class="prop">"total_records"</span>: <span class="num">487230</span>,
+  <span class="prop">"progress_pct"</span>: <span class="num">25.0</span>
+}</pre>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-dot dot-purple"></span>log.jsonl</div>
+          <p>Append-only event stream. Never overwritten. On resume, client reads this to determine which windows are already complete.</p>
+          <div class="code-block" style="margin-top:8px;">
+            <pre style="font-size:10px;padding:10px;"><span class="cm">// one JSON per line:</span>
+{<span class="prop">"type"</span>:<span class="str">"preflight_done"</span>, ...}
+{<span class="prop">"type"</span>:<span class="str">"window_done"</span>,
+ <span class="prop">"from"</span>:<span class="str">"2026-04-07T00"</span>,
+ <span class="prop">"to"</span>:<span class="str">"2026-04-07T06"</span>,
+ <span class="prop">"records"</span>:<span class="num">42150</span>}
+{<span class="prop">"type"</span>:<span class="str">"window_done"</span>, ...}</pre>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title"><span class="card-dot dot-green"></span>output.jsonl</div>
+          <p>Append-only output file. Each window appends its records. On resume, new records are appended after existing ones — no rewrite, no duplicates.</p>
+          <div class="code-block" style="margin-top:8px;">
+            <pre style="font-size:10px;padding:10px;"><span class="cm">// one JSON record per line:</span>
+{<span class="prop">"timestamp"</span>:<span class="str">"2026-04-07T00:01:23Z"</span>,
+ <span class="prop">"content"</span>:<span class="str">"..."</span>,
+ <span class="prop">"imsi"</span>:<span class="str">"22277678..."</span>}
+{<span class="prop">"timestamp"</span>:<span class="str">"2026-04-07T00:01:45Z"</span>,
+ ...}</pre>
+          </div>
+        </div>
+      </div>
+      <div style="margin-top:16px;font-family:var(--fn);font-size:10px;color:var(--tm);border-top:1px solid var(--border);padding-top:12px;">
+        Resume logic: load log.jsonl → collect all window_done events → build set of (from, to) pairs → on next run, skip any window whose key is in that set
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">04</span> Parallel Execution</div>
+    <p class="section-desc">Multiple windows can be executed concurrently since each is an independent, non-overlapping time range. Parallelism reduces total wall-clock time for multi-window extractions but does not help single-window jobs.</p>
+
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><span class="card-dot dot-blue"></span>When Parallelism Helps</div>
+        <ul>
+          <li>Multi-window jobs: 7d+ ranges with many windows</li>
+          <li>Each window takes similar time → N workers → N× faster</li>
+          <li>Example: 48 windows × 20s each = 16 min sequential</li>
+          <li>With 3 workers: ~5.5 min (3× speedup)</li>
+        </ul>
+        <div style="font-family:var(--fn);font-size:10px;color:var(--tm);margin-top:8px;">Use ThreadPoolExecutor or asyncio — one worker per window</div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot dot-yellow"></span>Parallelism Constraints</div>
+        <ul>
+          <li>API query pool has limited concurrent slots</li>
+          <li>Too many parallel calls → HTTP 503 BUSY_SCHEDULER</li>
+          <li>Recommended: 1–3 parallel workers maximum</li>
+          <li>Output file must be protected by a write lock</li>
+          <li>Each worker needs its own temp buffer before appending</li>
+          <li>Single-window jobs: no benefit — use 1 worker</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">05</span> Key Implementation Rules</div>
+    <div class="grid2">
+      <div>
+        <div class="strategy ok"><h4>✓ Use maxResultRecords only — not maxResultBytes</h4><p>Setting <code>maxResultBytes</code> forces a full dataset scan to measure bytes before truncating, eliminating all early-stop benefits. Use only <code>maxResultRecords</code> as the per-window cap.</p></div>
+        <div class="strategy ok"><h4>✓ Set fetchTimeoutSeconds to 300 (5 minutes)</h4><p>This keeps every API call within the guaranteed execution zone. Calls within this limit are guaranteed to either complete or timeout cleanly — no unexpected interruptions.</p></div>
+        <div class="strategy ok"><h4>✓ Always add bucket:{} to DQL</h4><p><code>fetch logs, bucket:{"your-bucket"}</code> restricts the scan to a single bucket, dramatically reducing both scan time and query consumption. Without it, Grail scans all buckets.</p></div>
+      </div>
+      <div>
+        <div class="strategy warn"><h4>⚠ Poll before TTL expires</h4><p>Results are available for only 60 seconds after query completion. Poll at intervals of 5–30 seconds and stop polling at least 10 seconds before <code>ttlSeconds</code> expires. After the TTL, the result is permanently lost and the window must be re-queried.</p></div>
+        <div class="strategy warn"><h4>⚠ filter vs search for indexed fields</h4><p><code>| filter field == "value"</code> uses indexes and stops scanning early. <code>| search field ~ "value"</code> performs a full text scan of all record content. Always prefer <code>filter</code> for known indexed fields.</p></div>
+        <div class="strategy err"><h4>✗ Never use subprocess PIPE for large responses</h4><p>If wrapping a CLI tool via subprocess, never use <code>stdout=PIPE</code>. The OS pipe buffer (~64KB) will deadlock on responses larger than that. Write stdout directly to a temp file, then read the file after process completion.</p></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+<!-- ════════════════════════════════════════
+     TAB 6 — LIMITS & SCALE
+════════════════════════════════════════ -->
+<div id="tab-limits" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> API Design Intent</div>
+    <div class="limit-box">
+      <div class="limit-icon">ℹ</div>
+      <div class="limit-text">
+        <h4>The /query:execute endpoint is designed for interactive queries — not bulk data export</h4>
+        <p>This is an important distinction when architecting integrations. The API is optimized for low-latency interactive use (dashboards, alerting, automation workflows). For large-scale extraction, the windowed pagination pattern described in the Client Logic tab is the recommended approach.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">02</span> Parameter Limits</div>
+    <div class="card" style="margin-bottom:16px;">
+      <table>
+        <thead><tr><th>Parameter</th><th>Default</th><th>Limit</th><th>Notes</th></tr></thead>
+        <tbody>
+          <tr>
+            <td class="td-code">maxResultRecords</td>
+            <td>1,000</td>
+            <td>No explicit upper bound (int64)</td>
+            <td>Implicitly constrained by query timeouts and memory. Recommended: 500,000 per window for extraction use cases.</td>
+          </tr>
+          <tr>
+            <td class="td-code">maxResultBytes</td>
+            <td>Unset (inactive)</td>
+            <td>No explicit upper bound (int64)</td>
+            <td>Soft limit — final record that pushes over is still included. <strong>Avoid for extraction</strong>: forces a full scan to measure bytes before truncating.</td>
+          </tr>
+          <tr>
+            <td class="td-code">defaultScanLimitGbytes</td>
+            <td>Configured at application level (typically 100GB)</td>
+            <td>-1 for unlimited</td>
+            <td>Set to -1 for extraction to guarantee completeness. Can be overridden within the DQL query itself.</td>
+          </tr>
+          <tr>
+            <td class="td-code">requestTimeoutMilliseconds</td>
+            <td>1,000ms</td>
+            <td>60,000ms (60 seconds)</td>
+            <td>Max time before API returns HTTP 202 + polling token. Set to 60,000 for queries expected to complete quickly.</td>
+          </tr>
+          <tr>
+            <td class="td-code">fetchTimeoutSeconds</td>
+            <td>60s</td>
+            <td>No explicit upper bound in API schema</td>
+            <td>Soft limit — see Query Execution Zones below. Recommended: 300s (5 min) for extraction to stay within guaranteed zone.</td>
+          </tr>
+          <tr>
+            <td class="td-code">defaultSamplingRatio</td>
+            <td>1 (no sampling)</td>
+            <td>Normalized to power of 10 ≤ 100,000</td>
+            <td>Use only for exploratory/dashboard queries. Never use sampling for extraction requiring completeness.</td>
+          </tr>
+          <tr>
+            <td class="td-code">Result TTL after completion</td>
+            <td>60 seconds</td>
+            <td>60 seconds (hard)</td>
+            <td>Poll within this window. After 60s the result is permanently lost. Recommended polling interval: 5–30 seconds.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">03</span> Query Execution Zones</div>
+    <p class="section-desc">Query execution time has distinct behavioral zones. Design your extraction windows to stay within the guaranteed zone for reliable, predictable results.</p>
+
+    <div class="flow" style="padding:24px;">
+      <div class="flow-title">FETCH TIMEOUT BEHAVIOR BY ZONE</div>
+      <div style="display:flex;gap:0;align-items:stretch;flex-wrap:wrap;">
+        <div style="flex:1;min-width:200px;padding:20px;background:rgba(0,229,160,0.07);border:1px solid rgba(0,229,160,0.2);border-radius:8px;margin:4px;">
+          <div style="font-family:var(--fn);font-size:11px;color:var(--ac3);font-weight:600;margin-bottom:8px;">0 – 5 MINUTES</div>
+          <div style="font-size:14px;color:var(--white);font-weight:600;margin-bottom:6px;">✓ Guaranteed Zone</div>
+          <div style="font-size:12px;color:var(--td);">Query is guaranteed to either complete successfully or timeout cleanly. Safe for production extraction pipelines. Recommended: keep all windows within this zone by sizing them appropriately.</div>
+          <div style="font-family:var(--fn);font-size:10px;color:var(--ac3);margin-top:12px;">→ Use fetchTimeoutSeconds: 300</div>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 8px;color:var(--tm);font-size:20px;">→</div>
+        <div style="flex:1;min-width:200px;padding:20px;background:rgba(255,181,71,0.07);border:1px solid rgba(255,181,71,0.25);border-radius:8px;margin:4px;">
+          <div style="font-family:var(--fn);font-size:11px;color:var(--ac4);font-weight:600;margin-bottom:8px;">5 – 55 MINUTES</div>
+          <div style="font-size:14px;color:var(--white);font-weight:600;margin-bottom:6px;">⚠ Risk Zone</div>
+          <div style="font-size:12px;color:var(--td);">Queries may occasionally be interrupted by higher-priority workloads. If interrupted, the client must detect this and re-run the affected window. Not recommended for production extraction without robust retry logic.</div>
+          <div style="font-family:var(--fn);font-size:10px;color:var(--ac4);margin-top:12px;">→ Requires retry + resume logic</div>
+        </div>
+        <div style="display:flex;align-items:center;padding:0 8px;color:var(--tm);font-size:20px;">→</div>
+        <div style="flex:1;min-width:200px;padding:20px;background:rgba(255,77,109,0.07);border:1px solid rgba(255,77,109,0.25);border-radius:8px;margin:4px;">
+          <div style="font-family:var(--fn);font-size:11px;color:var(--err);font-weight:600;margin-bottom:8px;">&gt; 55 MINUTES</div>
+          <div style="font-size:14px;color:var(--white);font-weight:600;margin-bottom:6px;">✗ Not Recommended</div>
+          <div style="font-size:12px;color:var(--td);">The API schema allows values up to 3,600s but very long-running queries are not a supported operational pattern. The API is optimized for shorter, bounded queries. Large data needs should be addressed through windowed extraction.</div>
+          <div style="font-family:var(--fn);font-size:10px;color:var(--err);margin-top:12px;">→ Use windowed extraction instead</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">04</span> Concurrency & Priority</div>
+    <div class="grid2">
+      <div class="card">
+        <div class="card-title"><span class="card-dot dot-yellow"></span>Query Pool Priority</div>
+        <p>Grail manages multiple query pools with different priorities. API calls via <code>/query:execute</code> run in a shared pool alongside other workloads. During high-load periods, interactive and system workloads (alerting, automations) take precedence.</p>
+        <ul>
+          <li>Alerting &amp; anomaly detection — highest priority</li>
+          <li>Automation workflows</li>
+          <li>Interactive UI queries</li>
+          <li style="color:var(--td);">REST API queries — shared pool</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="card-title"><span class="card-dot dot-red"></span>HTTP 503 — Scheduler Busy</div>
+        <p>When the query pool is at capacity, the API returns HTTP 503 with <code>errorType: BUSY_SCHEDULER</code>. This is a transient condition.</p>
+        <ul>
+          <li>Implement exponential backoff: 10s → 20s → 40s → 80s</li>
+          <li>Maximum 5 retries before surfacing as an error</li>
+          <li>Reduce parallel workers to lower concurrent load</li>
+          <li>Schedule large extractions during off-peak hours</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">05</span> DQL Performance Guidelines</div>
+    <div class="grid2">
+      <div>
+        <div class="strategy ok"><h4>✓ Specify bucket in fetch command</h4><p><code>fetch logs, bucket:{"your-bucket"}</code> restricts the scan scope before any filtering. This is the single most impactful optimization — it can reduce scanned data by 6× or more compared to scanning all buckets.</p></div>
+        <div class="strategy ok"><h4>✓ Use filter for indexed fields</h4><p><code>| filter field == "value"</code> uses column indexes and stops scanning early once all matching records are found. Significantly faster than <code>| search</code> which reads all record content.</p></div>
+        <div class="strategy ok"><h4>✓ Select only required fields</h4><p><code>| fields timestamp, content, imsi</code> reduces the response payload. Returning all 40+ fields when only 3 are needed increases transfer time and response size unnecessarily.</p></div>
+      </div>
+      <div>
+        <div class="strategy warn"><h4>⚠ Avoid maxResultBytes</h4><p>This parameter forces Grail to measure the byte size of the full result before applying the limit. It eliminates early-stop optimizations. Use <code>maxResultRecords</code> exclusively for extraction use cases.</p></div>
+        <div class="strategy warn"><h4>⚠ | limit N and completeness trade-off</h4><p>Adding <code>| limit N</code> allows Grail to stop scanning once N records are found — same behavior as the interactive UI. This makes queries faster but risks missing records if actual count exceeds N. Only safe when N is significantly larger than expected record count.</p></div>
+        <div class="strategy warn"><h4>⚠ scanLimitGbytes default may truncate</h4><p>The default scan limit (typically 100GB at application level) will silently stop scanning on tenants with large data volumes. Always set <code>scanLimitGbytes: -1</code> in extraction payloads to guarantee full coverage.</p></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">06</span> Recommended Configuration for Extraction</div>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Optimal /query:execute Payload — Extraction Use Case</span><button class="code-copy" onclick="copyCode(this)">copy</button></div>
+      <pre>{
+  <span class="cm">// DQL — always specify bucket, use filter for indexed fields</span>
+  <span class="prop">"query"</span>: <span class="str">"fetch logs, scanLimitGBytes:-1, bucket:{"your-bucket"}
+| filter field == "value"
+| fields timestamp, content, field"</span>,
+
+  <span class="cm">// Timeframe — set precisely per window</span>
+  <span class="prop">"defaultTimeframeStart"</span>: <span class="str">"2026-04-07T20:00:00Z"</span>,
+  <span class="prop">"defaultTimeframeEnd"</span>:   <span class="str">"2026-04-08T20:00:00Z"</span>,
+
+  <span class="cm">// Cap — records only, no bytes limit</span>
+  <span class="prop">"maxResultRecords"</span>: <span class="num">500000</span>,
+  <span class="cm">// "maxResultBytes": DO NOT SET — forces full scan</span>
+
+  <span class="cm">// Scan — unlimited</span>
+  <span class="prop">"defaultScanLimitGbytes"</span>: <span class="num">-1</span>,
+
+  <span class="cm">// Timing — stay within guaranteed zone</span>
+  <span class="prop">"fetchTimeoutSeconds"</span>: <span class="num">300</span>,          <span class="cm">// 5 min = guaranteed zone</span>
+  <span class="prop">"requestTimeoutMilliseconds"</span>: <span class="num">5000</span>,  <span class="cm">// 5s before returning polling token</span>
+
+  <span class="cm">// Accuracy — no sampling</span>
+  <span class="prop">"defaultSamplingRatio"</span>: <span class="num">1</span>,
+
+  <span class="cm">// Output — type info optional for extraction</span>
+  <span class="prop">"includeTypes"</span>: <span class="kw">false</span>
+}</pre>
+    </div>
+  </div>
+
+</div>
+</div><!-- /content -->
+
+<script>
+function switchTab(name) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function copyCode(btn) {
+  const pre = btn.closest('.code-block').querySelector('pre');
+  navigator.clipboard.writeText(pre.innerText).then(() => {
+    btn.textContent = 'copied!';
+    setTimeout(() => btn.textContent = 'copy', 2000);
+  });
+}
+</script>
+
+<!-- ════════════════════════════════════════
+     TAB 7 — GRAILKEEPER
+════════════════════════════════════════ -->
+<div id="tab-grailkeeper" class="tab-panel">
+
+  <div class="section">
+    <div class="section-title"><span class="num">01</span> What is Grailkeeper?</div>
+    <p class="section-desc">
+      <strong>Grailkeeper</strong> is a pure-Python bulk extraction tool built on top of the Grail Query API.
+      It runs as a Docker container with a dark-themed web UI and solves the core problem of extracting
+      millions of log records from Grail — something the <code>/query:execute</code> endpoint was not
+      originally designed for.
+    </p>
+    <div class="callout callout-warning">
+      <strong>Grail API design intent:</strong> The <code>/query:execute</code> endpoint is designed for
+      interactive analytical queries, not bulk data export. It returns at most 500,000 records per call
+      and responses can be 1–1.5 GB of JSON. Grailkeeper works around these limits systematically.
+    </div>
+    <p>GitHub: <a href="https://github.com/fragelo/grailkeeper" style="color:var(--dt-primary)">github.com/fragelo/grailkeeper</a> &nbsp;·&nbsp; Current version: <strong>v4.0.18</strong></p>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">02</span> Core Strategy — Recursive Window Splitting</div>
+    <p class="section-desc">
+      Grailkeeper extracts data by querying time windows and splitting any window that returns a
+      truncated result (i.e. hit the 500k record cap) into two halves, recursively, until every
+      window returns a non-truncated result or max depth is reached.
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Splitting Algorithm</span></div>
+      <pre>
+def extract_window(start, end, depth):
+    result = grail_query(start, end, max_records=500_000)
+
+    if result.truncated and depth &lt; max_depth:
+        mid = start + (end - start) / 2
+        extract_window(start, mid, depth + 1)  <span class="cm"># ← recurse left</span>
+        extract_window(mid, end,   depth + 1)  <span class="cm"># ← recurse right</span>
+    else:
+        write_to_output(result.records)        <span class="cm"># ← leaf: write records</span>
+      </pre>
+    </div>
+    <p>A 3-day extraction at ~1.5M records/day typically results in 30–35 API calls, 14–16 splits,
+    and completes in 25–30 minutes.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">03</span> API Request Parameters Used</div>
+    <p class="section-desc">Grailkeeper uses a carefully chosen subset of request parameters, avoiding
+    several that cause issues on some tenants.</p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">POST /query:execute — Grailkeeper Payload</span></div>
+      <pre>{
+  <span class="prop">"query"</span>:                   <span class="str">"fetch logs, scanLimitGBytes:-1 | filter ..."</span>,
+  <span class="prop">"defaultTimeframeStart"</span>:  <span class="str">"2026-04-27T00:00:00Z"</span>,
+  <span class="prop">"defaultTimeframeEnd"</span>:    <span class="str">"2026-04-28T00:00:00Z"</span>,
+  <span class="prop">"maxResultRecords"</span>:       <span class="num">500000</span>,
+  <span class="prop">"fetchTimeoutSeconds"</span>:    <span class="num">240</span>
+
+  <span class="cm">// Intentionally OMITTED:</span>
+  <span class="cm">// enforceQueryConsumptionLimit — causes HTTP 400 UNKNOWN_COMMAND on some tenants</span>
+  <span class="cm">// requestTimeoutMilliseconds  — causes constraint violation errors</span>
+  <span class="cm">// maxResultBytes              — forces full scan</span>
+}</pre>
+    </div>
+    <div class="callout callout-info">
+      <strong>scanLimitGBytes:-1</strong> is always injected into the DQL if not already present.
+      Without it, Grail may stop scanning mid-result and return a truncated response even when
+      the record count is below 500k, causing unnecessary splits.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">04</span> Zero-Copy Streaming Architecture</div>
+    <p class="section-desc">
+      Early versions loaded all records into a Python list in RAM — at 500k records × ~2 KB each,
+      this caused 3–4 GB RAM spikes per window, growing across windows to 16+ GB and triggering
+      OOM kills. The current architecture eliminates all in-memory record accumulation.
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Zero-Copy Data Flow</span></div>
+      <pre>
+Grail HTTP response  →  /tmp/xxx.json           <span class="cm">(disk, streamed in 64KB chunks)</span>
+/tmp/xxx.json        →  /tmp/xxx.records.jsonl  <span class="cm">(disk, ijson Pass 1: records only)</span>
+                        /tmp/xxx.json metadata  <span class="cm">(Pass 2: scannedBytes/Records/ms)</span>
+/tmp/xxx.records.jsonl  →  exports/{jid}_{name}.jsonl  <span class="cm">(disk, direct line-by-line append)</span>
+
+Peak RAM: ~57 MB regardless of response size or window count
+      </pre>
+    </div>
+    <p><strong>Key insight:</strong> Pass 3 (reading JSONL back into a Python list) was eliminated entirely.
+    The extractor now receives the JSONL temp file path and streams directly to the output file.</p>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">05</span> HTTP Hang Detection — Watchdog Thread</div>
+    <p class="section-desc">
+      Grail sends HTTP response headers immediately but can stall for 90+ seconds before sending
+      the response body on large results. TCP keepalive does not detect this as a failure.
+      A dedicated watchdog thread monitors data transfer and forces recovery.
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Watchdog Behaviour</span></div>
+      <pre>
+1. Watchdog thread starts BEFORE session.get() is called
+2. Monitors last_chunk_time every 5 seconds
+3. Logs: [watchdog] idle=Xs bytes_so_far=N token=...
+4. After 90s with no new data → closes session → raises RuntimeError
+5. Window is retried from scratch with a fresh request token
+6. Stops cleanly after successful response completion
+      </pre>
+    </div>
+    <div class="callout callout-warning">
+      <strong>200 None (empty body)</strong> — Grail can return HTTP 200 with no response body.
+      This is an undocumented behaviour that occurs when the Grail scheduler is busy.
+      Grailkeeper detects this and retries the window.
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">06</span> Known Grail Behaviours & Workarounds</div>
+
+    <div class="status-grid">
+      <div class="status-item">
+        <div class="status-code s200" style="background:var(--dt-bg-neu-emp);color:var(--dt-text-subdued);font-size:11px;padding:6px;">200 None</div>
+        <div class="status-info">
+          <h4>Empty Response Body</h4>
+          <p>Grail returns HTTP 200 with <code>Content-Length: None</code> and no body. Occurs on busy scheduler. Not documented.</p>
+          <div class="status-action">→ Detect via <code>response.content == b''</code>. Retry window after short delay.</div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code" style="background:var(--dt-critical-bg);color:var(--dt-critical);font-size:11px;padding:6px;">503</div>
+        <div class="status-info">
+          <h4>BUSY_SCHEDULER</h4>
+          <p><code>"Maximum number of concurrent queries reached"</code>. Grail has a per-tenant concurrency limit.</p>
+          <div class="status-action">→ Retry with exponential backoff. Grailkeeper uses 2s inter-window delay.</div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code" style="background:var(--dt-critical-bg);color:var(--dt-critical);font-size:11px;padding:6px;">400</div>
+        <div class="status-info">
+          <h4>UNKNOWN_COMMAND</h4>
+          <p><code>enforceQueryConsumptionLimit</code> documented in the API spec causes HTTP 400 on some tenants. Tenant-dependent parameter support.</p>
+          <div class="status-action">→ Omit <code>enforceQueryConsumptionLimit</code> entirely. Use <code>scanLimitGBytes:-1</code> in DQL instead.</div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code" style="background:var(--dt-bg-neu-emp);color:var(--dt-text-subdued);font-size:11px;padding:6px;">1.0–1.5 GB</div>
+        <div class="status-info">
+          <h4>Response Size Pattern</h4>
+          <p>Grail stores records in ~1 GB data packets. A window returning 500k records will produce a ~1–1.5 GB JSON response body.</p>
+          <div class="status-action">→ Always stream to disk. Never buffer in memory. Use <code>stream=True</code> + <code>iter_content()</code>.</div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code" style="background:var(--dt-bg-neu-emp);color:var(--dt-text-subdued);font-size:11px;padding:6px;">TTL</div>
+        <div class="status-info">
+          <h4>Poll Token TTL is ~318s</h4>
+          <p>Observed TTL is consistently ~318 seconds (5m 18s). The API spec says up to 399s. Poll at least every 60s to stay safe.</p>
+          <div class="status-action">→ Grailkeeper polls every 5s while streaming. Token never expires in practice.</div>
+        </div>
+      </div>
+
+      <div class="status-item">
+        <div class="status-code" style="background:var(--dt-bg-neu-emp);color:var(--dt-text-subdued);font-size:11px;padding:6px;">Metadata</div>
+        <div class="status-info">
+          <h4>Correct Metadata JSON Paths</h4>
+          <p>The documented paths differ from actual response structure for scanned stats.</p>
+          <div class="status-action">
+            <code>result.metadata.grail.scannedBytes</code> ✓<br>
+            <code>result.metadata.grail.scannedRecords</code> ✓<br>
+            <code>result.metadata.grail.executionTimeMilliseconds</code> ✓<br>
+            <code>result.metadata.grail.query.scannedBytes</code> ✗ (wrong)
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title"><span class="num">07</span> Verify — Count Consistency Check</div>
+    <p class="section-desc">
+      After extraction, a <strong>Verify</strong> query runs <code>| summarize count()</code> against
+      the same DQL and timeframe to compare the extracted record count with Grail's current count.
+    </p>
+    <div class="code-block">
+      <div class="code-header"><span class="code-lang">Verify Query Construction</span></div>
+      <pre>
+<span class="cm">// Original extraction DQL:</span>
+fetch logs, scanLimitGBytes:-1 | filter matchesValue(dt.entity.host, "HOST-xxx")
+
+<span class="cm">// Verify DQL (strip summarize/limit/sort/fields, append count):</span>
+fetch logs, scanLimitGBytes:-1 | filter matchesValue(dt.entity.host, "HOST-xxx")
+| summarize count()
+
+<span class="cm">// Note: filter pipes are PRESERVED — only terminal clauses are stripped</span>
+      </pre>
+    </div>
+    <div class="callout callout-info">
+      <strong>Expected delta:</strong> A small positive delta (Grail count &gt; extracted count) is
+      normal and expected. During a 25-minute extraction, new records continue to be ingested into
+      Grail. Grail's eventual consistency also means records written just before extraction started
+      may not have been visible to all query windows. A delta &lt; 1% is considered a perfect match.
+    </div>
+    <div class="callout callout-warning">
+      <strong>count() returns a string:</strong> The <code>count()</code> aggregation result in
+      <code>records[0]["count()"]</code> is returned as a JSON string (e.g. <code>"742311"</code>),
+      not a number. Always parse with <code>Number()</code> before arithmetic.
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
